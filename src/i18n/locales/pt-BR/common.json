@@ -63,7 +63,10 @@
 		"condense_handler_invalid": "O manipulador de API para condensar o contexto é inválido",
 		"condense_context_grew": "O tamanho do contexto aumentou durante a condensação; pulando esta tentativa",
 		"share_task_failed": "Falha ao compartilhar tarefa",
-		"share_no_active_task": "Nenhuma tarefa ativa para compartilhar"
+		"share_no_active_task": "Nenhuma tarefa ativa para compartilhar",
+		"claude_code_process_exited": "O processo Claude Code foi encerrado com o código {{exitCode}}. Saída de erro: {{errorOutput}}",
+		"claude_code_stopped": "Claude Code parou com o motivo: {{stopReason}}",
+		"claude_code_invalid_model": "Chaves de API e planos de assinatura permitem modelos diferentes. Certifique-se de que o modelo selecionado esteja incluído em seu plano."
 	},
 	"warnings": {
 		"no_terminal_content": "Nenhum conteúdo do terminal selecionado",

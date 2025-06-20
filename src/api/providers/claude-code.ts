@@ -10,6 +10,7 @@ import { ApiStreamUsageChunk, type ApiStream } from "../transform/stream"
 import { runClaudeCode } from "../../integrations/claude-code/run"
 import { ClaudeCodeMessage } from "../../integrations/claude-code/types"
 import { BaseProvider } from "./base-provider"
+import i18n from "../../i18n"
 
 export class ClaudeCodeHandler extends BaseProvider implements ApiHandler {
 	private options: ApiHandlerOptions
@@ -70,7 +71,10 @@ export class ClaudeCodeHandler extends BaseProvider implements ApiHandler {
 
 			if (exitCode !== null && exitCode !== 0) {
 				throw new Error(
-					`Claude Code process exited with code ${exitCode}.${errorOutput ? ` Error output: ${errorOutput.trim()}` : ""}`,
+					i18n.t("common:errors.claude_code_process_exited", {
+						exitCode,
+						errorOutput: errorOutput.trim(),
+					}),
 				)
 			}
 
@@ -99,13 +103,13 @@ export class ClaudeCodeHandler extends BaseProvider implements ApiHandler {
 
 				if (message.stop_reason !== null && message.stop_reason !== "tool_use") {
 					const errorMessage =
-						message.content[0]?.text || `Claude Code stopped with reason: ${message.stop_reason}`
+						message.content[0]?.text ||
+						i18n.t("common:errors.claude_code_stopped", {
+							stopReason: message.stop_reason,
+						})
 
 					if (errorMessage.includes("Invalid model name")) {
-						throw new Error(
-							errorMessage +
-								`\n\nAPI keys and subscription plans allow different models. Make sure the selected model is included in your plan.`,
-						)
+						throw new Error(errorMessage + `\n\n` + i18n.t("common:errors.claude_code_invalid_model"))
 					}
 
 					throw new Error(errorMessage)

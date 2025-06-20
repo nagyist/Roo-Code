@@ -59,7 +59,10 @@
 		"condense_handler_invalid": "Le gestionnaire d'API pour condenser le contexte est invalide",
 		"condense_context_grew": "La taille du contexte a augmenté pendant la condensation ; cette tentative est ignorée",
 		"share_task_failed": "Échec du partage de la tâche. Veuillez réessayer.",
-		"share_no_active_task": "Aucune tâche active à partager"
+		"share_no_active_task": "Aucune tâche active à partager",
+		"claude_code_process_exited": "Le processus Claude Code s'est terminé avec le code {{exitCode}}. Sortie d'erreur : {{errorOutput}}",
+		"claude_code_stopped": "Claude Code s'est arrêté pour la raison : {{stopReason}}",
+		"claude_code_invalid_model": "Les clés API et les plans d'abonnement autorisent différents modèles. Assurez-vous que le modèle sélectionné est inclus dans votre plan."
 	},
 	"warnings": {
 		"no_terminal_content": "Aucun contenu de terminal sélectionné",

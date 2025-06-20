@@ -59,7 +59,10 @@
 		"condense_handler_invalid": "API-handler voor het comprimeren van context is ongeldig",
 		"condense_context_grew": "Contextgrootte nam toe tijdens comprimeren; deze poging wordt overgeslagen",
 		"share_task_failed": "Delen van taak mislukt",
-		"share_no_active_task": "Geen actieve taak om te delen"
+		"share_no_active_task": "Geen actieve taak om te delen",
+		"claude_code_process_exited": "Claude Code-proces afgesloten met code {{exitCode}}. Foutuitvoer: {{errorOutput}}",
+		"claude_code_stopped": "Claude Code gestopt met reden: {{stopReason}}",
+		"claude_code_invalid_model": "API-sleutels en abonnementsplannen staan verschillende modellen toe. Zorg ervoor dat het geselecteerde model in uw plan is opgenomen."
 	},
 	"warnings": {
 		"no_terminal_content": "Geen terminalinhoud geselecteerd",

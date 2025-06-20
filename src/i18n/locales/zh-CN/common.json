@@ -64,7 +64,10 @@
 		"condense_handler_invalid": "压缩上下文的API处理程序无效",
 		"condense_context_grew": "压缩过程中上下文大小增加；跳过此次尝试",
 		"share_task_failed": "分享任务失败。请重试。",
-		"share_no_active_task": "没有活跃任务可分享"
+		"share_no_active_task": "没有活跃任务可分享",
+		"claude_code_process_exited": "Claude Code 进程以代码 {{exitCode}} 退出。错误输出：{{errorOutput}}",
+		"claude_code_stopped": "Claude Code 因以下原因停止：{{stopReason}}",
+		"claude_code_invalid_model": "API 密钥和订阅计划允许不同的模型。请确保所选模型包含在您的计划中。"
 	},
 	"warnings": {
 		"no_terminal_content": "没有选择终端内容",

@@ -63,7 +63,10 @@
 		"condense_handler_invalid": "El gestor de l'API per condensar el context no és vàlid",
 		"condense_context_grew": "La mida del context ha augmentat durant la condensació; s'omet aquest intent",
 		"share_task_failed": "Ha fallat compartir la tasca. Si us plau, torna-ho a provar.",
-		"share_no_active_task": "No hi ha cap tasca activa per compartir"
+		"share_no_active_task": "No hi ha cap tasca activa per compartir",
+		"claude_code_process_exited": "El procés de Claude Code ha finalitzat amb el codi {{exitCode}}. Sortida d'error: {{errorOutput}}",
+		"claude_code_stopped": "Claude Code s'ha aturat per la raó: {{stopReason}}",
+		"claude_code_invalid_model": "Les claus API i els plans de subscripció permeten models diferents. Assegura't que el model seleccionat estigui inclòs en el teu pla."
 	},
 	"warnings": {
 		"no_terminal_content": "No s'ha seleccionat contingut de terminal",

@@ -59,7 +59,10 @@
 		"condense_handler_invalid": "컨텍스트 압축을 위한 API 핸들러가 유효하지 않습니다",
 		"condense_context_grew": "압축 중 컨텍스트 크기가 증가했습니다; 이 시도를 건너뜁니다",
 		"share_task_failed": "작업 공유에 실패했습니다",
-		"share_no_active_task": "공유할 활성 작업이 없습니다"
+		"share_no_active_task": "공유할 활성 작업이 없습니다",
+		"claude_code_process_exited": "Claude Code 프로세스가 코드 {{exitCode}}로 종료되었습니다. 오류 출력: {{errorOutput}}",
+		"claude_code_stopped": "Claude Code가 다음 이유로 중지되었습니다: {{stopReason}}",
+		"claude_code_invalid_model": "API 키 및 구독 플랜은 다른 모델을 허용합니다. 선택한 모델이 플랜에 포함되어 있는지 확인하십시오."
 	},
 	"warnings": {
 		"no_terminal_content": "선택된 터미널 내용이 없습니다",
