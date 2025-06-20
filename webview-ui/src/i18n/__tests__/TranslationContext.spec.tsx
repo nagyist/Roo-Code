@@ -32,22 +32,16 @@ vi.mock("../setup", () => ({
 			if (key === "notifications.error") {
 				return options?.message ? `Operation failed: ${options.message}` : "Operation failed"
 			}
-			if (key === "common:errors.claude_code_process_exited") {
-				return `Claude Code process exited with code ${options?.exitCode}. Error output: ${options?.errorOutput}`
+			if (key === "common:errors.claudeCodeProcessExited") {
+				return `Claude Code process exited with code ${options?.exitCode}.`
 			}
-			if (key === "common:errors.claude_code_stopped") {
-				return `Claude Code stopped with reason: ${options?.stopReason}`
+			if (key === "common:errors.errorOutput") {
+				return `Error output: ${options?.output}`
 			}
-			if (key === "common:errors.claude_code_invalid_model") {
-				return "API keys and subscription plans allow different models. Make sure the selected model is included in your plan."
+			if (key === "common:errors.claudeCodeStoppedWithReason") {
+				return `Claude Code stopped with reason: ${options?.reason}`
 			}
-			if (key === "common:errors.claude_code_process_exited") {
-				return `Claude Code process exited with code ${options?.exitCode}. Error output: ${options?.errorOutput}`
-			}
-			if (key === "common:errors.claude_code_stopped") {
-				return `Claude Code stopped with reason: ${options?.stopReason}`
-			}
-			if (key === "common:errors.claude_code_invalid_model") {
+			if (key === "common:errors.apiKeyModelPlanMismatch") {
 				return "API keys and subscription plans allow different models. Make sure the selected model is included in your plan."
 			}
 			return key

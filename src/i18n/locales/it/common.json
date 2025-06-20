@@ -60,9 +60,10 @@
 		"condense_context_grew": "La dimensione del contesto è aumentata durante la condensazione; questo tentativo viene saltato",
 		"share_task_failed": "Condivisione dell'attività fallita. Riprova.",
 		"share_no_active_task": "Nessuna attività attiva da condividere",
-		"claude_code_process_exited": "Il processo Claude Code è terminato con il codice {{exitCode}}. Output errore: {{errorOutput}}",
-		"claude_code_stopped": "Claude Code si è fermato per il motivo: {{stopReason}}",
-		"claude_code_invalid_model": "Le chiavi API e i piani di abbonamento consentono modelli diversi. Assicurati che il modello selezionato sia incluso nel tuo piano."
+		"claudeCodeProcessExited": "Il processo Claude Code è terminato con codice {{exitCode}}.",
+		"errorOutput": "Output di errore: {{output}}",
+		"claudeCodeStoppedWithReason": "Claude Code si è fermato per il motivo: {{reason}}",
+		"apiKeyModelPlanMismatch": "Le chiavi API e i piani di abbonamento consentono modelli diversi. Assicurati che il modello selezionato sia incluso nel tuo piano."
 	},
 	"warnings": {
 		"no_terminal_content": "Nessun contenuto del terminale selezionato",

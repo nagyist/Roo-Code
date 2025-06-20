@@ -60,9 +60,10 @@
 		"condense_context_grew": "Context size increased during condensing; skipping this attempt",
 		"share_task_failed": "Failed to share task. Please try again.",
 		"share_no_active_task": "No active task to share",
-		"claude_code_process_exited": "Claude Code process exited with code {{exitCode}}. Error output: {{errorOutput}}",
-		"claude_code_stopped": "Claude Code stopped with reason: {{stopReason}}",
-		"claude_code_invalid_model": "API keys and subscription plans allow different models. Make sure the selected model is included in your plan."
+		"claudeCodeProcessExited": "Claude Code process exited with code {{exitCode}}.",
+		"errorOutput": "Error output: {{output}}",
+		"claudeCodeStoppedWithReason": "Claude Code stopped with reason: {{reason}}",
+		"apiKeyModelPlanMismatch": "API keys and subscription plans allow different models. Make sure the selected model is included in your plan."
 	},
 	"warnings": {
 		"no_terminal_content": "No terminal content selected",

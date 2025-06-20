@@ -60,9 +60,10 @@
 		"condense_context_grew": "Contextgrootte nam toe tijdens comprimeren; deze poging wordt overgeslagen",
 		"share_task_failed": "Delen van taak mislukt",
 		"share_no_active_task": "Geen actieve taak om te delen",
-		"claude_code_process_exited": "Claude Code-proces afgesloten met code {{exitCode}}. Foutuitvoer: {{errorOutput}}",
-		"claude_code_stopped": "Claude Code gestopt met reden: {{stopReason}}",
-		"claude_code_invalid_model": "API-sleutels en abonnementsplannen staan verschillende modellen toe. Zorg ervoor dat het geselecteerde model in uw plan is opgenomen."
+		"claudeCodeProcessExited": "Claude Code proces beëindigd met code {{exitCode}}.",
+		"errorOutput": "Foutuitvoer: {{output}}",
+		"claudeCodeStoppedWithReason": "Claude Code gestopt om reden: {{reason}}",
+		"apiKeyModelPlanMismatch": "API-sleutels en abonnementsplannen staan verschillende modellen toe. Zorg ervoor dat het geselecteerde model is opgenomen in je plan."
 	},
 	"warnings": {
 		"no_terminal_content": "Geen terminalinhoud geselecteerd",

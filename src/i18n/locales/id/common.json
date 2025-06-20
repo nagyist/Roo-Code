@@ -60,9 +60,10 @@
 		"condense_context_grew": "Ukuran konteks bertambah saat mengompres; melewati percobaan ini",
 		"share_task_failed": "Gagal membagikan tugas. Silakan coba lagi.",
 		"share_no_active_task": "Tidak ada tugas aktif untuk dibagikan",
-		"claude_code_process_exited": "Proses Claude Code keluar dengan kode {{exitCode}}. Output error: {{errorOutput}}",
-		"claude_code_stopped": "Claude Code berhenti dengan alasan: {{stopReason}}",
-		"claude_code_invalid_model": "Kunci API dan paket langganan mengizinkan model yang berbeda. Pastikan model yang dipilih termasuk dalam paket Anda."
+		"claudeCodeProcessExited": "Proses Claude Code keluar dengan kode {{exitCode}}.",
+		"errorOutput": "Output error: {{output}}",
+		"claudeCodeStoppedWithReason": "Claude Code berhenti karena alasan: {{reason}}",
+		"apiKeyModelPlanMismatch": "Kunci API dan paket berlangganan memungkinkan model yang berbeda. Pastikan model yang dipilih termasuk dalam paket Anda."
 	},
 	"warnings": {
 		"no_terminal_content": "Tidak ada konten terminal yang dipilih",

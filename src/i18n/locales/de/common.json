@@ -60,9 +60,10 @@
 		"condense_context_grew": "Kontextgröße ist während der Verdichtung gewachsen; dieser Versuch wird übersprungen",
 		"share_task_failed": "Teilen der Aufgabe fehlgeschlagen. Bitte versuche es erneut.",
 		"share_no_active_task": "Keine aktive Aufgabe zum Teilen",
-		"claude_code_process_exited": "Claude Code Prozess beendet mit Code {{exitCode}}. Fehlerausgabe: {{errorOutput}}",
-		"claude_code_stopped": "Claude Code gestoppt mit Grund: {{stopReason}}",
-		"claude_code_invalid_model": "API-Schlüssel und Abonnementpläne erlauben verschiedene Modelle. Stelle sicher, dass das ausgewählte Modell in deinem Plan enthalten ist."
+		"claudeCodeProcessExited": "Claude Code Prozess wurde mit Code {{exitCode}} beendet.",
+		"errorOutput": "Fehlerausgabe: {{output}}",
+		"claudeCodeStoppedWithReason": "Claude Code wurde mit Grund gestoppt: {{reason}}",
+		"apiKeyModelPlanMismatch": "API-Schlüssel und Abonnement-Pläne erlauben verschiedene Modelle. Stelle sicher, dass das ausgewählte Modell in deinem Plan enthalten ist."
 	},
 	"warnings": {
 		"no_terminal_content": "Kein Terminal-Inhalt ausgewählt",

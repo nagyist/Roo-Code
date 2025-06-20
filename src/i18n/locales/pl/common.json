@@ -60,9 +60,10 @@
 		"condense_context_grew": "Rozmiar kontekstu wzrósł podczas kondensacji; pomijanie tej próby",
 		"share_task_failed": "Nie udało się udostępnić zadania",
 		"share_no_active_task": "Brak aktywnego zadania do udostępnienia",
-		"claude_code_process_exited": "Proces Claude Code zakończył się z kodem {{exitCode}}. Wyjście błędu: {{errorOutput}}",
-		"claude_code_stopped": "Claude Code zatrzymany z powodu: {{stopReason}}",
-		"claude_code_invalid_model": "Klucze API i plany subskrypcji zezwalają na różne modele. Upewnij się, że wybrany model jest uwzględniony w Twoim planie."
+		"claudeCodeProcessExited": "Proces Claude Code zakończył się kodem {{exitCode}}.",
+		"errorOutput": "Wyjście błędu: {{output}}",
+		"claudeCodeStoppedWithReason": "Claude Code zatrzymał się z powodu: {{reason}}",
+		"apiKeyModelPlanMismatch": "Klucze API i plany subskrypcji pozwalają na różne modele. Upewnij się, że wybrany model jest zawarty w twoim planie."
 	},
 	"warnings": {
 		"no_terminal_content": "Nie wybrano zawartości terminala",

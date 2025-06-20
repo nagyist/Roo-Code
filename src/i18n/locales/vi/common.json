@@ -60,9 +60,10 @@
 		"condense_context_grew": "Kích thước ngữ cảnh tăng lên trong quá trình nén; bỏ qua lần thử này",
 		"share_task_failed": "Không thể chia sẻ nhiệm vụ",
 		"share_no_active_task": "Không có nhiệm vụ hoạt động để chia sẻ",
-		"claude_code_process_exited": "Quá trình Claude Code thoát với mã {{exitCode}}. Lỗi đầu ra: {{errorOutput}}",
-		"claude_code_stopped": "Claude Code dừng với lý do: {{stopReason}}",
-		"claude_code_invalid_model": "Khóa API và gói đăng ký cho phép các mô hình khác nhau. Đảm bảo mô hình đã chọn được bao gồm trong gói của bạn."
+		"claudeCodeProcessExited": "Tiến trình Claude Code thoát với mã {{exitCode}}.",
+		"errorOutput": "Đầu ra lỗi: {{output}}",
+		"claudeCodeStoppedWithReason": "Claude Code dừng lại vì lý do: {{reason}}",
+		"apiKeyModelPlanMismatch": "Khóa API và gói đăng ký cho phép các mô hình khác nhau. Đảm bảo rằng mô hình đã chọn được bao gồm trong gói của bạn."
 	},
 	"warnings": {
 		"no_terminal_content": "Không có nội dung terminal được chọn",
