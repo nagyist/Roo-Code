@@ -119,7 +119,10 @@
 		"searchMinScoreResetTooltip": "Auf Standardwert zurücksetzen (0.4)",
 		"searchMaxResultsLabel": "Maximale Suchergebnisse",
 		"searchMaxResultsDescription": "Maximale Anzahl von Suchergebnissen, die bei der Abfrage des Codebase-Index zurückgegeben werden. Höhere Werte bieten mehr Kontext, können aber weniger relevante Ergebnisse enthalten.",
-		"resetToDefault": "Auf Standard zurücksetzen"
+		"resetToDefault": "Auf Standard zurücksetzen",
+		"lmstudioProvider": "LM Studio",
+		"lmstudioUrlLabel": "LM Studio URL:",
+		"lmstudioUrlPlaceholder": "http://localhost:1234"
 	},
 	"autoApprove": {
 		"description": "Erlaubt Roo, Operationen automatisch ohne Genehmigung durchzuführen. Aktiviere diese Einstellungen nur, wenn du der KI vollständig vertraust und die damit verbundenen Sicherheitsrisiken verstehst.",

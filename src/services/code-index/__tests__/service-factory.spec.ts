@@ -320,7 +320,7 @@ describe("CodeIndexServiceFactory", () => {
 			// Assert
 			expect(MockedCodeIndexLmStudioEmbedder).toHaveBeenCalledWith({
 				lmStudioBaseUrl: "http://localhost:1234",
-				lmStudioModelId: testModelId,
+				embeddingModelId: testModelId,
 			})
 		})
 
@@ -341,7 +341,7 @@ describe("CodeIndexServiceFactory", () => {
 			// Assert
 			expect(MockedCodeIndexLmStudioEmbedder).toHaveBeenCalledWith({
 				lmStudioBaseUrl: "http://localhost:1234",
-				lmStudioModelId: undefined,
+				embeddingModelId: undefined,
 			})
 		})
 

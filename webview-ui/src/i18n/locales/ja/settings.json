@@ -120,6 +120,10 @@
 		"searchMaxResultsLabel": "最大検索結果数",
 		"searchMaxResultsDescription": "コードベースインデックスをクエリする際に返される検索結果の最大数。値を高くするとより多くのコンテキストが提供されますが、関連性の低い結果が含まれる可能性があります。",
 		"resetToDefault": "デフォルトにリセット"
+,
+		"lmstudioProvider": "LM Studio",
+		"lmstudioUrlLabel": "LM Studio URL:",
+		"lmstudioUrlPlaceholder": "http://localhost:1234"
 	},
 	"autoApprove": {
 		"description": "Rooが承認なしで自動的に操作を実行できるようにします。AIを完全に信頼し、関連するセキュリティリスクを理解している場合にのみ、これらの設定を有効にしてください。",

@@ -120,6 +120,10 @@
 		"searchMaxResultsLabel": "Resultados máximos de busca",
 		"searchMaxResultsDescription": "Número máximo de resultados de busca a retornar ao consultar o índice de código. Valores mais altos fornecem mais contexto, mas podem incluir resultados menos relevantes.",
 		"resetToDefault": "Redefinir para o padrão"
+,
+		"lmstudioProvider": "LM Studio",
+		"lmstudioUrlLabel": "LM Studio URL:",
+		"lmstudioUrlPlaceholder": "http://localhost:1234"
 	},
 	"autoApprove": {
 		"description": "Permitir que o Roo realize operações automaticamente sem exigir aprovação. Ative essas configurações apenas se confiar totalmente na IA e compreender os riscos de segurança associados.",
