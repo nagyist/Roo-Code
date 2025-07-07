@@ -23,9 +23,16 @@ export class CodeIndexLmStudioEmbedder implements IEmbedder {
 	 */
 	constructor(options: ApiHandlerOptions & { embeddingModelId?: string }) {
 		this.options = options
+
+		// Normalize base URL to prevent duplicate /v1 if user already provided it
+		let baseUrl = this.options.lmStudioBaseUrl || "http://localhost:1234"
+		if (!baseUrl.endsWith("/v1")) {
+			baseUrl = baseUrl + "/v1"
+		}
+
 		this.embeddingsClient = new OpenAI({
-			baseURL: (this.options.lmStudioBaseUrl || "http://localhost:1234") + "/v1",
-			apiKey: "noop", // LM Studio doesn't require a real API key
+			baseURL: baseUrl,
+			apiKey: "noop", // API key is intentionally hardcoded to "noop" because LM Studio does not require authentication
 		})
 		this.defaultModelId = options.embeddingModelId || "text-embedding-nomic-embed-text-v1.5@f16"
 	}
@@ -81,8 +88,11 @@ export class CodeIndexLmStudioEmbedder implements IEmbedder {
 					usage.promptTokens += batchResult.usage.promptTokens
 					usage.totalTokens += batchResult.usage.totalTokens
 				} catch (error) {
-					console.error("Failed to process batch:", error)
-					throw new Error("Failed to create embeddings: batch processing error")
+					const batchInfo = `batch of ${currentBatch.length} documents (indices: ${processedIndices.join(", ")})`
+					console.error(`Failed to process ${batchInfo}:`, error)
+					throw new Error(
+						`Failed to create embeddings for ${batchInfo}: ${error instanceof Error ? error.message : "batch processing error"}`,
+					)
 				}
 			}
 		}

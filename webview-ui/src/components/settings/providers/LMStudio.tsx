@@ -56,47 +56,38 @@ export const LMStudio = ({ apiConfiguration, setApiConfigurationField }: LMStudi
 		vscode.postMessage({ type: "requestLmStudioModels" })
 	}, [])
 
+	// Reusable function to check if a model is available
+	const checkModelAvailability = useCallback(
+		(modelId: string | undefined): boolean => {
+			if (!modelId) return false
+
+			// Check if model exists in local LM Studio models
+			if (lmStudioModels.length > 0 && lmStudioModels.includes(modelId)) {
+				return false // Model is available locally
+			}
+
+			// If we have router models data for LM Studio
+			if (routerModels.data?.lmstudio) {
+				const availableModels = Object.keys(routerModels.data.lmstudio)
+				// Show warning if model is not in the list (regardless of how many models there are)
+				return !availableModels.includes(modelId)
+			}
+
+			// If neither source has loaded yet, don't show warning
+			return false
+		},
+		[lmStudioModels, routerModels.data],
+	)
+
 	// Check if the selected model exists in the fetched models
 	const modelNotAvailable = useMemo(() => {
-		const selectedModel = apiConfiguration?.lmStudioModelId
-		if (!selectedModel) return false
-
-		// Check if model exists in local LM Studio models
-		if (lmStudioModels.length > 0 && lmStudioModels.includes(selectedModel)) {
-			return false // Model is available locally
-		}
-
-		// If we have router models data for LM Studio
-		if (routerModels.data?.lmstudio) {
-			const availableModels = Object.keys(routerModels.data.lmstudio)
-			// Show warning if model is not in the list (regardless of how many models there are)
-			return !availableModels.includes(selectedModel)
-		}
-
-		// If neither source has loaded yet, don't show warning
-		return false
-	}, [apiConfiguration?.lmStudioModelId, routerModels.data, lmStudioModels])
+		return checkModelAvailability(apiConfiguration?.lmStudioModelId)
+	}, [apiConfiguration?.lmStudioModelId, checkModelAvailability])
 
 	// Check if the draft model exists
 	const draftModelNotAvailable = useMemo(() => {
-		const draftModel = apiConfiguration?.lmStudioDraftModelId
-		if (!draftModel) return false
-
-		// Check if model exists in local LM Studio models
-		if (lmStudioModels.length > 0 && lmStudioModels.includes(draftModel)) {
-			return false // Model is available locally
-		}
-
-		// If we have router models data for LM Studio
-		if (routerModels.data?.lmstudio) {
-			const availableModels = Object.keys(routerModels.data.lmstudio)
-			// Show warning if model is not in the list (regardless of how many models there are)
-			return !availableModels.includes(draftModel)
-		}
-
-		// If neither source has loaded yet, don't show warning
-		return false
-	}, [apiConfiguration?.lmStudioDraftModelId, routerModels.data, lmStudioModels])
+		return checkModelAvailability(apiConfiguration?.lmStudioDraftModelId)
+	}, [apiConfiguration?.lmStudioDraftModelId, checkModelAvailability])
 
 	return (
 		<>
