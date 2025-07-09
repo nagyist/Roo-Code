@@ -565,10 +565,11 @@ describe("webviewMessageHandler - message dialog preferences", () => {
 	describe("deleteMessage", () => {
 		it("should show dialog when skipDeleteMessageConfirmation is false", async () => {
 			vi.mocked(mockClineProvider.contextProxy.getValue).mockReturnValue(false)
+			vi.mocked(mockClineProvider.getCurrentCline).mockReturnValue({} as any) // Mock current cline exists
 
 			await webviewMessageHandler(mockClineProvider, {
 				type: "deleteMessage",
-				messageTs: 123456789,
+				value: 123456789, // Changed from messageTs to value
 			})
 
 			expect(mockClineProvider.postMessageToWebview).toHaveBeenCalledWith({
@@ -579,6 +580,10 @@ describe("webviewMessageHandler - message dialog preferences", () => {
 
 		it("should skip dialog and directly delete when skipDeleteMessageConfirmation is true", async () => {
 			vi.mocked(mockClineProvider.contextProxy.getValue).mockReturnValue(true)
+			vi.mocked(mockClineProvider.getCurrentCline).mockReturnValue({
+				clineMessages: [{ ts: 123456789, text: "test message" }],
+				apiConversationHistory: [{ ts: 123456789, text: "test message" }],
+			} as any) // Mock current cline with required properties
 
 			// Mock the necessary functions for deletion
 			vi.mocked(mockClineProvider.getTaskWithId).mockResolvedValue({
@@ -587,7 +592,7 @@ describe("webviewMessageHandler - message dialog preferences", () => {
 
 			await webviewMessageHandler(mockClineProvider, {
 				type: "deleteMessage",
-				messageTs: 123456789,
+				value: 123456789, // Changed from messageTs to value
 			})
 
 			// Should not show dialog
@@ -602,11 +607,12 @@ describe("webviewMessageHandler - message dialog preferences", () => {
 	describe("submitEditedMessage", () => {
 		it("should show dialog when skipEditMessageConfirmation is false", async () => {
 			vi.mocked(mockClineProvider.contextProxy.getValue).mockReturnValue(false)
+			vi.mocked(mockClineProvider.getCurrentCline).mockReturnValue({} as any) // Mock current cline exists
 
 			await webviewMessageHandler(mockClineProvider, {
 				type: "submitEditedMessage",
-				messageTs: 123456789,
-				text: "edited content",
+				value: 123456789, // messageTs as number
+				editedMessageContent: "edited content", // text content in editedMessageContent field
 			})
 
 			expect(mockClineProvider.postMessageToWebview).toHaveBeenCalledWith({
@@ -618,11 +624,15 @@ describe("webviewMessageHandler - message dialog preferences", () => {
 
 		it("should skip dialog and directly edit when skipEditMessageConfirmation is true", async () => {
 			vi.mocked(mockClineProvider.contextProxy.getValue).mockReturnValue(true)
+			vi.mocked(mockClineProvider.getCurrentCline).mockReturnValue({
+				clineMessages: [{ ts: 123456789, text: "test message" }],
+				apiConversationHistory: [{ ts: 123456789, text: "test message" }],
+			} as any) // Mock current cline with required properties
 
 			await webviewMessageHandler(mockClineProvider, {
 				type: "submitEditedMessage",
-				messageTs: 123456789,
-				text: "edited content",
+				value: 123456789, // messageTs as number
+				editedMessageContent: "edited content", // text content in editedMessageContent field
 			})
 
 			// Should not show dialog
