@@ -156,11 +156,6 @@ export const ChatRowContent = ({
 		})
 	}, [message.ts, editedContent])
 
-	// Handle sending edited message (when Enter is pressed in ChatTextArea)
-	const handleSendEdit = useCallback(() => {
-		handleSaveEdit()
-	}, [handleSaveEdit])
-
 	// Handle image selection for editing
 	const handleSelectImages = useCallback(() => {
 		vscode.postMessage({ type: "selectImages" })
@@ -1059,21 +1054,15 @@ export const ChatRowContent = ({
 										placeholderText={t("chat:editMessage.placeholder")}
 										selectedImages={editImages}
 										setSelectedImages={setEditImages}
-										onSend={handleSendEdit}
+										onSend={handleSaveEdit}
 										onSelectImages={handleSelectImages}
 										shouldDisableImages={false}
 										mode={editMode}
 										setMode={setEditMode}
 										modeShortcutText=""
+										isEditMode={true}
+										onCancel={handleCancelEdit}
 									/>
-									<div className="flex justify-end gap-2">
-										<Button variant="secondary" size="sm" onClick={handleCancelEdit}>
-											{t("chat:cancel.title")}
-										</Button>
-										<Button variant="default" size="sm" onClick={handleSaveEdit}>
-											{t("chat:save.title")}
-										</Button>
-									</div>
 								</div>
 							) : (
 								<div className="flex justify-between">

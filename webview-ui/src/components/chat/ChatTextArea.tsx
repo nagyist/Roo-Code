@@ -46,6 +46,9 @@ interface ChatTextAreaProps {
 	mode: Mode
 	setMode: (value: Mode) => void
 	modeShortcutText: string
+	// Edit mode props
+	isEditMode?: boolean
+	onCancel?: () => void
 }
 
 const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
@@ -65,6 +68,8 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 			mode,
 			setMode,
 			modeShortcutText,
+			isEditMode = false,
+			onCancel,
 		},
 		ref,
 	) => {
@@ -972,15 +977,27 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 								/>
 							</div>
 
-							<div className="absolute bottom-1 right-1 z-30">
-								<IconButton
-									iconClass="codicon-send"
-									title={t("chat:sendMessage")}
-									disabled={sendingDisabled}
-									onClick={onSend}
-									className="opacity-60 hover:opacity-100 text-vscode-descriptionForeground hover:text-vscode-foreground"
-								/>
-							</div>
+							{isEditMode ? (
+								<div className="absolute bottom-1 right-1 z-30">
+									<IconButton
+										iconClass="codicon-edit"
+										title={t("chat:save")}
+										disabled={sendingDisabled}
+										onClick={onSend}
+										className="opacity-60 hover:opacity-100 text-vscode-descriptionForeground hover:text-vscode-foreground"
+									/>
+								</div>
+							) : (
+								<div className="absolute bottom-1 right-1 z-30">
+									<IconButton
+										iconClass="codicon-send"
+										title={t("chat:sendMessage")}
+										disabled={sendingDisabled}
+										onClick={onSend}
+										className="opacity-60 hover:opacity-100 text-vscode-descriptionForeground hover:text-vscode-foreground"
+									/>
+								</div>
+							)}
 
 							{!inputValue && (
 								<div
@@ -1145,6 +1162,16 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 					</div>
 
 					<div className={cn("flex", "items-center", "gap-0.5", "shrink-0")}>
+						{isEditMode && (
+							<Button
+								variant="secondary"
+								size="sm"
+								onClick={onCancel}
+								disabled={sendingDisabled}
+								className="mr-2 text-xs">
+								Cancel
+							</Button>
+						)}
 						<IndexingStatusDot />
 						<IconButton
 							iconClass="codicon-device-camera"
