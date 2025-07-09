@@ -6,6 +6,7 @@ import deepEqual from "fast-deep-equal"
 import { VSCodeBadge, VSCodeButton } from "@vscode/webview-ui-toolkit/react"
 
 import type { ClineMessage } from "@roo-code/types"
+import { Mode } from "@roo/modes"
 
 import { ClineApiReqInfo, ClineAskUseMcpServer, ClineSayTool } from "@roo/ExtensionMessage"
 import { COMMAND_OUTPUT_STRING } from "@roo/combineCommandSequences"
@@ -19,6 +20,8 @@ import { vscode } from "@src/utils/vscode"
 import { removeLeadingNonAlphanumeric } from "@src/utils/removeLeadingNonAlphanumeric"
 import { getLanguageFromPath } from "@src/utils/getLanguageFromPath"
 import { Button } from "@src/components/ui"
+
+import ChatTextArea from "./ChatTextArea"
 
 import { ToolUseBlock, ToolUseBlockHeader } from "../common/ToolUseBlock"
 import UpdateTodoListToolBlock from "./UpdateTodoListToolBlock"
@@ -109,12 +112,14 @@ export const ChatRowContent = ({
 	editable,
 }: ChatRowContentProps) => {
 	const { t } = useTranslation()
-	const { mcpServers, alwaysAllowMcp, currentCheckpoint } = useExtensionState()
+	const { mcpServers, alwaysAllowMcp, currentCheckpoint, mode } = useExtensionState()
 	const [reasoningCollapsed, setReasoningCollapsed] = useState(true)
 	const [isDiffErrorExpanded, setIsDiffErrorExpanded] = useState(false)
 	const [showCopySuccess, setShowCopySuccess] = useState(false)
 	const [isEditing, setIsEditing] = useState(false)
 	const [editedContent, setEditedContent] = useState("")
+	const [editMode, setEditMode] = useState<Mode>(mode || "code")
+	const [editImages, setEditImages] = useState<string[]>([])
 	const { copyWithFeedback } = useCopyToClipboard()
 
 	// Memoized callback to prevent re-renders caused by inline arrow functions
@@ -126,15 +131,19 @@ export const ChatRowContent = ({
 	const handleEditClick = useCallback(() => {
 		setIsEditing(true)
 		setEditedContent(message.text || "")
+		setEditImages(message.images || [])
+		setEditMode(mode || "code")
 		// Edit mode is now handled entirely in the frontend
 		// No need to notify the backend
-	}, [message.text])
+	}, [message.text, message.images, mode])
 
 	// Handle cancel edit
 	const handleCancelEdit = useCallback(() => {
 		setIsEditing(false)
 		setEditedContent(message.text || "")
-	}, [message.text])
+		setEditImages(message.images || [])
+		setEditMode(mode || "code")
+	}, [message.text, message.images, mode])
 
 	// Handle save edit
 	const handleSaveEdit = useCallback(() => {
@@ -146,6 +155,16 @@ export const ChatRowContent = ({
 			editedMessageContent: editedContent,
 		})
 	}, [message.ts, editedContent])
+
+	// Handle sending edited message (when Enter is pressed in ChatTextArea)
+	const handleSendEdit = useCallback(() => {
+		handleSaveEdit()
+	}, [handleSaveEdit])
+
+	// Handle image selection for editing
+	const handleSelectImages = useCallback(() => {
+		vscode.postMessage({ type: "selectImages" })
+	}, [])
 
 	const [cost, apiReqCancelReason, apiReqStreamingFailedMessage] = useMemo(() => {
 		if (message.text !== null && message.text !== undefined && message.say === "api_req_started") {
@@ -1032,12 +1051,20 @@ export const ChatRowContent = ({
 						<div className="bg-vscode-editor-background border rounded-xs p-1 overflow-hidden whitespace-pre-wrap">
 							{isEditing ? (
 								<div className="flex flex-col gap-2 p-2">
-									<textarea
-										className="w-full p-2 bg-vscode-input-background text-vscode-input-foreground border border-vscode-input-border rounded-xs"
-										value={editedContent}
-										onChange={(e) => setEditedContent(e.target.value)}
-										rows={5}
-										autoFocus
+									<ChatTextArea
+										inputValue={editedContent}
+										setInputValue={setEditedContent}
+										sendingDisabled={false}
+										selectApiConfigDisabled={true}
+										placeholderText={t("chat:editMessage.placeholder")}
+										selectedImages={editImages}
+										setSelectedImages={setEditImages}
+										onSend={handleSendEdit}
+										onSelectImages={handleSelectImages}
+										shouldDisableImages={false}
+										mode={editMode}
+										setMode={setEditMode}
+										modeShortcutText=""
 									/>
 									<div className="flex justify-end gap-2">
 										<Button variant="secondary" size="sm" onClick={handleCancelEdit}>
@@ -1057,7 +1084,7 @@ export const ChatRowContent = ({
 										<Button
 											variant="ghost"
 											size="icon"
-											className="shrink-0 hidden"
+											className="shrink-0"
 											disabled={isStreaming}
 											onClick={(e) => {
 												e.stopPropagation()

@@ -87,6 +87,9 @@
 		"title": "Cancel",
 		"tooltip": "Cancel the current operation"
 	},
+	"editMessage": {
+		"placeholder": "Edit your message..."
+	},
 	"scrollToBottom": "Scroll to bottom of chat",
 	"about": "Generate, refactor, and debug code with AI assistance. Check out our <DocsLink>documentation</DocsLink> to learn more.",
 	"onboarding": "Your task list in this workspace is empty.",
