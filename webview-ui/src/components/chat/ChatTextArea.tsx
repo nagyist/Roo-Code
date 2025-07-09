@@ -981,7 +981,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 								<div className="absolute bottom-1 right-1 z-30">
 									<IconButton
 										iconClass="codicon-edit"
-										title={t("chat:save")}
+										title={t("chat:save.tooltip")}
 										disabled={sendingDisabled}
 										onClick={onSend}
 										className="opacity-60 hover:opacity-100 text-vscode-descriptionForeground hover:text-vscode-foreground"

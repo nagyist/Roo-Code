@@ -18,6 +18,7 @@ import McpView from "./components/mcp/McpView"
 import { MarketplaceView } from "./components/marketplace/MarketplaceView"
 import ModesView from "./components/modes/ModesView"
 import { HumanRelayDialog } from "./components/human-relay/HumanRelayDialog"
+import { DeleteMessageDialog, EditMessageDialog } from "./components/chat/MessageModificationConfirmationDialog"
 import { AccountView } from "./components/account/AccountView"
 import { useAddNonInteractiveClickListener } from "./components/ui/hooks/useNonInteractiveClick"
 import { TooltipProvider } from "./components/ui/tooltip"
@@ -48,6 +49,10 @@ const App = () => {
 		cloudApiUrl,
 		renderContext,
 		mdmCompliant,
+		skipEditMessageConfirmation,
+		setSkipEditMessageConfirmation,
+		skipDeleteMessageConfirmation,
+		setSkipDeleteMessageConfirmation,
 	} = useExtensionState()
 
 	// Create a persistent state manager
@@ -64,6 +69,24 @@ const App = () => {
 		isOpen: false,
 		requestId: "",
 		promptText: "",
+	})
+
+	const [deleteMessageDialogState, setDeleteMessageDialogState] = useState<{
+		isOpen: boolean
+		messageTs: number
+	}>({
+		isOpen: false,
+		messageTs: 0,
+	})
+
+	const [editMessageDialogState, setEditMessageDialogState] = useState<{
+		isOpen: boolean
+		messageTs: number
+		text: string
+	}>({
+		isOpen: false,
+		messageTs: 0,
+		text: "",
 	})
 
 	const settingsRef = useRef<SettingsViewRef>(null)
@@ -121,11 +144,38 @@ const App = () => {
 				setHumanRelayDialogState({ isOpen: true, requestId, promptText })
 			}
 
+			if (message.type === "showDeleteMessageDialog" && message.messageTs) {
+				// Check if user has opted to skip the confirmation
+				if (skipDeleteMessageConfirmation) {
+					// Directly send the confirmation without showing dialog
+					vscode.postMessage({
+						type: "deleteMessageConfirm",
+						messageTs: message.messageTs,
+					})
+				} else {
+					setDeleteMessageDialogState({ isOpen: true, messageTs: message.messageTs })
+				}
+			}
+
+			if (message.type === "showEditMessageDialog" && message.messageTs && message.text) {
+				// Check if user has opted to skip the confirmation
+				if (skipEditMessageConfirmation) {
+					// Directly send the confirmation without showing dialog
+					vscode.postMessage({
+						type: "editMessageConfirm",
+						messageTs: message.messageTs,
+						text: message.text,
+					})
+				} else {
+					setEditMessageDialogState({ isOpen: true, messageTs: message.messageTs, text: message.text })
+				}
+			}
+
 			if (message.type === "acceptInput") {
 				chatViewRef.current?.acceptInput()
 			}
 		},
-		[switchTab],
+		[switchTab, skipDeleteMessageConfirmation, skipEditMessageConfirmation],
 	)
 
 	useEvent("message", onMessage)
@@ -206,6 +256,45 @@ const App = () => {
 				onClose={() => setHumanRelayDialogState((prev) => ({ ...prev, isOpen: false }))}
 				onSubmit={(requestId, text) => vscode.postMessage({ type: "humanRelayResponse", requestId, text })}
 				onCancel={(requestId) => vscode.postMessage({ type: "humanRelayCancel", requestId })}
+			/>
+			<DeleteMessageDialog
+				open={deleteMessageDialogState.isOpen}
+				onOpenChange={(open) => setDeleteMessageDialogState((prev) => ({ ...prev, isOpen: open }))}
+				onConfirm={(dontShowAgain) => {
+					// Save the preference if checkbox was checked
+					if (dontShowAgain) {
+						setSkipDeleteMessageConfirmation(true)
+						vscode.postMessage({
+							type: "skipDeleteMessageConfirmation",
+							bool: true,
+						})
+					}
+					vscode.postMessage({
+						type: "deleteMessageConfirm",
+						messageTs: deleteMessageDialogState.messageTs,
+					})
+					setDeleteMessageDialogState((prev) => ({ ...prev, isOpen: false }))
+				}}
+			/>
+			<EditMessageDialog
+				open={editMessageDialogState.isOpen}
+				onOpenChange={(open) => setEditMessageDialogState((prev) => ({ ...prev, isOpen: open }))}
+				onConfirm={(dontShowAgain) => {
+					// Save the preference if checkbox was checked
+					if (dontShowAgain) {
+						setSkipEditMessageConfirmation(true)
+						vscode.postMessage({
+							type: "skipEditMessageConfirmation",
+							bool: true,
+						})
+					}
+					vscode.postMessage({
+						type: "editMessageConfirm",
+						messageTs: editMessageDialogState.messageTs,
+						text: editMessageDialogState.text,
+					})
+					setEditMessageDialogState((prev) => ({ ...prev, isOpen: false }))
+				}}
 			/>
 		</>
 	)
