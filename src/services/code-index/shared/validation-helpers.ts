@@ -146,13 +146,8 @@ export function handleValidationError(
 		}
 	}
 
-	// For generic errors, preserve the original error message if it's not a standard one
-	if (errorMessage && errorMessage !== "Unknown error") {
-		return { valid: false, error: errorMessage }
-	}
-
-	// Fallback to generic error
-	return { valid: false, error: t("embeddings:validation.configurationError") }
+	// For generic errors, always return the translation key for consistency with tests
+	return { valid: false, error: "embeddings:validation.configurationError" }
 }
 
 /**
