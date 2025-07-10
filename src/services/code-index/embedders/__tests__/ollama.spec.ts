@@ -5,38 +5,6 @@ import { CodeIndexOllamaEmbedder } from "../ollama"
 // Mock fetch
 global.fetch = vitest.fn() as MockedFunction<typeof fetch>
 
-// Mock i18n
-vitest.mock("../../../../i18n", () => ({
-	t: (key: string, params?: Record<string, any>) => {
-		const translations: Record<string, string> = {
-			"embeddings:validation.serviceUnavailable":
-				"The embedder service is not available. Please ensure it is running and accessible.",
-			"embeddings:validation.modelNotAvailable":
-				"The specified model is not available. Please check your model configuration.",
-			"embeddings:validation.connectionFailed":
-				"Failed to connect to the embedder service. Please check your connection settings and ensure the service is running.",
-			"embeddings:validation.configurationError": "Invalid embedder configuration. Please review your settings.",
-			"embeddings:errors.ollama.serviceNotRunning":
-				"Ollama service is not running at {{baseUrl}}. Please start Ollama first.",
-			"embeddings:errors.ollama.serviceUnavailable":
-				"Ollama service is unavailable at {{baseUrl}}. HTTP status: {{status}}",
-			"embeddings:errors.ollama.modelNotFound":
-				"Model '{{model}}' not found. Available models: {{availableModels}}",
-			"embeddings:errors.ollama.modelNotEmbedding": "Model '{{model}}' is not embedding capable",
-			"embeddings:errors.ollama.hostNotFound": "Ollama host not found: {{baseUrl}}",
-			"embeddings:errors.ollama.connectionTimeout": "Connection to Ollama timed out at {{baseUrl}}",
-		}
-		// Handle parameter substitution
-		let result = translations[key] || key
-		if (params) {
-			Object.entries(params).forEach(([param, value]) => {
-				result = result.replace(new RegExp(`{{${param}}}`, "g"), String(value))
-			})
-		}
-		return result
-	},
-}))
-
 // Mock console methods
 const consoleMocks = {
 	error: vitest.spyOn(console, "error").mockImplementation(() => {}),
@@ -127,7 +95,7 @@ describe("CodeIndexOllamaEmbedder", () => {
 			const result = await embedder.validateConfiguration()
 
 			expect(result.valid).toBe(false)
-			expect(result.error).toBe("embeddings:ollama.serviceNotRunning")
+			expect(result.error).toBe("ollama.serviceNotRunning")
 		})
 
 		it("should fail validation when tags endpoint returns 404", async () => {
@@ -141,7 +109,7 @@ describe("CodeIndexOllamaEmbedder", () => {
 			const result = await embedder.validateConfiguration()
 
 			expect(result.valid).toBe(false)
-			expect(result.error).toBe("embeddings:ollama.serviceNotRunning")
+			expect(result.error).toBe("ollama.serviceNotRunning")
 		})
 
 		it("should fail validation when tags endpoint returns other error", async () => {
@@ -155,7 +123,7 @@ describe("CodeIndexOllamaEmbedder", () => {
 			const result = await embedder.validateConfiguration()
 
 			expect(result.valid).toBe(false)
-			expect(result.error).toBe("embeddings:ollama.serviceUnavailable")
+			expect(result.error).toBe("ollama.serviceUnavailable")
 		})
 
 		it("should fail validation when model does not exist", async () => {
@@ -174,7 +142,7 @@ describe("CodeIndexOllamaEmbedder", () => {
 			const result = await embedder.validateConfiguration()
 
 			expect(result.valid).toBe(false)
-			expect(result.error).toBe("embeddings:ollama.modelNotFound")
+			expect(result.error).toBe("ollama.modelNotFound")
 		})
 
 		it("should fail validation when model exists but doesn't support embeddings", async () => {
@@ -201,7 +169,7 @@ describe("CodeIndexOllamaEmbedder", () => {
 			const result = await embedder.validateConfiguration()
 
 			expect(result.valid).toBe(false)
-			expect(result.error).toBe("embeddings:ollama.modelNotEmbeddingCapable")
+			expect(result.error).toBe("ollama.modelNotEmbeddingCapable")
 		})
 
 		it("should handle ECONNREFUSED errors", async () => {
@@ -210,7 +178,7 @@ describe("CodeIndexOllamaEmbedder", () => {
 			const result = await embedder.validateConfiguration()
 
 			expect(result.valid).toBe(false)
-			expect(result.error).toBe("embeddings:ollama.serviceNotRunning")
+			expect(result.error).toBe("ollama.serviceNotRunning")
 		})
 
 		it("should handle ENOTFOUND errors", async () => {
@@ -219,7 +187,7 @@ describe("CodeIndexOllamaEmbedder", () => {
 			const result = await embedder.validateConfiguration()
 
 			expect(result.valid).toBe(false)
-			expect(result.error).toBe("embeddings:ollama.hostNotFound")
+			expect(result.error).toBe("ollama.hostNotFound")
 		})
 
 		it("should handle generic network errors", async () => {
@@ -228,7 +196,7 @@ describe("CodeIndexOllamaEmbedder", () => {
 			const result = await embedder.validateConfiguration()
 
 			expect(result.valid).toBe(false)
-			expect(result.error).toBe("Network timeout")
+			expect(result.error).toBe("embeddings:validation.configurationError")
 		})
 	})
 })
