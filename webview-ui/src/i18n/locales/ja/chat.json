@@ -316,5 +316,8 @@
 	},
 	"versionIndicator": {
 		"ariaLabel": "バージョン {{version}} - クリックしてリリースノートを表示"
+	},
+	"editMessage": {
+		"placeholder": "メッセージを編集..."
 	}
 }

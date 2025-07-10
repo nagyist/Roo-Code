@@ -316,5 +316,8 @@
 	},
 	"versionIndicator": {
 		"ariaLabel": "Versie {{version}} - Klik om release notes te bekijken"
+	},
+	"editMessage": {
+		"placeholder": "Bewerk je bericht..."
 	}
 }

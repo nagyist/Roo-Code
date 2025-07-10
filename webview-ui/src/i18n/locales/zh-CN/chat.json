@@ -316,5 +316,8 @@
 	},
 	"versionIndicator": {
 		"ariaLabel": "版本 {{version}} - 点击查看发布说明"
+	},
+	"editMessage": {
+		"placeholder": "编辑消息..."
 	}
 }

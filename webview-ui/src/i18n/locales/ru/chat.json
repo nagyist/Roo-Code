@@ -316,5 +316,8 @@
 	},
 	"versionIndicator": {
 		"ariaLabel": "Версия {{version}} - Нажмите, чтобы просмотреть примечания к выпуску"
+	},
+	"editMessage": {
+		"placeholder": "Редактировать сообщение..."
 	}
 }

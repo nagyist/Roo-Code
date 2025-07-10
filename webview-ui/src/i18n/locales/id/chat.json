@@ -322,5 +322,8 @@
 	},
 	"versionIndicator": {
 		"ariaLabel": "Versi {{version}} - Klik untuk melihat catatan rilis"
+	},
+	"editMessage": {
+		"placeholder": "Edit pesan Anda..."
 	}
 }

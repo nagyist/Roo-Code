@@ -316,5 +316,8 @@
 	},
 	"versionIndicator": {
 		"ariaLabel": "Phiên bản {{version}} - Nhấp để xem ghi chú phát hành"
+	},
+	"editMessage": {
+		"placeholder": "Chỉnh sửa tin nhắn của bạn..."
 	}
 }

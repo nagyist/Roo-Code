@@ -316,5 +316,8 @@
 	},
 	"versionIndicator": {
 		"ariaLabel": "Sürüm {{version}} - Sürüm notlarını görüntülemek için tıklayın"
+	},
+	"editMessage": {
+		"placeholder": "Mesajını düzenle..."
 	}
 }

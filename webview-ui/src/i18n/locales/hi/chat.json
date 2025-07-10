@@ -316,5 +316,8 @@
 	},
 	"versionIndicator": {
 		"ariaLabel": "संस्करण {{version}} - रिलीज़ नोट्स देखने के लिए क्लिक करें"
+	},
+	"editMessage": {
+		"placeholder": "अपना संदेश संपादित करें..."
 	}
 }

@@ -316,5 +316,8 @@
 	},
 	"versionIndicator": {
 		"ariaLabel": "Versió {{version}} - Feu clic per veure les notes de llançament"
+	},
+	"editMessage": {
+		"placeholder": "Edita el teu missatge..."
 	}
 }

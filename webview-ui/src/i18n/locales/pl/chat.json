@@ -316,5 +316,8 @@
 	},
 	"versionIndicator": {
 		"ariaLabel": "Wersja {{version}} - Kliknij, aby wyświetlić informacje o wydaniu"
+	},
+	"editMessage": {
+		"placeholder": "Edytuj swoją wiadomość..."
 	}
 }
