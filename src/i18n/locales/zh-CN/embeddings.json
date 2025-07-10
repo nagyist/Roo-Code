@@ -17,6 +17,11 @@
 		"modelNotEmbeddingCapable": "Ollama 模型不具备嵌入能力：{{modelId}}",
 		"hostNotFound": "未找到 Ollama 主机：{{baseUrl}}"
 	},
+	"lmstudio": {
+		"serviceNotRunning": "LM Studio 服务器未在 {{baseUrl}} 运行。请确保 LM Studio 已启用本地服务器并正在运行。",
+		"modelNotFound": "在 LM Studio 中未找到模型“{{modelId}}”。请确保该模型已在 LM Studio 中加载。",
+		"hostNotFound": "无法连接到 {{baseUrl}} 上的 LM Studio。请检查基本 URL 配置。"
+	},
 	"scanner": {
 		"unknownErrorProcessingFile": "处理文件 {{filePath}} 时出现未知错误",
 		"unknownErrorDeletingPoints": "删除 {{filePath}} 的数据点时出现未知错误",

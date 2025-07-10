@@ -17,6 +17,11 @@
 		"modelNotEmbeddingCapable": "El model d'Ollama no és capaç de fer incrustacions: {{modelId}}",
 		"hostNotFound": "No s'ha trobat l'amfitrió d'Ollama: {{baseUrl}}"
 	},
+	"lmstudio": {
+		"serviceNotRunning": "El servidor de LM Studio no s'està executant a {{baseUrl}}. Assegureu-vos que LM Studio s'estigui executant amb el servidor local activat.",
+		"modelNotFound": "No s'ha trobat el model \"{{modelId}}\" a LM Studio. Assegureu-vos que el model estigui carregat a LM Studio.",
+		"hostNotFound": "No es pot connectar a LM Studio a {{baseUrl}}. Comproveu la configuració de l'URL base."
+	},
 	"scanner": {
 		"unknownErrorProcessingFile": "Error desconegut en processar el fitxer {{filePath}}",
 		"unknownErrorDeletingPoints": "Error desconegut en eliminar els punts per a {{filePath}}",

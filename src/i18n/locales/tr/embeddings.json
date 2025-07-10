@@ -17,6 +17,11 @@
 		"modelNotEmbeddingCapable": "Ollama modeli gömme yeteneğine sahip değil: {{modelId}}",
 		"hostNotFound": "Ollama ana bilgisayarı bulunamadı: {{baseUrl}}"
 	},
+	"lmstudio": {
+		"serviceNotRunning": "LM Studio sunucusu {{baseUrl}} adresinde çalışmıyor. Lütfen LM Studio'nun yerel sunucu etkinken çalıştığından emin olun.",
+		"modelNotFound": "LM Studio'da \"{{modelId}}\" modeli bulunamadı. Lütfen modelin LM Studio'da yüklü olduğundan emin olun.",
+		"hostNotFound": "LM Studio'ya {{baseUrl}} adresinden bağlanılamıyor. Lütfen temel URL yapılandırmasını kontrol edin."
+	},
 	"scanner": {
 		"unknownErrorProcessingFile": "{{filePath}} dosyası işlenirken bilinmeyen hata",
 		"unknownErrorDeletingPoints": "{{filePath}} için noktalar silinirken bilinmeyen hata",

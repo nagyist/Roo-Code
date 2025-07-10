@@ -17,6 +17,11 @@
 		"modelNotEmbeddingCapable": "Mô hình Ollama không có khả năng nhúng: {{modelId}}",
 		"hostNotFound": "Không tìm thấy máy chủ Ollama: {{baseUrl}}"
 	},
+	"lmstudio": {
+		"serviceNotRunning": "Máy chủ LM Studio không chạy tại {{baseUrl}}. Vui lòng đảm bảo LM Studio đang chạy với máy chủ cục bộ được bật.",
+		"modelNotFound": "Không tìm thấy mô hình \"{{modelId}}\" trong LM Studio. Vui lòng đảm bảo mô hình đã được tải trong LM Studio.",
+		"hostNotFound": "Không thể kết nối với LM Studio tại {{baseUrl}}. Vui lòng kiểm tra cấu hình URL cơ sở."
+	},
 	"scanner": {
 		"unknownErrorProcessingFile": "Lỗi không xác định khi xử lý tệp {{filePath}}",
 		"unknownErrorDeletingPoints": "Lỗi không xác định khi xóa điểm cho {{filePath}}",

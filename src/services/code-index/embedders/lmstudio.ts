@@ -7,6 +7,8 @@ import {
 	MAX_BATCH_RETRIES as MAX_RETRIES,
 	INITIAL_RETRY_DELAY_MS as INITIAL_DELAY_MS,
 } from "../constants"
+import { withValidationErrorHandling, formatEmbeddingError, HttpError } from "../shared/validation-helpers"
+import { t } from "../../../i18n"
 
 /**
  * LM Studio implementation of the embedder interface with batching and rate limiting.
@@ -81,19 +83,10 @@ export class CodeIndexLmStudioEmbedder implements IEmbedder {
 			}
 
 			if (currentBatch.length > 0) {
-				try {
-					const batchResult = await this._embedBatchWithRetries(currentBatch, modelToUse)
-
-					allEmbeddings.push(...batchResult.embeddings)
-					usage.promptTokens += batchResult.usage.promptTokens
-					usage.totalTokens += batchResult.usage.totalTokens
-				} catch (error) {
-					const batchInfo = `batch of ${currentBatch.length} documents (indices: ${processedIndices.join(", ")})`
-					console.error(`Failed to process ${batchInfo}:`, error)
-					throw new Error(
-						`Failed to create embeddings for ${batchInfo}: ${error instanceof Error ? error.message : "batch processing error"}`,
-					)
-				}
+				const batchResult = await this._embedBatchWithRetries(currentBatch, modelToUse)
+				allEmbeddings.push(...batchResult.embeddings)
+				usage.promptTokens += batchResult.usage.promptTokens
+				usage.totalTokens += batchResult.usage.totalTokens
 			}
 		}
 
@@ -115,7 +108,6 @@ export class CodeIndexLmStudioEmbedder implements IEmbedder {
 				const response = await this.embeddingsClient.embeddings.create({
 					input: batchTexts,
 					model: model,
-					encoding_format: "float",
 				})
 
 				return {
@@ -126,10 +118,11 @@ export class CodeIndexLmStudioEmbedder implements IEmbedder {
 					},
 				}
 			} catch (error: any) {
-				const isRateLimitError = error?.status === 429
 				const hasMoreAttempts = attempts < MAX_RETRIES - 1
 
-				if (isRateLimitError && hasMoreAttempts) {
+				// Check if it's a rate limit error
+				const httpError = error as HttpError
+				if (httpError?.status === 429 && hasMoreAttempts) {
 					const delayMs = INITIAL_DELAY_MS * Math.pow(2, attempts)
 					await new Promise((resolve) => setTimeout(resolve, delayMs))
 					continue
@@ -139,7 +132,86 @@ export class CodeIndexLmStudioEmbedder implements IEmbedder {
 			}
 		}
 
-		throw new Error(`Failed to create embeddings after ${MAX_RETRIES} attempts`)
+		throw new Error(t("embeddings:failedMaxAttempts", { attempts: MAX_RETRIES }))
+	}
+
+	/**
+	 * Validates the LM Studio embedder configuration by testing connectivity and model availability
+	 * @returns Promise resolving to validation result with success status and optional error message
+	 */
+	async validateConfiguration(): Promise<{ valid: boolean; error?: string }> {
+		return withValidationErrorHandling(
+			async () => {
+				// Test with a minimal embedding request
+				const testTexts = ["test"]
+				const modelToUse = this.defaultModelId
+
+				try {
+					const response = await this.embeddingsClient.embeddings.create({
+						input: testTexts,
+						model: modelToUse,
+					})
+
+					// Check if we got a valid response
+					if (!response.data || response.data.length === 0) {
+						return {
+							valid: false,
+							error: t("embeddings:validation.invalidResponse"),
+						}
+					}
+
+					return { valid: true }
+				} catch (error: any) {
+					// Handle LM Studio specific errors
+					if (error?.message?.includes("ECONNREFUSED") || error?.code === "ECONNREFUSED") {
+						return {
+							valid: false,
+							error: t("embeddings:lmstudio.serviceNotRunning", {
+								baseUrl: this.options.lmStudioBaseUrl,
+							}),
+						}
+					}
+
+					if (error?.status === 404 || error?.message?.includes("404")) {
+						return {
+							valid: false,
+							error: t("embeddings:lmstudio.modelNotFound", { modelId: modelToUse }),
+						}
+					}
+
+					// Re-throw to let standard error handling take over
+					throw error
+				}
+			},
+			"lmstudio",
+			{
+				beforeStandardHandling: (error: any) => {
+					// Handle LM Studio-specific connection errors
+					if (
+						error?.message?.includes("fetch failed") ||
+						error?.code === "ECONNREFUSED" ||
+						error?.message?.includes("ECONNREFUSED")
+					) {
+						return {
+							valid: false,
+							error: t("embeddings:lmstudio.serviceNotRunning", {
+								baseUrl: this.options.lmStudioBaseUrl,
+							}),
+						}
+					}
+
+					if (error?.code === "ENOTFOUND" || error?.message?.includes("ENOTFOUND")) {
+						return {
+							valid: false,
+							error: t("embeddings:lmstudio.hostNotFound", { baseUrl: this.options.lmStudioBaseUrl }),
+						}
+					}
+
+					// Let standard handling take over
+					return undefined
+				},
+			},
+		)
 	}
 
 	get embedderInfo(): EmbedderInfo {

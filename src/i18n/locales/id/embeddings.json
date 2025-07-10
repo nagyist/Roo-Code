@@ -17,6 +17,11 @@
 		"modelNotEmbeddingCapable": "Model Ollama tidak mampu melakukan embedding: {{modelId}}",
 		"hostNotFound": "Host Ollama tidak ditemukan: {{baseUrl}}"
 	},
+	"lmstudio": {
+		"serviceNotRunning": "Server LM Studio tidak berjalan di {{baseUrl}}. Pastikan LM Studio berjalan dengan server lokal diaktifkan.",
+		"modelNotFound": "Model \"{{modelId}}\" tidak ditemukan di LM Studio. Pastikan model dimuat di LM Studio.",
+		"hostNotFound": "Tidak dapat terhubung ke LM Studio di {{baseUrl}}. Silakan periksa konfigurasi URL dasar."
+	},
 	"scanner": {
 		"unknownErrorProcessingFile": "Error tidak dikenal saat memproses file {{filePath}}",
 		"unknownErrorDeletingPoints": "Error tidak dikenal saat menghapus points untuk {{filePath}}",

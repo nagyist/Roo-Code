@@ -17,6 +17,11 @@
 		"modelNotEmbeddingCapable": "O modelo Ollama não é capaz de embedding: {{modelId}}",
 		"hostNotFound": "Host Ollama não encontrado: {{baseUrl}}"
 	},
+	"lmstudio": {
+		"serviceNotRunning": "O servidor do LM Studio não está em execução em {{baseUrl}}. Certifique-se de que o LM Studio esteja em execução com o servidor local ativado.",
+		"modelNotFound": "Modelo \"{{modelId}}\" não encontrado no LM Studio. Certifique-se de que o modelo esteja carregado no LM Studio.",
+		"hostNotFound": "Não é possível conectar-se ao LM Studio em {{baseUrl}}. Verifique a configuração do URL base."
+	},
 	"scanner": {
 		"unknownErrorProcessingFile": "Erro desconhecido ao processar arquivo {{filePath}}",
 		"unknownErrorDeletingPoints": "Erro desconhecido ao deletar pontos para {{filePath}}",
