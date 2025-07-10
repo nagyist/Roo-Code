@@ -146,7 +146,17 @@ export function handleValidationError(
 		}
 	}
 
-	// For generic errors, always return the translation key for consistency with tests
+	// For generic errors, check if it's a meaningful error message
+	if (errorMessage && errorMessage !== "Unknown error") {
+		// For LMStudio, we need to return the translation key
+		if (embedderType === "lmstudio") {
+			return { valid: false, error: "embeddings:validation.configurationError" }
+		}
+		// For other embedders, preserve the original error message
+		return { valid: false, error: errorMessage }
+	}
+
+	// Fallback to generic error
 	return { valid: false, error: "embeddings:validation.configurationError" }
 }
 
