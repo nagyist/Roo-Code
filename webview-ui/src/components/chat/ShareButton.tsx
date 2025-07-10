@@ -163,12 +163,12 @@ export const ShareButton = ({ item, disabled = false }: ShareButtonProps) => {
 							</Button>
 						</PopoverTrigger>
 					</StandardTooltip>
-					<PopoverContent className="w-56 p-0" align="start">
+					<PopoverContent className="w-64 sm:w-72 md:w-80 p-0" align="start">
 						{shareSuccess ? (
-							<div className="p-3">
+							<div className="p-3 sm:p-4">
 								<div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
-									<span className="codicon codicon-check"></span>
-									<span>
+									<span className="codicon codicon-check flex-shrink-0"></span>
+									<span className="break-words">
 										{shareSuccess.visibility === "public"
 											? t("chat:task.shareSuccessPublic")
 											: t("chat:task.shareSuccessOrganization")}
@@ -182,26 +182,30 @@ export const ShareButton = ({ item, disabled = false }: ShareButtonProps) => {
 										{cloudUserInfo?.organizationName && (
 											<CommandItem
 												onSelect={() => handleShare("organization")}
-												className="cursor-pointer">
-												<div className="flex items-center gap-2">
-													<span className="codicon codicon-organization text-sm"></span>
-													<div className="flex flex-col">
-														<span className="text-sm">
+												className="cursor-pointer p-3 sm:p-4">
+												<div className="flex items-start gap-2 w-full">
+													<span className="codicon codicon-organization text-sm flex-shrink-0 mt-0.5"></span>
+													<div className="flex flex-col min-w-0 flex-1">
+														<span className="text-sm font-medium leading-tight">
 															{t("chat:task.shareWithOrganization")}
 														</span>
-														<span className="text-xs text-vscode-descriptionForeground">
+														<span className="text-xs text-vscode-descriptionForeground mt-1 break-words leading-relaxed">
 															{t("chat:task.shareWithOrganizationDescription")}
 														</span>
 													</div>
 												</div>
 											</CommandItem>
 										)}
-										<CommandItem onSelect={() => handleShare("public")} className="cursor-pointer">
-											<div className="flex items-center gap-2">
-												<span className="codicon codicon-globe text-sm"></span>
-												<div className="flex flex-col">
-													<span className="text-sm">{t("chat:task.sharePublicly")}</span>
-													<span className="text-xs text-vscode-descriptionForeground">
+										<CommandItem 
+											onSelect={() => handleShare("public")} 
+											className="cursor-pointer p-3 sm:p-4">
+											<div className="flex items-start gap-2 w-full">
+												<span className="codicon codicon-globe text-sm flex-shrink-0 mt-0.5"></span>
+												<div className="flex flex-col min-w-0 flex-1">
+													<span className="text-sm font-medium leading-tight">
+														{t("chat:task.sharePublicly")}
+													</span>
+													<span className="text-xs text-vscode-descriptionForeground mt-1 break-words leading-relaxed">
 														{t("chat:task.sharePubliclyDescription")}
 													</span>
 												</div>
@@ -228,36 +232,36 @@ export const ShareButton = ({ item, disabled = false }: ShareButtonProps) => {
 
 			{/* Connect to Cloud Modal */}
 			<Dialog open={connectModalOpen} onOpenChange={setConnectModalOpen}>
-				<DialogContent className="max-w-sm">
-					<DialogHeader className="text-center">
-						<DialogTitle className="text-lg font-medium text-vscode-foreground">
+				<DialogContent className="max-w-sm sm:max-w-md w-[calc(100vw-2rem)] mx-4">
+					<DialogHeader className="text-center space-y-3">
+						<DialogTitle className="text-lg sm:text-xl font-medium text-vscode-foreground leading-tight">
 							{t("account:cloudBenefitsTitle")}
 						</DialogTitle>
 					</DialogHeader>
 
 					<div className="flex flex-col space-y-6">
-						<div>
-							<p className="text-md text-vscode-descriptionForeground mb-4">
+						<div className="space-y-4">
+							<p className="text-sm sm:text-base text-vscode-descriptionForeground leading-relaxed">
 								{t("account:cloudBenefitsSubtitle")}
 							</p>
-							<ul className="text-sm text-vscode-descriptionForeground space-y-2">
-								<li className="flex items-start">
-									<span className="mr-2 text-vscode-foreground">•</span>
-									{t("account:cloudBenefitSharing")}
+							<ul className="text-sm text-vscode-descriptionForeground space-y-3">
+								<li className="flex items-start gap-3">
+									<span className="text-vscode-foreground flex-shrink-0 mt-0.5">•</span>
+									<span className="leading-relaxed">{t("account:cloudBenefitSharing")}</span>
 								</li>
-								<li className="flex items-start">
-									<span className="mr-2 text-vscode-foreground">•</span>
-									{t("account:cloudBenefitHistory")}
+								<li className="flex items-start gap-3">
+									<span className="text-vscode-foreground flex-shrink-0 mt-0.5">•</span>
+									<span className="leading-relaxed">{t("account:cloudBenefitHistory")}</span>
 								</li>
-								<li className="flex items-start">
-									<span className="mr-2 text-vscode-foreground">•</span>
-									{t("account:cloudBenefitMetrics")}
+								<li className="flex items-start gap-3">
+									<span className="text-vscode-foreground flex-shrink-0 mt-0.5">•</span>
+									<span className="leading-relaxed">{t("account:cloudBenefitMetrics")}</span>
 								</li>
 							</ul>
 						</div>
 
 						<div className="flex flex-col gap-4">
-							<Button onClick={handleConnectToCloud} className="w-full">
+							<Button onClick={handleConnectToCloud} className="w-full h-10 sm:h-11 text-sm sm:text-base">
 								{t("account:connect")}
 							</Button>
 						</div>
