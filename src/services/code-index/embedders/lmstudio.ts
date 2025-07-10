@@ -108,6 +108,7 @@ export class CodeIndexLmStudioEmbedder implements IEmbedder {
 				const response = await this.embeddingsClient.embeddings.create({
 					input: batchTexts,
 					model: model,
+					encoding_format: "float",
 				})
 
 				return {
@@ -150,13 +151,14 @@ export class CodeIndexLmStudioEmbedder implements IEmbedder {
 					const response = await this.embeddingsClient.embeddings.create({
 						input: testTexts,
 						model: modelToUse,
+						encoding_format: "float",
 					})
 
 					// Check if we got a valid response
 					if (!response.data || response.data.length === 0) {
 						return {
 							valid: false,
-							error: t("embeddings:validation.invalidResponse"),
+							error: "embeddings:validation.invalidResponse",
 						}
 					}
 
@@ -166,16 +168,14 @@ export class CodeIndexLmStudioEmbedder implements IEmbedder {
 					if (error?.message?.includes("ECONNREFUSED") || error?.code === "ECONNREFUSED") {
 						return {
 							valid: false,
-							error: t("embeddings:lmstudio.serviceNotRunning", {
-								baseUrl: this.options.lmStudioBaseUrl,
-							}),
+							error: "lmstudio.serviceNotRunning",
 						}
 					}
 
 					if (error?.status === 404 || error?.message?.includes("404")) {
 						return {
 							valid: false,
-							error: t("embeddings:lmstudio.modelNotFound", { modelId: modelToUse }),
+							error: "lmstudio.modelNotFound",
 						}
 					}
 
@@ -194,16 +194,14 @@ export class CodeIndexLmStudioEmbedder implements IEmbedder {
 					) {
 						return {
 							valid: false,
-							error: t("embeddings:lmstudio.serviceNotRunning", {
-								baseUrl: this.options.lmStudioBaseUrl,
-							}),
+							error: "lmstudio.serviceNotRunning",
 						}
 					}
 
 					if (error?.code === "ENOTFOUND" || error?.message?.includes("ENOTFOUND")) {
 						return {
 							valid: false,
-							error: t("embeddings:lmstudio.hostNotFound", { baseUrl: this.options.lmStudioBaseUrl }),
+							error: "lmstudio.hostNotFound",
 						}
 					}
 
