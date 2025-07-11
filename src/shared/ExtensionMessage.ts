@@ -160,6 +160,7 @@ export interface ExtensionMessage {
 	rulesFolderPath?: string
 	settings?: any
 	messageTs?: number
+	context?: string
 }
 
 export type ExtensionState = Pick<

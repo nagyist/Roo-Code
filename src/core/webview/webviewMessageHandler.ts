@@ -137,19 +137,24 @@ export const webviewMessageHandler = async (
 	/**
 	 * Handles message editing operations with user confirmation
 	 */
-	const handleEditOperation = async (messageTs: number, editedContent: string): Promise<void> => {
+	const handleEditOperation = async (messageTs: number, editedContent: string, images?: string[]): Promise<void> => {
 		// Send message to webview to show edit confirmation dialog
 		await provider.postMessageToWebview({
 			type: "showEditMessageDialog",
 			messageTs,
 			text: editedContent,
+			images,
 		})
 	}
 
 	/**
 	 * Handles confirmed message editing from webview dialog
 	 */
-	const handleEditMessageConfirm = async (messageTs: number, editedContent: string): Promise<void> => {
+	const handleEditMessageConfirm = async (
+		messageTs: number,
+		editedContent: string,
+		images?: string[],
+	): Promise<void> => {
 		// Only proceed if we have a current cline
 		if (provider.getCurrentCline()) {
 			const currentCline = provider.getCurrentCline()!
@@ -168,6 +173,7 @@ export const webviewMessageHandler = async (
 						type: "askResponse",
 						askResponse: "messageResponse",
 						text: editedContent,
+						images,
 					})
 
 					// Don't initialize with history item for edit operations
@@ -193,11 +199,12 @@ export const webviewMessageHandler = async (
 		messageTs: number,
 		operation: "delete" | "edit",
 		editedContent?: string,
+		images?: string[],
 	): Promise<void> => {
 		if (operation === "delete") {
 			await handleDeleteOperation(messageTs)
 		} else if (operation === "edit" && editedContent) {
-			await handleEditOperation(messageTs, editedContent)
+			await handleEditOperation(messageTs, editedContent, images)
 		}
 	}
 
@@ -367,7 +374,12 @@ export const webviewMessageHandler = async (
 			break
 		case "selectImages":
 			const images = await selectImages()
-			await provider.postMessageToWebview({ type: "selectedImages", images })
+			await provider.postMessageToWebview({
+				type: "selectedImages",
+				images,
+				context: message.context,
+				messageTs: message.messageTs,
+			})
 			break
 		case "exportCurrentTask":
 			const currentTaskId = provider.getCurrentCline()?.taskId
@@ -1144,7 +1156,12 @@ export const webviewMessageHandler = async (
 				message.value &&
 				message.editedMessageContent
 			) {
-				await handleMessageModificationsOperation(message.value, "edit", message.editedMessageContent)
+				await handleMessageModificationsOperation(
+					message.value,
+					"edit",
+					message.editedMessageContent,
+					message.images,
+				)
 			}
 			break
 		}
@@ -1484,7 +1501,7 @@ export const webviewMessageHandler = async (
 			break
 		case "editMessageConfirm":
 			if (message.messageTs && message.text) {
-				await handleEditMessageConfirm(message.messageTs, message.text)
+				await handleEditMessageConfirm(message.messageTs, message.text, message.images)
 			}
 			break
 		case "getListApiConfiguration":

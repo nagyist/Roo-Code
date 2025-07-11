@@ -79,10 +79,12 @@ const App = () => {
 		isOpen: boolean
 		messageTs: number
 		text: string
+		images?: string[]
 	}>({
 		isOpen: false,
 		messageTs: 0,
 		text: "",
+		images: [],
 	})
 
 	const settingsRef = useRef<SettingsViewRef>(null)
@@ -145,7 +147,12 @@ const App = () => {
 			}
 
 			if (message.type === "showEditMessageDialog" && message.messageTs && message.text) {
-				setEditMessageDialogState({ isOpen: true, messageTs: message.messageTs, text: message.text })
+				setEditMessageDialogState({
+					isOpen: true,
+					messageTs: message.messageTs,
+					text: message.text,
+					images: message.images || [],
+				})
 			}
 
 			if (message.type === "acceptInput") {
@@ -253,6 +260,7 @@ const App = () => {
 						type: "editMessageConfirm",
 						messageTs: editMessageDialogState.messageTs,
 						text: editMessageDialogState.text,
+						images: editMessageDialogState.images,
 					})
 					setEditMessageDialogState((prev) => ({ ...prev, isOpen: false }))
 				}}
