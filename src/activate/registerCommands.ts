@@ -14,6 +14,7 @@ import { registerHumanRelayCallback, unregisterHumanRelayCallback, handleHumanRe
 import { handleNewTask } from "./handleTask"
 import { CodeIndexManager } from "../services/code-index/manager"
 import { importSettingsWithFeedback } from "../core/config/importExport"
+import { MdmService } from "../services/mdm/MdmService"
 import { t } from "../i18n"
 
 /**
