@@ -256,7 +256,32 @@ export const webviewMessageHandler = async (
 			const customModes = await provider.customModesManager.getCustomModes()
 			await updateGlobalState("customModes", customModes)
 
-			provider.postStateToWebview()
+			// Post initial state with timeout fallback to prevent loading screen issues
+			const statePosted = provider.postStateToWebview()
+
+			// Add a timeout mechanism to ensure state is posted even if there are delays
+			const timeoutPromise = new Promise<void>((resolve) => {
+				setTimeout(async () => {
+					try {
+						// If the initial state posting is still pending after 2 seconds, try again
+						await provider.postStateToWebview()
+						provider.log("Webview state posted via timeout fallback mechanism")
+					} catch (error) {
+						provider.log(
+							`Timeout fallback state posting failed: ${error instanceof Error ? error.message : String(error)}`,
+						)
+					}
+					resolve()
+				}, 2000)
+			})
+
+			// Don't await these to avoid blocking the webview launch
+			Promise.race([statePosted, timeoutPromise]).catch((error) => {
+				provider.log(
+					`Error in webview launch state posting: ${error instanceof Error ? error.message : String(error)}`,
+				)
+			})
+
 			provider.workspaceTracker?.initializeFilePaths() // Don't await.
 
 			getTheme().then((theme) => provider.postMessageToWebview({ type: "theme", text: JSON.stringify(theme) }))

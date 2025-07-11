@@ -38,7 +38,7 @@ import { Package } from "../../shared/package"
 import { findLast } from "../../shared/array"
 import { supportPrompt } from "../../shared/support-prompt"
 import { GlobalFileNames } from "../../shared/globalFileNames"
-import { ExtensionMessage, MarketplaceInstalledMetadata } from "../../shared/ExtensionMessage"
+import { ExtensionMessage, ExtensionState, MarketplaceInstalledMetadata } from "../../shared/ExtensionMessage"
 import { Mode, defaultModeSlug } from "../../shared/modes"
 import { experimentDefault, experiments, EXPERIMENT_IDS } from "../../shared/experiments"
 import { formatLanguage } from "../../shared/language"
@@ -605,7 +605,36 @@ export class ClineProvider
 	}
 
 	public async postMessageToWebview(message: ExtensionMessage) {
-		await this.view?.webview.postMessage(message)
+		const maxRetries = 3
+		const retryDelay = 100 // ms
+
+		for (let attempt = 1; attempt <= maxRetries; attempt++) {
+			try {
+				if (!this.view?.webview) {
+					throw new Error("Webview not available")
+				}
+
+				await this.view.webview.postMessage(message)
+
+				// Log successful message posting for state messages
+				if (message.type === "state") {
+					this.log(`State message posted successfully on attempt ${attempt}`)
+				}
+
+				return // Success, exit retry loop
+			} catch (error) {
+				const errorMsg = error instanceof Error ? error.message : String(error)
+				this.log(`Failed to post message (attempt ${attempt}/${maxRetries}): ${errorMsg}`)
+
+				if (attempt === maxRetries) {
+					// Final attempt failed, throw error
+					throw new Error(`Failed to post message after ${maxRetries} attempts: ${errorMsg}`)
+				}
+
+				// Wait before retrying
+				await new Promise((resolve) => setTimeout(resolve, retryDelay * attempt))
+			}
+		}
 	}
 
 	private async getHMRHtmlContent(webview: vscode.Webview): Promise<string> {
@@ -1242,12 +1271,70 @@ export class ClineProvider
 	}
 
 	async postStateToWebview() {
-		const state = await this.getStateToPostToWebview()
-		this.postMessageToWebview({ type: "state", state })
+		try {
+			this.log("Starting postStateToWebview")
 
-		// Check MDM compliance and send user to account tab if not compliant
-		if (!this.checkMdmCompliance()) {
-			await this.postMessageToWebview({ type: "action", action: "accountButtonClicked" })
+			// Ensure webview is ready
+			if (!this.view?.webview) {
+				this.log("Warning: Webview not available, cannot post state")
+				return
+			}
+
+			const state = await this.getStateToPostToWebview()
+			this.log("State built successfully, posting to webview")
+
+			await this.postMessageToWebview({ type: "state", state })
+			this.log("State message posted successfully")
+
+			// Check MDM compliance and send user to account tab if not compliant
+			if (!this.checkMdmCompliance()) {
+				await this.postMessageToWebview({ type: "action", action: "accountButtonClicked" })
+			}
+		} catch (error) {
+			this.log(`Error in postStateToWebview: ${error instanceof Error ? error.message : String(error)}`)
+
+			// Try to send a minimal fallback state to prevent loading screen
+			try {
+				const fallbackState: Partial<ExtensionState> = {
+					version: this.context.extension?.packageJSON?.version ?? "",
+					apiConfiguration: this.contextProxy.getProviderSettings(),
+					mode: this.getGlobalState("mode") ?? "code",
+					clineMessages: [],
+					taskHistory: [],
+					writeDelayMs: 200,
+					requestDelaySeconds: 3,
+					enableCheckpoints: false,
+					maxOpenTabsContext: 10,
+					maxWorkspaceFiles: 50,
+					showRooIgnoredFiles: false,
+					maxReadFileLine: 1000,
+					experiments: {},
+					mcpEnabled: false,
+					enableMcpServerCreation: false,
+					customModes: [],
+					telemetrySetting: "disabled",
+					renderContext: "sidebar",
+					cloudUserInfo: null,
+					cloudIsAuthenticated: false,
+					sharingEnabled: false,
+					organizationAllowList: { allowAll: true, providers: {} },
+					autoCondenseContext: false,
+					autoCondenseContextPercent: 50,
+					profileThresholds: {},
+					hasOpenedModeSelector: false,
+					shouldShowAnnouncement: false,
+				}
+
+				await this.postMessageToWebview({
+					type: "state",
+					state: fallbackState as ExtensionState,
+				})
+				this.log("Fallback state posted successfully")
+			} catch (fallbackError) {
+				this.log(
+					`Failed to post fallback state: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`,
+				)
+			}
 		}
 	}
 
