@@ -32,7 +32,7 @@ export class TimeoutManager extends EventEmitter {
 	private static instance: TimeoutManager | undefined
 	private activeOperations = new Map<string, AbortController>()
 	/**
-	 * Assumes there is only on active tool-- does not timeout edge cases
+	 * Assumes there is only one active tool-- does not timeout edge cases
 	 * like "Proceed While Running"
 	 */
 	private lastTimeoutEvent: TimeoutEvent | null = null
