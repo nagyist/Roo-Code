@@ -220,7 +220,16 @@ const getCommandsMap = ({ context, outputChannel, provider }: RegisterCommandOpt
 	},
 })
 
-export const openClineInNewTab = async ({ context, outputChannel }: Omit<RegisterCommandOptions, "provider">) => {
+/**
+ * Opens Roo Code in a tab with configurable column targeting and locking behavior
+ */
+const openClineInTab = async (
+	{ context, outputChannel }: Omit<RegisterCommandOptions, "provider">,
+	options: {
+		useNewColumn: boolean
+		lockEditorGroup: boolean
+	},
+): Promise<ClineProvider> => {
 	// (This example uses webviewProvider activation event which is necessary to
 	// deserialize cached webview, but since we use retainContextWhenHidden, we
 	// don't need to use that event).
@@ -228,17 +237,25 @@ export const openClineInNewTab = async ({ context, outputChannel }: Omit<Registe
 	const contextProxy = await ContextProxy.getInstance(context)
 	const codeIndexManager = CodeIndexManager.getInstance(context)
 	const tabProvider = new ClineProvider(context, outputChannel, "editor", contextProxy, codeIndexManager)
-	const lastCol = Math.max(...vscode.window.visibleTextEditors.map((editor) => editor.viewColumn || 0))
 
-	// Check if there are any visible text editors, otherwise open a new group
-	// to the right.
-	const hasVisibleEditors = vscode.window.visibleTextEditors.length > 0
+	let targetCol: vscode.ViewColumn
 
-	if (!hasVisibleEditors) {
-		await vscode.commands.executeCommand("workbench.action.newGroupRight")
+	if (options.useNewColumn) {
+		const lastCol = Math.max(...vscode.window.visibleTextEditors.map((editor) => editor.viewColumn || 0))
+
+		// Check if there are any visible text editors, otherwise open a new group
+		// to the right.
+		const hasVisibleEditors = vscode.window.visibleTextEditors.length > 0
+
+		if (!hasVisibleEditors) {
+			await vscode.commands.executeCommand("workbench.action.newGroupRight")
+		}
+
+		targetCol = hasVisibleEditors ? Math.max(lastCol + 1, 1) : vscode.ViewColumn.Two
+	} else {
+		// Use the active column instead of creating a new one
+		targetCol = vscode.ViewColumn.Active
 	}
-
-	const targetCol = hasVisibleEditors ? Math.max(lastCol + 1, 1) : vscode.ViewColumn.Two
 
 	const newPanel = vscode.window.createWebviewPanel(ClineProvider.tabPanelId, "Roo Code", targetCol, {
 		enableScripts: true,
@@ -280,58 +297,18 @@ export const openClineInNewTab = async ({ context, outputChannel }: Omit<Registe
 	)
 
 	// Lock the editor group so clicking on files doesn't open them over the panel.
-	await delay(100)
-	await vscode.commands.executeCommand("workbench.action.lockEditorGroup")
+	if (options.lockEditorGroup) {
+		await delay(100)
+		await vscode.commands.executeCommand("workbench.action.lockEditorGroup")
+	}
 
 	return tabProvider
 }
 
+export const openClineInNewTab = async ({ context, outputChannel }: Omit<RegisterCommandOptions, "provider">) => {
+	return openClineInTab({ context, outputChannel }, { useNewColumn: true, lockEditorGroup: true })
+}
+
 export const openClineInThisTab = async ({ context, outputChannel }: Omit<RegisterCommandOptions, "provider">) => {
-	const contextProxy = await ContextProxy.getInstance(context)
-	const codeIndexManager = CodeIndexManager.getInstance(context)
-	const tabProvider = new ClineProvider(context, outputChannel, "editor", contextProxy, codeIndexManager)
-
-	// Use the active column instead of creating a new one
-	const targetCol = vscode.ViewColumn.Active
-
-	const newPanel = vscode.window.createWebviewPanel(ClineProvider.tabPanelId, "Roo Code", targetCol, {
-		enableScripts: true,
-		retainContextWhenHidden: true,
-		localResourceRoots: [context.extensionUri],
-	})
-
-	// Save as tab type panel.
-	setPanel(newPanel, "tab")
-
-	// TODO: Use better svg icon with light and dark variants (see
-	// https://stackoverflow.com/questions/58365687/vscode-extension-iconpath).
-	newPanel.iconPath = {
-		light: vscode.Uri.joinPath(context.extensionUri, "assets", "icons", "panel_light.png"),
-		dark: vscode.Uri.joinPath(context.extensionUri, "assets", "icons", "panel_dark.png"),
-	}
-
-	await tabProvider.resolveWebviewView(newPanel)
-
-	// Add listener for visibility changes to notify webview
-	newPanel.onDidChangeViewState(
-		(e) => {
-			const panel = e.webviewPanel
-			if (panel.visible) {
-				panel.webview.postMessage({ type: "action", action: "didBecomeVisible" }) // Use the same message type as in SettingsView.tsx
-			}
-		},
-		null, // First null is for `thisArgs`
-		context.subscriptions, // Register listener for disposal
-	)
-
-	// Handle panel closing events.
-	newPanel.onDidDispose(
-		() => {
-			setPanel(undefined, "tab")
-		},
-		null,
-		context.subscriptions, // Also register dispose listener
-	)
-
-	return tabProvider
+	return openClineInTab({ context, outputChannel }, { useNewColumn: false, lockEditorGroup: false })
 }
