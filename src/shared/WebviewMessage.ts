@@ -80,8 +80,6 @@ export interface WebviewMessage {
 		| "allowedMaxRequests"
 		| "alwaysAllowSubtasks"
 		| "alwaysAllowUpdateTodoList"
-		| "skipEditMessageConfirmation"
-		| "skipDeleteMessageConfirmation"
 		| "autoCondenseContext"
 		| "autoCondenseContextPercent"
 		| "condensingApiConfigId"

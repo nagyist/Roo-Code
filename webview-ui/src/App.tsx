@@ -49,10 +49,6 @@ const App = () => {
 		cloudApiUrl,
 		renderContext,
 		mdmCompliant,
-		skipEditMessageConfirmation,
-		setSkipEditMessageConfirmation,
-		skipDeleteMessageConfirmation,
-		setSkipDeleteMessageConfirmation,
 	} = useExtensionState()
 
 	// Create a persistent state manager
@@ -145,37 +141,18 @@ const App = () => {
 			}
 
 			if (message.type === "showDeleteMessageDialog" && message.messageTs) {
-				// Check if user has opted to skip the confirmation
-				if (skipDeleteMessageConfirmation) {
-					// Directly send the confirmation without showing dialog
-					vscode.postMessage({
-						type: "deleteMessageConfirm",
-						messageTs: message.messageTs,
-					})
-				} else {
-					setDeleteMessageDialogState({ isOpen: true, messageTs: message.messageTs })
-				}
+				setDeleteMessageDialogState({ isOpen: true, messageTs: message.messageTs })
 			}
 
 			if (message.type === "showEditMessageDialog" && message.messageTs && message.text) {
-				// Check if user has opted to skip the confirmation
-				if (skipEditMessageConfirmation) {
-					// Directly send the confirmation without showing dialog
-					vscode.postMessage({
-						type: "editMessageConfirm",
-						messageTs: message.messageTs,
-						text: message.text,
-					})
-				} else {
-					setEditMessageDialogState({ isOpen: true, messageTs: message.messageTs, text: message.text })
-				}
+				setEditMessageDialogState({ isOpen: true, messageTs: message.messageTs, text: message.text })
 			}
 
 			if (message.type === "acceptInput") {
 				chatViewRef.current?.acceptInput()
 			}
 		},
-		[switchTab, skipDeleteMessageConfirmation, skipEditMessageConfirmation],
+		[switchTab],
 	)
 
 	useEvent("message", onMessage)
@@ -260,15 +237,7 @@ const App = () => {
 			<DeleteMessageDialog
 				open={deleteMessageDialogState.isOpen}
 				onOpenChange={(open) => setDeleteMessageDialogState((prev) => ({ ...prev, isOpen: open }))}
-				onConfirm={(dontShowAgain) => {
-					// Save the preference if checkbox was checked
-					if (dontShowAgain) {
-						setSkipDeleteMessageConfirmation(true)
-						vscode.postMessage({
-							type: "skipDeleteMessageConfirmation",
-							bool: true,
-						})
-					}
+				onConfirm={() => {
 					vscode.postMessage({
 						type: "deleteMessageConfirm",
 						messageTs: deleteMessageDialogState.messageTs,
@@ -279,15 +248,7 @@ const App = () => {
 			<EditMessageDialog
 				open={editMessageDialogState.isOpen}
 				onOpenChange={(open) => setEditMessageDialogState((prev) => ({ ...prev, isOpen: open }))}
-				onConfirm={(dontShowAgain) => {
-					// Save the preference if checkbox was checked
-					if (dontShowAgain) {
-						setSkipEditMessageConfirmation(true)
-						vscode.postMessage({
-							type: "skipEditMessageConfirmation",
-							bool: true,
-						})
-					}
+				onConfirm={() => {
 					vscode.postMessage({
 						type: "editMessageConfirm",
 						messageTs: editMessageDialogState.messageTs,

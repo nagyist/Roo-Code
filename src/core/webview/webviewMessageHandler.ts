@@ -99,19 +99,11 @@ export const webviewMessageHandler = async (
 	 * Handles message deletion operations with user confirmation
 	 */
 	const handleDeleteOperation = async (messageTs: number): Promise<void> => {
-		// Check if user has opted to skip the confirmation
-		const skipDeleteMessageConfirmation = getGlobalState("skipDeleteMessageConfirmation")
-
-		if (skipDeleteMessageConfirmation) {
-			// Directly handle the deletion without showing dialog
-			await handleDeleteMessageConfirm(messageTs)
-		} else {
-			// Send message to webview to show delete confirmation dialog
-			await provider.postMessageToWebview({
-				type: "showDeleteMessageDialog",
-				messageTs,
-			})
-		}
+		// Send message to webview to show delete confirmation dialog
+		await provider.postMessageToWebview({
+			type: "showDeleteMessageDialog",
+			messageTs,
+		})
 	}
 
 	/**
@@ -146,20 +138,12 @@ export const webviewMessageHandler = async (
 	 * Handles message editing operations with user confirmation
 	 */
 	const handleEditOperation = async (messageTs: number, editedContent: string): Promise<void> => {
-		// Check if user has opted to skip the confirmation
-		const skipEditMessageConfirmation = getGlobalState("skipEditMessageConfirmation")
-
-		if (skipEditMessageConfirmation) {
-			// Directly handle the edit without showing dialog
-			await handleEditMessageConfirm(messageTs, editedContent)
-		} else {
-			// Send message to webview to show edit confirmation dialog
-			await provider.postMessageToWebview({
-				type: "showEditMessageDialog",
-				messageTs,
-				text: editedContent,
-			})
-		}
+		// Send message to webview to show edit confirmation dialog
+		await provider.postMessageToWebview({
+			type: "showEditMessageDialog",
+			messageTs,
+			text: editedContent,
+		})
 	}
 
 	/**
@@ -1215,14 +1199,6 @@ export const webviewMessageHandler = async (
 		case "setHistoryPreviewCollapsed": // Add the new case handler
 			await updateGlobalState("historyPreviewCollapsed", message.bool ?? false)
 			// No need to call postStateToWebview here as the UI already updated optimistically
-			break
-		case "skipEditMessageConfirmation":
-			await updateGlobalState("skipEditMessageConfirmation", message.bool ?? false)
-			await provider.postStateToWebview()
-			break
-		case "skipDeleteMessageConfirmation":
-			await updateGlobalState("skipDeleteMessageConfirmation", message.bool ?? false)
-			await provider.postStateToWebview()
 			break
 		case "toggleApiConfigPin":
 			if (message.text) {

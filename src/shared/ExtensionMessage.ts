@@ -185,8 +185,6 @@ export type ExtensionState = Pick<
 	| "alwaysAllowSubtasks"
 	| "alwaysAllowExecute"
 	| "alwaysAllowUpdateTodoList"
-	| "skipEditMessageConfirmation"
-	| "skipDeleteMessageConfirmation"
 	| "allowedCommands"
 	| "allowedMaxRequests"
 	| "browserToolEnabled"
