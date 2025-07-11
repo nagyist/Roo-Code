@@ -7,11 +7,13 @@ export function runClaudeCode({
 	messages,
 	path,
 	modelId,
+	maxOutputTokens,
 }: {
 	systemPrompt: string
 	messages: Anthropic.Messages.MessageParam[]
 	path?: string
 	modelId?: string
+	maxOutputTokens?: number
 }) {
 	const claudePath = path || "claude"
 
@@ -38,7 +40,12 @@ export function runClaudeCode({
 		stdin: "ignore",
 		stdout: "pipe",
 		stderr: "pipe",
-		env: process.env,
+		env: {
+			...process.env,
+			// Use the configured value, or the environment variable, or default to 8000
+			CLAUDE_CODE_MAX_OUTPUT_TOKENS:
+				maxOutputTokens?.toString() || process.env.CLAUDE_CODE_MAX_OUTPUT_TOKENS || "8000",
+		},
 		cwd,
 	})
 }
