@@ -45,7 +45,7 @@
 	},
 	"save": {
 		"title": "Simpan",
-		"tooltip": "Simpan perubahan file"
+		"tooltip": "Simpan perubahan pesan"
 	},
 	"tokenProgress": {
 		"availableSpace": "Ruang tersedia: {{amount}} token",

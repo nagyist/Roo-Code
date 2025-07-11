@@ -39,7 +39,7 @@
 	},
 	"save": {
 		"title": "Guardar",
-		"tooltip": "Guardar los cambios del archivo"
+		"tooltip": "Guardar los cambios del mensaje"
 	},
 	"tokenProgress": {
 		"availableSpace": "Espacio disponible: {{amount}} tokens",

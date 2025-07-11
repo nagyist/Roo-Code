@@ -44,7 +44,7 @@
 	},
 	"save": {
 		"title": "Enregistrer",
-		"tooltip": "Sauvegarder les modifications du fichier"
+		"tooltip": "Enregistrer les modifications du message"
 	},
 	"reject": {
 		"title": "Rejeter",

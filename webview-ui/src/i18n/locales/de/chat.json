@@ -44,7 +44,7 @@
 	},
 	"save": {
 		"title": "Speichern",
-		"tooltip": "Dateiänderungen speichern"
+		"tooltip": "Nachrichtenänderungen speichern"
 	},
 	"reject": {
 		"title": "Ablehnen",
