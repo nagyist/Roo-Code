@@ -3,13 +3,9 @@ import { TodoItem, TodoStatus } from "@roo-code/types"
 /**
  * Format the reminders section as a markdown block in English, with basic instructions.
  */
-export function formatReminderSection(todoList?: TodoItem[], isUpdateTodoListEnabled?: boolean): string {
+export function formatReminderSection(todoList?: TodoItem[]): string {
 	if (!todoList || todoList.length === 0) {
-		if (isUpdateTodoListEnabled !== false) {
-			return "You have not created a todo list yet. Create one with `update_todo_list` if your task is complicated or involves multiple steps."
-		} else {
-			return "You have not created a todo list yet."
-		}
+		return "You have not created a todo list yet. Create one with `update_todo_list` if your task is complicated or involves multiple steps."
 	}
 	const statusMap: Record<TodoStatus, string> = {
 		pending: "Pending",
@@ -33,14 +29,10 @@ export function formatReminderSection(todoList?: TodoItem[], isUpdateTodoListEna
 	})
 	lines.push("")
 
-	if (isUpdateTodoListEnabled !== false) {
-		lines.push(
-			"",
-			"IMPORTANT: When task status changes, remember to call the `update_todo_list` tool to update your progress.",
-			"",
-		)
-	} else {
-		lines.push("")
-	}
+	lines.push(
+		"",
+		"IMPORTANT: When task status changes, remember to call the `update_todo_list` tool to update your progress.",
+		"",
+	)
 	return lines.join("\n")
 }

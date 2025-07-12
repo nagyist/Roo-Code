@@ -264,6 +264,8 @@ export async function getEnvironmentDetails(cline: Task, includeFileDetails: boo
 		}
 	}
 
-	const reminderSection = formatReminderSection(cline.todoList, state?.alwaysAllowUpdateTodoList)
-	return `<environment_details>\n${details.trim()}\n${reminderSection}\n</environment_details>`
+	// Only include reminder section if todo list tool is enabled
+	const todoListEnabled = state?.apiConfiguration?.todoListEnabled ?? true
+	const reminderSection = todoListEnabled ? formatReminderSection(cline.todoList) : ""
+	return `<environment_details>\n${details.trim()}${reminderSection ? `\n${reminderSection}` : ""}\n</environment_details>`
 }
