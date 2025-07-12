@@ -215,22 +215,13 @@ export class ProviderSettingsManager {
 
 	private async migrateTodoListSettings(providerProfiles: ProviderProfiles) {
 		try {
-			let todoListEnabled: boolean | undefined
-
-			try {
-				todoListEnabled = await this.context.globalState.get<boolean>("alwaysAllowUpdateTodoList")
-			} catch (error) {
-				console.error("[MigrateTodoListSettings] Error getting global todo list settings:", error)
-			}
-
-			if (todoListEnabled === undefined) {
-				// Failed to get the existing value, use the default.
-				todoListEnabled = true
-			}
+			// No backfill required - this is a new provider-level setting
+			// Default to true (enabled) for all existing profiles
+			const defaultTodoListEnabled = true
 
 			for (const [_name, apiConfig] of Object.entries(providerProfiles.apiConfigs)) {
 				if (apiConfig.todoListEnabled === undefined) {
-					apiConfig.todoListEnabled = todoListEnabled
+					apiConfig.todoListEnabled = defaultTodoListEnabled
 				}
 			}
 		} catch (error) {

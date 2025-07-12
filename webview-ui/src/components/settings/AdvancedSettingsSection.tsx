@@ -9,6 +9,7 @@ interface AdvancedSettingsSectionProps {
 	fuzzyMatchThreshold?: number
 	todoListEnabled?: boolean
 	onChange: (field: "diffEnabled" | "fuzzyMatchThreshold" | "todoListEnabled", value: any) => void
+	children?: React.ReactNode
 }
 
 export const AdvancedSettingsSection: React.FC<AdvancedSettingsSectionProps> = ({
@@ -16,6 +17,7 @@ export const AdvancedSettingsSection: React.FC<AdvancedSettingsSectionProps> = (
 	fuzzyMatchThreshold,
 	todoListEnabled,
 	onChange,
+	children,
 }) => {
 	const { t } = useAppTranslation()
 	const [isExpanded, setIsExpanded] = useState(false)
@@ -30,7 +32,7 @@ export const AdvancedSettingsSection: React.FC<AdvancedSettingsSectionProps> = (
 				appearance="secondary"
 				onClick={toggleExpanded}
 				className="flex items-center justify-between w-full text-left">
-				<span className="font-medium">{t("settings:advanced.section.label")}</span>
+				<span className="font-medium whitespace-nowrap">{t("settings:advanced.section.label")}</span>
 				<span className="ml-2">{isExpanded ? "▼" : "▶"}</span>
 			</VSCodeButton>
 
@@ -42,6 +44,7 @@ export const AdvancedSettingsSection: React.FC<AdvancedSettingsSectionProps> = (
 						onChange={onChange}
 					/>
 					<TodoListSettingsControl todoListEnabled={todoListEnabled} onChange={onChange} />
+					{children}
 				</div>
 			)}
 		</div>

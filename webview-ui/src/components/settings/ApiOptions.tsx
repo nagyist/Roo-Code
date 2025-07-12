@@ -532,13 +532,11 @@ const ApiOptions = ({
 			/>
 
 			{!fromWelcomeView && (
-				<>
-					<AdvancedSettingsSection
-						diffEnabled={apiConfiguration.diffEnabled}
-						fuzzyMatchThreshold={apiConfiguration.fuzzyMatchThreshold}
-						todoListEnabled={apiConfiguration.todoListEnabled}
-						onChange={(field, value) => setApiConfigurationField(field, value)}
-					/>
+				<AdvancedSettingsSection
+					diffEnabled={apiConfiguration.diffEnabled}
+					fuzzyMatchThreshold={apiConfiguration.fuzzyMatchThreshold}
+					todoListEnabled={apiConfiguration.todoListEnabled}
+					onChange={(field, value) => setApiConfigurationField(field, value)}>
 					<TemperatureControl
 						value={apiConfiguration.modelTemperature}
 						onChange={handleInputChange("modelTemperature", noTransform)}
@@ -548,7 +546,7 @@ const ApiOptions = ({
 						value={apiConfiguration.rateLimitSeconds || 0}
 						onChange={(value) => setApiConfigurationField("rateLimitSeconds", value)}
 					/>
-				</>
+				</AdvancedSettingsSection>
 			)}
 		</div>
 	)
