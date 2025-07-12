@@ -4,6 +4,13 @@ import { ToolArgs } from "./types"
  * Get the description for the update_todo_list tool.
  */
 export function getUpdateTodoListDescription(args?: ToolArgs): string {
+	// Check if the todo list feature is enabled
+	const isEnabled = args?.settings?.alwaysAllowUpdateTodoList !== false
+
+	if (!isEnabled) {
+		return "" // Return empty string if feature is disabled
+	}
+
 	return `## update_todo_list
 
 **Description:**

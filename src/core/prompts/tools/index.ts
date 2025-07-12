@@ -122,10 +122,13 @@ export function getToolDescriptionsForMode(
 			return undefined
 		}
 
-		return descriptionFn({
+		const description = descriptionFn({
 			...args,
 			toolOptions: undefined, // No tool options in group-based approach
 		})
+
+		// Filter out empty descriptions (e.g., when update_todo_list is disabled)
+		return description && description.trim() ? description : undefined
 	})
 
 	return `# Tools\n\n${descriptions.filter(Boolean).join("\n\n")}`
