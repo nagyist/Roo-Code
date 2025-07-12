@@ -264,6 +264,6 @@ export async function getEnvironmentDetails(cline: Task, includeFileDetails: boo
 		}
 	}
 
-	const reminderSection = formatReminderSection(cline.todoList)
+	const reminderSection = formatReminderSection(cline.todoList, state?.alwaysAllowUpdateTodoList)
 	return `<environment_details>\n${details.trim()}\n${reminderSection}\n</environment_details>`
 }
