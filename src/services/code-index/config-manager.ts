@@ -21,6 +21,7 @@ export class CodeIndexConfigManager {
 	private qdrantApiKey?: string
 	private searchMinScore?: number
 	private searchMaxResults?: number
+	private codebaseIndexEnabled?: boolean
 
 	constructor(private readonly contextProxy: ContextProxy) {
 		// Initialize with current configuration to avoid false restart triggers
@@ -68,7 +69,7 @@ export class CodeIndexConfigManager {
 		const geminiApiKey = this.contextProxy?.getSecret("codebaseIndexGeminiApiKey") ?? ""
 
 		// Update instance variables with configuration
-		// Note: codebaseIndexEnabled is no longer used as the feature is always enabled
+		this.codebaseIndexEnabled = codebaseIndexEnabled
 		this.qdrantUrl = codebaseIndexQdrantUrl
 		this.qdrantApiKey = qdrantApiKey ?? ""
 		this.searchMinScore = codebaseIndexSearchMinScore
@@ -142,7 +143,7 @@ export class CodeIndexConfigManager {
 	}> {
 		// Capture the ACTUAL previous state before loading new configuration
 		const previousConfigSnapshot: PreviousConfigSnapshot = {
-			enabled: true, // Feature is always enabled
+			enabled: this.isFeatureEnabled,
 			configured: this.isConfigured(),
 			embedderProvider: this.embedderProvider,
 			modelId: this.modelId,
@@ -243,8 +244,13 @@ export class CodeIndexConfigManager {
 		const prevQdrantUrl = prev?.qdrantUrl ?? ""
 		const prevQdrantApiKey = prev?.qdrantApiKey ?? ""
 
-		// 1. Transition from unconfigured to configured
-		// Since the feature is always enabled, we only check configuration status
+		// 1. Check for enable/disable transitions
+		const nowEnabled = this.isFeatureEnabled
+		if (prevEnabled !== nowEnabled) {
+			return true
+		}
+
+		// 2. Transition from unconfigured to configured
 		if (!prevConfigured && nowConfigured) {
 			return true
 		}
@@ -255,7 +261,6 @@ export class CodeIndexConfigManager {
 		}
 
 		// 4. CRITICAL CHANGES - Always restart for these
-		// Since feature is always enabled, we always check for critical changes
 
 		// Provider change
 		if (prevProvider !== this.embedderProvider) {
@@ -354,7 +359,7 @@ export class CodeIndexConfigManager {
 	 * Gets whether the code indexing feature is enabled
 	 */
 	public get isFeatureEnabled(): boolean {
-		return true
+		return this.codebaseIndexEnabled ?? true
 	}
 
 	/**

@@ -40,6 +40,8 @@
 		"title": "Codebase Indexing",
 		"description": "Configure codebase indexing settings to enable semantic search of your project. <0>Learn more</0>",
 		"statusTitle": "Status",
+		"enabledLabel": "Enable Codebase Indexing",
+		"enabledDescription": "Toggle codebase indexing on or off. When disabled, the codebase_search tool will not be available.",
 		"enableLabel": "Enable Codebase Indexing",
 		"enableDescription": "<0>Codebase Indexing</0> is an experimental feature that creates a semantic search index of your project using AI embeddings. This enables Roo Code to better understand and navigate large codebases by finding relevant code based on meaning rather than just keywords.",
 		"settingsTitle": "Indexing Settings",

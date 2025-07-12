@@ -526,525 +526,573 @@ export const CodeIndexPopover: React.FC<CodeIndexPopoverProps> = ({
 							)}
 						</div>
 
+						{/* Enable/Disable Toggle Section */}
+						<div className="mt-4 pt-4 border-t border-vscode-dropdown-border">
+							<div className="flex items-center justify-between">
+								<div className="space-y-1">
+									<label className="text-sm font-medium">
+										{t("settings:codeIndex.enabledLabel")}
+									</label>
+									<p className="text-xs text-vscode-descriptionForeground">
+										{t("settings:codeIndex.enabledDescription")}
+									</p>
+								</div>
+								<label className="relative inline-flex items-center cursor-pointer">
+									<input
+										type="checkbox"
+										checked={currentSettings.codebaseIndexEnabled}
+										onChange={(e) => updateSetting("codebaseIndexEnabled", e.target.checked)}
+										className="sr-only peer"
+									/>
+									<div className="w-11 h-6 bg-vscode-input-background peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-vscode-focusBorder rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-vscode-button-background"></div>
+								</label>
+							</div>
+						</div>
+
 						{/* Setup Settings Disclosure */}
-						<div className="mt-4">
-							<button
-								onClick={() => setIsSetupSettingsOpen(!isSetupSettingsOpen)}
-								className="flex items-center text-xs text-vscode-foreground hover:text-vscode-textLink-foreground focus:outline-none"
-								aria-expanded={isSetupSettingsOpen}>
-								<span
-									className={`codicon codicon-${isSetupSettingsOpen ? "chevron-down" : "chevron-right"} mr-1`}></span>
-								<span className="text-base font-semibold">
-									{t("settings:codeIndex.setupConfigLabel")}
-								</span>
-							</button>
+						{currentSettings.codebaseIndexEnabled && (
+							<div className="mt-4">
+								<button
+									onClick={() => setIsSetupSettingsOpen(!isSetupSettingsOpen)}
+									className="flex items-center text-xs text-vscode-foreground hover:text-vscode-textLink-foreground focus:outline-none"
+									aria-expanded={isSetupSettingsOpen}>
+									<span
+										className={`codicon codicon-${isSetupSettingsOpen ? "chevron-down" : "chevron-right"} mr-1`}></span>
+									<span className="text-base font-semibold">
+										{t("settings:codeIndex.setupConfigLabel")}
+									</span>
+								</button>
 
-							{isSetupSettingsOpen && (
-								<div className="mt-4 space-y-4">
-									{/* Embedder Provider Section */}
-									<div className="space-y-2">
-										<label className="text-sm font-medium">
-											{t("settings:codeIndex.embedderProviderLabel")}
-										</label>
-										<Select
-											value={currentSettings.codebaseIndexEmbedderProvider}
-											onValueChange={(value: EmbedderProvider) => {
-												updateSetting("codebaseIndexEmbedderProvider", value)
-												// Clear model selection when switching providers
-												updateSetting("codebaseIndexEmbedderModelId", "")
-											}}>
-											<SelectTrigger className="w-full">
-												<SelectValue />
-											</SelectTrigger>
-											<SelectContent>
-												<SelectItem value="openai">
-													{t("settings:codeIndex.openaiProvider")}
-												</SelectItem>
-												<SelectItem value="ollama">
-													{t("settings:codeIndex.ollamaProvider")}
-												</SelectItem>
-												<SelectItem value="openai-compatible">
-													{t("settings:codeIndex.openaiCompatibleProvider")}
-												</SelectItem>
-												<SelectItem value="gemini">
-													{t("settings:codeIndex.geminiProvider")}
-												</SelectItem>
-											</SelectContent>
-										</Select>
-									</div>
+								{isSetupSettingsOpen && (
+									<div className="mt-4 space-y-4">
+										{/* Embedder Provider Section */}
+										<div className="space-y-2">
+											<label className="text-sm font-medium">
+												{t("settings:codeIndex.embedderProviderLabel")}
+											</label>
+											<Select
+												value={currentSettings.codebaseIndexEmbedderProvider}
+												onValueChange={(value: EmbedderProvider) => {
+													updateSetting("codebaseIndexEmbedderProvider", value)
+													// Clear model selection when switching providers
+													updateSetting("codebaseIndexEmbedderModelId", "")
+												}}>
+												<SelectTrigger className="w-full">
+													<SelectValue />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="openai">
+														{t("settings:codeIndex.openaiProvider")}
+													</SelectItem>
+													<SelectItem value="ollama">
+														{t("settings:codeIndex.ollamaProvider")}
+													</SelectItem>
+													<SelectItem value="openai-compatible">
+														{t("settings:codeIndex.openaiCompatibleProvider")}
+													</SelectItem>
+													<SelectItem value="gemini">
+														{t("settings:codeIndex.geminiProvider")}
+													</SelectItem>
+												</SelectContent>
+											</Select>
+										</div>
 
-									{/* Provider-specific settings */}
-									{currentSettings.codebaseIndexEmbedderProvider === "openai" && (
-										<>
-											<div className="space-y-2">
-												<label className="text-sm font-medium">
-													{t("settings:codeIndex.openAiKeyLabel")}
-												</label>
-												<VSCodeTextField
-													type="password"
-													value={currentSettings.codeIndexOpenAiKey || ""}
-													onInput={(e: any) =>
-														updateSetting("codeIndexOpenAiKey", e.target.value)
-													}
-													placeholder={t("settings:codeIndex.openAiKeyPlaceholder")}
-													className={cn("w-full", {
-														"border-red-500": formErrors.codeIndexOpenAiKey,
-													})}
-												/>
-												{formErrors.codeIndexOpenAiKey && (
-													<p className="text-xs text-vscode-errorForeground mt-1 mb-0">
-														{formErrors.codeIndexOpenAiKey}
-													</p>
-												)}
-											</div>
+										{/* Provider-specific settings */}
+										{currentSettings.codebaseIndexEmbedderProvider === "openai" && (
+											<>
+												<div className="space-y-2">
+													<label className="text-sm font-medium">
+														{t("settings:codeIndex.openAiKeyLabel")}
+													</label>
+													<VSCodeTextField
+														type="password"
+														value={currentSettings.codeIndexOpenAiKey || ""}
+														onInput={(e: any) =>
+															updateSetting("codeIndexOpenAiKey", e.target.value)
+														}
+														placeholder={t("settings:codeIndex.openAiKeyPlaceholder")}
+														className={cn("w-full", {
+															"border-red-500": formErrors.codeIndexOpenAiKey,
+														})}
+													/>
+													{formErrors.codeIndexOpenAiKey && (
+														<p className="text-xs text-vscode-errorForeground mt-1 mb-0">
+															{formErrors.codeIndexOpenAiKey}
+														</p>
+													)}
+												</div>
 
-											<div className="space-y-2">
-												<label className="text-sm font-medium">
-													{t("settings:codeIndex.modelLabel")}
-												</label>
-												<VSCodeDropdown
-													value={currentSettings.codebaseIndexEmbedderModelId}
-													onChange={(e: any) =>
-														updateSetting("codebaseIndexEmbedderModelId", e.target.value)
-													}
-													className={cn("w-full", {
-														"border-red-500": formErrors.codebaseIndexEmbedderModelId,
-													})}>
-													<VSCodeOption value="">
-														{t("settings:codeIndex.selectModel")}
-													</VSCodeOption>
-													{getAvailableModels().map((modelId) => {
-														const model =
-															codebaseIndexModels?.[
-																currentSettings.codebaseIndexEmbedderProvider
-															]?.[modelId]
-														return (
-															<VSCodeOption key={modelId} value={modelId}>
-																{modelId}{" "}
-																{model
-																	? t("settings:codeIndex.modelDimensions", {
-																			dimension: model.dimension,
-																		})
-																	: ""}
-															</VSCodeOption>
-														)
-													})}
-												</VSCodeDropdown>
-												{formErrors.codebaseIndexEmbedderModelId && (
-													<p className="text-xs text-vscode-errorForeground mt-1 mb-0">
-														{formErrors.codebaseIndexEmbedderModelId}
-													</p>
-												)}
-											</div>
-										</>
-									)}
-
-									{currentSettings.codebaseIndexEmbedderProvider === "ollama" && (
-										<>
-											<div className="space-y-2">
-												<label className="text-sm font-medium">
-													{t("settings:codeIndex.ollamaBaseUrlLabel")}
-												</label>
-												<VSCodeTextField
-													value={currentSettings.codebaseIndexEmbedderBaseUrl || ""}
-													onInput={(e: any) =>
-														updateSetting("codebaseIndexEmbedderBaseUrl", e.target.value)
-													}
-													onBlur={(e: any) => {
-														// Set default Ollama URL if field is empty
-														if (!e.target.value.trim()) {
-															e.target.value = DEFAULT_OLLAMA_URL
+												<div className="space-y-2">
+													<label className="text-sm font-medium">
+														{t("settings:codeIndex.modelLabel")}
+													</label>
+													<VSCodeDropdown
+														value={currentSettings.codebaseIndexEmbedderModelId}
+														onChange={(e: any) =>
 															updateSetting(
-																"codebaseIndexEmbedderBaseUrl",
-																DEFAULT_OLLAMA_URL,
+																"codebaseIndexEmbedderModelId",
+																e.target.value,
 															)
 														}
-													}}
-													placeholder={t("settings:codeIndex.ollamaUrlPlaceholder")}
-													className={cn("w-full", {
-														"border-red-500": formErrors.codebaseIndexEmbedderBaseUrl,
-													})}
-												/>
-												{formErrors.codebaseIndexEmbedderBaseUrl && (
-													<p className="text-xs text-vscode-errorForeground mt-1 mb-0">
-														{formErrors.codebaseIndexEmbedderBaseUrl}
-													</p>
-												)}
-											</div>
-
-											<div className="space-y-2">
-												<label className="text-sm font-medium">
-													{t("settings:codeIndex.modelLabel")}
-												</label>
-												<VSCodeDropdown
-													value={currentSettings.codebaseIndexEmbedderModelId}
-													onChange={(e: any) =>
-														updateSetting("codebaseIndexEmbedderModelId", e.target.value)
-													}
-													className={cn("w-full", {
-														"border-red-500": formErrors.codebaseIndexEmbedderModelId,
-													})}>
-													<VSCodeOption value="">
-														{t("settings:codeIndex.selectModel")}
-													</VSCodeOption>
-													{getAvailableModels().map((modelId) => {
-														const model =
-															codebaseIndexModels?.[
-																currentSettings.codebaseIndexEmbedderProvider
-															]?.[modelId]
-														return (
-															<VSCodeOption key={modelId} value={modelId}>
-																{modelId}{" "}
-																{model
-																	? t("settings:codeIndex.modelDimensions", {
-																			dimension: model.dimension,
-																		})
-																	: ""}
-															</VSCodeOption>
-														)
-													})}
-												</VSCodeDropdown>
-												{formErrors.codebaseIndexEmbedderModelId && (
-													<p className="text-xs text-vscode-errorForeground mt-1 mb-0">
-														{formErrors.codebaseIndexEmbedderModelId}
-													</p>
-												)}
-											</div>
-										</>
-									)}
-
-									{currentSettings.codebaseIndexEmbedderProvider === "openai-compatible" && (
-										<>
-											<div className="space-y-2">
-												<label className="text-sm font-medium">
-													{t("settings:codeIndex.openAiCompatibleBaseUrlLabel")}
-												</label>
-												<VSCodeTextField
-													value={currentSettings.codebaseIndexOpenAiCompatibleBaseUrl || ""}
-													onInput={(e: any) =>
-														updateSetting(
-															"codebaseIndexOpenAiCompatibleBaseUrl",
-															e.target.value,
-														)
-													}
-													placeholder={t(
-														"settings:codeIndex.openAiCompatibleBaseUrlPlaceholder",
+														className={cn("w-full", {
+															"border-red-500": formErrors.codebaseIndexEmbedderModelId,
+														})}>
+														<VSCodeOption value="">
+															{t("settings:codeIndex.selectModel")}
+														</VSCodeOption>
+														{getAvailableModels().map((modelId) => {
+															const model =
+																codebaseIndexModels?.[
+																	currentSettings.codebaseIndexEmbedderProvider
+																]?.[modelId]
+															return (
+																<VSCodeOption key={modelId} value={modelId}>
+																	{modelId}{" "}
+																	{model
+																		? t("settings:codeIndex.modelDimensions", {
+																				dimension: model.dimension,
+																			})
+																		: ""}
+																</VSCodeOption>
+															)
+														})}
+													</VSCodeDropdown>
+													{formErrors.codebaseIndexEmbedderModelId && (
+														<p className="text-xs text-vscode-errorForeground mt-1 mb-0">
+															{formErrors.codebaseIndexEmbedderModelId}
+														</p>
 													)}
-													className={cn("w-full", {
-														"border-red-500":
-															formErrors.codebaseIndexOpenAiCompatibleBaseUrl,
-													})}
-												/>
-												{formErrors.codebaseIndexOpenAiCompatibleBaseUrl && (
-													<p className="text-xs text-vscode-errorForeground mt-1 mb-0">
-														{formErrors.codebaseIndexOpenAiCompatibleBaseUrl}
-													</p>
-												)}
-											</div>
+												</div>
+											</>
+										)}
 
-											<div className="space-y-2">
-												<label className="text-sm font-medium">
-													{t("settings:codeIndex.openAiCompatibleApiKeyLabel")}
-												</label>
-												<VSCodeTextField
-													type="password"
-													value={currentSettings.codebaseIndexOpenAiCompatibleApiKey || ""}
-													onInput={(e: any) =>
-														updateSetting(
-															"codebaseIndexOpenAiCompatibleApiKey",
-															e.target.value,
-														)
-													}
-													placeholder={t(
-														"settings:codeIndex.openAiCompatibleApiKeyPlaceholder",
+										{currentSettings.codebaseIndexEmbedderProvider === "ollama" && (
+											<>
+												<div className="space-y-2">
+													<label className="text-sm font-medium">
+														{t("settings:codeIndex.ollamaBaseUrlLabel")}
+													</label>
+													<VSCodeTextField
+														value={currentSettings.codebaseIndexEmbedderBaseUrl || ""}
+														onInput={(e: any) =>
+															updateSetting(
+																"codebaseIndexEmbedderBaseUrl",
+																e.target.value,
+															)
+														}
+														onBlur={(e: any) => {
+															// Set default Ollama URL if field is empty
+															if (!e.target.value.trim()) {
+																e.target.value = DEFAULT_OLLAMA_URL
+																updateSetting(
+																	"codebaseIndexEmbedderBaseUrl",
+																	DEFAULT_OLLAMA_URL,
+																)
+															}
+														}}
+														placeholder={t("settings:codeIndex.ollamaUrlPlaceholder")}
+														className={cn("w-full", {
+															"border-red-500": formErrors.codebaseIndexEmbedderBaseUrl,
+														})}
+													/>
+													{formErrors.codebaseIndexEmbedderBaseUrl && (
+														<p className="text-xs text-vscode-errorForeground mt-1 mb-0">
+															{formErrors.codebaseIndexEmbedderBaseUrl}
+														</p>
 													)}
-													className={cn("w-full", {
-														"border-red-500":
-															formErrors.codebaseIndexOpenAiCompatibleApiKey,
-													})}
-												/>
-												{formErrors.codebaseIndexOpenAiCompatibleApiKey && (
-													<p className="text-xs text-vscode-errorForeground mt-1 mb-0">
-														{formErrors.codebaseIndexOpenAiCompatibleApiKey}
-													</p>
-												)}
-											</div>
+												</div>
 
-											<div className="space-y-2">
-												<label className="text-sm font-medium">
-													{t("settings:codeIndex.modelLabel")}
-												</label>
-												<VSCodeTextField
-													value={currentSettings.codebaseIndexEmbedderModelId || ""}
-													onInput={(e: any) =>
-														updateSetting("codebaseIndexEmbedderModelId", e.target.value)
-													}
-													placeholder={t("settings:codeIndex.modelPlaceholder")}
-													className={cn("w-full", {
-														"border-red-500": formErrors.codebaseIndexEmbedderModelId,
-													})}
-												/>
-												{formErrors.codebaseIndexEmbedderModelId && (
-													<p className="text-xs text-vscode-errorForeground mt-1 mb-0">
-														{formErrors.codebaseIndexEmbedderModelId}
-													</p>
-												)}
-											</div>
+												<div className="space-y-2">
+													<label className="text-sm font-medium">
+														{t("settings:codeIndex.modelLabel")}
+													</label>
+													<VSCodeDropdown
+														value={currentSettings.codebaseIndexEmbedderModelId}
+														onChange={(e: any) =>
+															updateSetting(
+																"codebaseIndexEmbedderModelId",
+																e.target.value,
+															)
+														}
+														className={cn("w-full", {
+															"border-red-500": formErrors.codebaseIndexEmbedderModelId,
+														})}>
+														<VSCodeOption value="">
+															{t("settings:codeIndex.selectModel")}
+														</VSCodeOption>
+														{getAvailableModels().map((modelId) => {
+															const model =
+																codebaseIndexModels?.[
+																	currentSettings.codebaseIndexEmbedderProvider
+																]?.[modelId]
+															return (
+																<VSCodeOption key={modelId} value={modelId}>
+																	{modelId}{" "}
+																	{model
+																		? t("settings:codeIndex.modelDimensions", {
+																				dimension: model.dimension,
+																			})
+																		: ""}
+																</VSCodeOption>
+															)
+														})}
+													</VSCodeDropdown>
+													{formErrors.codebaseIndexEmbedderModelId && (
+														<p className="text-xs text-vscode-errorForeground mt-1 mb-0">
+															{formErrors.codebaseIndexEmbedderModelId}
+														</p>
+													)}
+												</div>
+											</>
+										)}
 
-											<div className="space-y-2">
-												<label className="text-sm font-medium">
-													{t("settings:codeIndex.modelDimensionLabel")}
-												</label>
-												<VSCodeTextField
-													value={
-														currentSettings.codebaseIndexEmbedderModelDimension?.toString() ||
-														""
-													}
-													onInput={(e: any) => {
-														const value = e.target.value
-															? parseInt(e.target.value)
-															: undefined
-														updateSetting("codebaseIndexEmbedderModelDimension", value)
-													}}
-													placeholder={t("settings:codeIndex.modelDimensionPlaceholder")}
-													className={cn("w-full", {
-														"border-red-500":
-															formErrors.codebaseIndexEmbedderModelDimension,
-													})}
-												/>
-												{formErrors.codebaseIndexEmbedderModelDimension && (
-													<p className="text-xs text-vscode-errorForeground mt-1 mb-0">
-														{formErrors.codebaseIndexEmbedderModelDimension}
-													</p>
-												)}
-											</div>
-										</>
-									)}
+										{currentSettings.codebaseIndexEmbedderProvider === "openai-compatible" && (
+											<>
+												<div className="space-y-2">
+													<label className="text-sm font-medium">
+														{t("settings:codeIndex.openAiCompatibleBaseUrlLabel")}
+													</label>
+													<VSCodeTextField
+														value={
+															currentSettings.codebaseIndexOpenAiCompatibleBaseUrl || ""
+														}
+														onInput={(e: any) =>
+															updateSetting(
+																"codebaseIndexOpenAiCompatibleBaseUrl",
+																e.target.value,
+															)
+														}
+														placeholder={t(
+															"settings:codeIndex.openAiCompatibleBaseUrlPlaceholder",
+														)}
+														className={cn("w-full", {
+															"border-red-500":
+																formErrors.codebaseIndexOpenAiCompatibleBaseUrl,
+														})}
+													/>
+													{formErrors.codebaseIndexOpenAiCompatibleBaseUrl && (
+														<p className="text-xs text-vscode-errorForeground mt-1 mb-0">
+															{formErrors.codebaseIndexOpenAiCompatibleBaseUrl}
+														</p>
+													)}
+												</div>
 
-									{currentSettings.codebaseIndexEmbedderProvider === "gemini" && (
-										<>
-											<div className="space-y-2">
-												<label className="text-sm font-medium">
-													{t("settings:codeIndex.geminiApiKeyLabel")}
-												</label>
-												<VSCodeTextField
-													type="password"
-													value={currentSettings.codebaseIndexGeminiApiKey || ""}
-													onInput={(e: any) =>
-														updateSetting("codebaseIndexGeminiApiKey", e.target.value)
-													}
-													placeholder={t("settings:codeIndex.geminiApiKeyPlaceholder")}
-													className={cn("w-full", {
-														"border-red-500": formErrors.codebaseIndexGeminiApiKey,
-													})}
-												/>
-												{formErrors.codebaseIndexGeminiApiKey && (
-													<p className="text-xs text-vscode-errorForeground mt-1 mb-0">
-														{formErrors.codebaseIndexGeminiApiKey}
-													</p>
-												)}
-											</div>
+												<div className="space-y-2">
+													<label className="text-sm font-medium">
+														{t("settings:codeIndex.openAiCompatibleApiKeyLabel")}
+													</label>
+													<VSCodeTextField
+														type="password"
+														value={
+															currentSettings.codebaseIndexOpenAiCompatibleApiKey || ""
+														}
+														onInput={(e: any) =>
+															updateSetting(
+																"codebaseIndexOpenAiCompatibleApiKey",
+																e.target.value,
+															)
+														}
+														placeholder={t(
+															"settings:codeIndex.openAiCompatibleApiKeyPlaceholder",
+														)}
+														className={cn("w-full", {
+															"border-red-500":
+																formErrors.codebaseIndexOpenAiCompatibleApiKey,
+														})}
+													/>
+													{formErrors.codebaseIndexOpenAiCompatibleApiKey && (
+														<p className="text-xs text-vscode-errorForeground mt-1 mb-0">
+															{formErrors.codebaseIndexOpenAiCompatibleApiKey}
+														</p>
+													)}
+												</div>
 
-											<div className="space-y-2">
-												<label className="text-sm font-medium">
-													{t("settings:codeIndex.modelLabel")}
-												</label>
-												<VSCodeDropdown
-													value={currentSettings.codebaseIndexEmbedderModelId}
-													onChange={(e: any) =>
-														updateSetting("codebaseIndexEmbedderModelId", e.target.value)
-													}
-													className={cn("w-full", {
-														"border-red-500": formErrors.codebaseIndexEmbedderModelId,
-													})}>
-													<VSCodeOption value="">
-														{t("settings:codeIndex.selectModel")}
-													</VSCodeOption>
-													{getAvailableModels().map((modelId) => {
-														const model =
-															codebaseIndexModels?.[
-																currentSettings.codebaseIndexEmbedderProvider
-															]?.[modelId]
-														return (
-															<VSCodeOption key={modelId} value={modelId}>
-																{modelId}{" "}
-																{model
-																	? t("settings:codeIndex.modelDimensions", {
-																			dimension: model.dimension,
-																		})
-																	: ""}
-															</VSCodeOption>
-														)
-													})}
-												</VSCodeDropdown>
-												{formErrors.codebaseIndexEmbedderModelId && (
-													<p className="text-xs text-vscode-errorForeground mt-1 mb-0">
-														{formErrors.codebaseIndexEmbedderModelId}
-													</p>
-												)}
-											</div>
-										</>
-									)}
+												<div className="space-y-2">
+													<label className="text-sm font-medium">
+														{t("settings:codeIndex.modelLabel")}
+													</label>
+													<VSCodeTextField
+														value={currentSettings.codebaseIndexEmbedderModelId || ""}
+														onInput={(e: any) =>
+															updateSetting(
+																"codebaseIndexEmbedderModelId",
+																e.target.value,
+															)
+														}
+														placeholder={t("settings:codeIndex.modelPlaceholder")}
+														className={cn("w-full", {
+															"border-red-500": formErrors.codebaseIndexEmbedderModelId,
+														})}
+													/>
+													{formErrors.codebaseIndexEmbedderModelId && (
+														<p className="text-xs text-vscode-errorForeground mt-1 mb-0">
+															{formErrors.codebaseIndexEmbedderModelId}
+														</p>
+													)}
+												</div>
 
-									{/* Qdrant Settings */}
-									<div className="space-y-2">
-										<label className="text-sm font-medium">
-											{t("settings:codeIndex.qdrantUrlLabel")}
-										</label>
-										<VSCodeTextField
-											value={currentSettings.codebaseIndexQdrantUrl || ""}
-											onInput={(e: any) =>
-												updateSetting("codebaseIndexQdrantUrl", e.target.value)
-											}
-											onBlur={(e: any) => {
-												// Set default Qdrant URL if field is empty
-												if (!e.target.value.trim()) {
-													currentSettings.codebaseIndexQdrantUrl = DEFAULT_QDRANT_URL
-													updateSetting("codebaseIndexQdrantUrl", DEFAULT_QDRANT_URL)
+												<div className="space-y-2">
+													<label className="text-sm font-medium">
+														{t("settings:codeIndex.modelDimensionLabel")}
+													</label>
+													<VSCodeTextField
+														value={
+															currentSettings.codebaseIndexEmbedderModelDimension?.toString() ||
+															""
+														}
+														onInput={(e: any) => {
+															const value = e.target.value
+																? parseInt(e.target.value)
+																: undefined
+															updateSetting("codebaseIndexEmbedderModelDimension", value)
+														}}
+														placeholder={t("settings:codeIndex.modelDimensionPlaceholder")}
+														className={cn("w-full", {
+															"border-red-500":
+																formErrors.codebaseIndexEmbedderModelDimension,
+														})}
+													/>
+													{formErrors.codebaseIndexEmbedderModelDimension && (
+														<p className="text-xs text-vscode-errorForeground mt-1 mb-0">
+															{formErrors.codebaseIndexEmbedderModelDimension}
+														</p>
+													)}
+												</div>
+											</>
+										)}
+
+										{currentSettings.codebaseIndexEmbedderProvider === "gemini" && (
+											<>
+												<div className="space-y-2">
+													<label className="text-sm font-medium">
+														{t("settings:codeIndex.geminiApiKeyLabel")}
+													</label>
+													<VSCodeTextField
+														type="password"
+														value={currentSettings.codebaseIndexGeminiApiKey || ""}
+														onInput={(e: any) =>
+															updateSetting("codebaseIndexGeminiApiKey", e.target.value)
+														}
+														placeholder={t("settings:codeIndex.geminiApiKeyPlaceholder")}
+														className={cn("w-full", {
+															"border-red-500": formErrors.codebaseIndexGeminiApiKey,
+														})}
+													/>
+													{formErrors.codebaseIndexGeminiApiKey && (
+														<p className="text-xs text-vscode-errorForeground mt-1 mb-0">
+															{formErrors.codebaseIndexGeminiApiKey}
+														</p>
+													)}
+												</div>
+
+												<div className="space-y-2">
+													<label className="text-sm font-medium">
+														{t("settings:codeIndex.modelLabel")}
+													</label>
+													<VSCodeDropdown
+														value={currentSettings.codebaseIndexEmbedderModelId}
+														onChange={(e: any) =>
+															updateSetting(
+																"codebaseIndexEmbedderModelId",
+																e.target.value,
+															)
+														}
+														className={cn("w-full", {
+															"border-red-500": formErrors.codebaseIndexEmbedderModelId,
+														})}>
+														<VSCodeOption value="">
+															{t("settings:codeIndex.selectModel")}
+														</VSCodeOption>
+														{getAvailableModels().map((modelId) => {
+															const model =
+																codebaseIndexModels?.[
+																	currentSettings.codebaseIndexEmbedderProvider
+																]?.[modelId]
+															return (
+																<VSCodeOption key={modelId} value={modelId}>
+																	{modelId}{" "}
+																	{model
+																		? t("settings:codeIndex.modelDimensions", {
+																				dimension: model.dimension,
+																			})
+																		: ""}
+																</VSCodeOption>
+															)
+														})}
+													</VSCodeDropdown>
+													{formErrors.codebaseIndexEmbedderModelId && (
+														<p className="text-xs text-vscode-errorForeground mt-1 mb-0">
+															{formErrors.codebaseIndexEmbedderModelId}
+														</p>
+													)}
+												</div>
+											</>
+										)}
+
+										{/* Qdrant Settings */}
+										<div className="space-y-2">
+											<label className="text-sm font-medium">
+												{t("settings:codeIndex.qdrantUrlLabel")}
+											</label>
+											<VSCodeTextField
+												value={currentSettings.codebaseIndexQdrantUrl || ""}
+												onInput={(e: any) =>
+													updateSetting("codebaseIndexQdrantUrl", e.target.value)
 												}
-											}}
-											placeholder={t("settings:codeIndex.qdrantUrlPlaceholder")}
-											className={cn("w-full", {
-												"border-red-500": formErrors.codebaseIndexQdrantUrl,
-											})}
-										/>
-										{formErrors.codebaseIndexQdrantUrl && (
-											<p className="text-xs text-vscode-errorForeground mt-1 mb-0">
-												{formErrors.codebaseIndexQdrantUrl}
-											</p>
-										)}
-									</div>
+												onBlur={(e: any) => {
+													// Set default Qdrant URL if field is empty
+													if (!e.target.value.trim()) {
+														currentSettings.codebaseIndexQdrantUrl = DEFAULT_QDRANT_URL
+														updateSetting("codebaseIndexQdrantUrl", DEFAULT_QDRANT_URL)
+													}
+												}}
+												placeholder={t("settings:codeIndex.qdrantUrlPlaceholder")}
+												className={cn("w-full", {
+													"border-red-500": formErrors.codebaseIndexQdrantUrl,
+												})}
+											/>
+											{formErrors.codebaseIndexQdrantUrl && (
+												<p className="text-xs text-vscode-errorForeground mt-1 mb-0">
+													{formErrors.codebaseIndexQdrantUrl}
+												</p>
+											)}
+										</div>
 
-									<div className="space-y-2">
-										<label className="text-sm font-medium">
-											{t("settings:codeIndex.qdrantApiKeyLabel")}
-										</label>
-										<VSCodeTextField
-											type="password"
-											value={currentSettings.codeIndexQdrantApiKey || ""}
-											onInput={(e: any) => updateSetting("codeIndexQdrantApiKey", e.target.value)}
-											placeholder={t("settings:codeIndex.qdrantApiKeyPlaceholder")}
-											className={cn("w-full", {
-												"border-red-500": formErrors.codeIndexQdrantApiKey,
-											})}
-										/>
-										{formErrors.codeIndexQdrantApiKey && (
-											<p className="text-xs text-vscode-errorForeground mt-1 mb-0">
-												{formErrors.codeIndexQdrantApiKey}
-											</p>
-										)}
+										<div className="space-y-2">
+											<label className="text-sm font-medium">
+												{t("settings:codeIndex.qdrantApiKeyLabel")}
+											</label>
+											<VSCodeTextField
+												type="password"
+												value={currentSettings.codeIndexQdrantApiKey || ""}
+												onInput={(e: any) =>
+													updateSetting("codeIndexQdrantApiKey", e.target.value)
+												}
+												placeholder={t("settings:codeIndex.qdrantApiKeyPlaceholder")}
+												className={cn("w-full", {
+													"border-red-500": formErrors.codeIndexQdrantApiKey,
+												})}
+											/>
+											{formErrors.codeIndexQdrantApiKey && (
+												<p className="text-xs text-vscode-errorForeground mt-1 mb-0">
+													{formErrors.codeIndexQdrantApiKey}
+												</p>
+											)}
+										</div>
 									</div>
-								</div>
-							)}
-						</div>
+								)}
+							</div>
+						)}
 
 						{/* Advanced Settings Disclosure */}
-						<div className="mt-4">
-							<button
-								onClick={() => setIsAdvancedSettingsOpen(!isAdvancedSettingsOpen)}
-								className="flex items-center text-xs text-vscode-foreground hover:text-vscode-textLink-foreground focus:outline-none"
-								aria-expanded={isAdvancedSettingsOpen}>
-								<span
-									className={`codicon codicon-${isAdvancedSettingsOpen ? "chevron-down" : "chevron-right"} mr-1`}></span>
-								<span className="text-base font-semibold">
-									{t("settings:codeIndex.advancedConfigLabel")}
-								</span>
-							</button>
+						{currentSettings.codebaseIndexEnabled && (
+							<div className="mt-4">
+								<button
+									onClick={() => setIsAdvancedSettingsOpen(!isAdvancedSettingsOpen)}
+									className="flex items-center text-xs text-vscode-foreground hover:text-vscode-textLink-foreground focus:outline-none"
+									aria-expanded={isAdvancedSettingsOpen}>
+									<span
+										className={`codicon codicon-${isAdvancedSettingsOpen ? "chevron-down" : "chevron-right"} mr-1`}></span>
+									<span className="text-base font-semibold">
+										{t("settings:codeIndex.advancedConfigLabel")}
+									</span>
+								</button>
 
-							{isAdvancedSettingsOpen && (
-								<div className="mt-4 space-y-4">
-									{/* Search Score Threshold Slider */}
-									<div className="space-y-2">
-										<div className="flex items-center gap-2">
-											<label className="text-sm font-medium">
-												{t("settings:codeIndex.searchMinScoreLabel")}
-											</label>
-											<StandardTooltip
-												content={t("settings:codeIndex.searchMinScoreDescription")}>
-												<span className="codicon codicon-info text-xs text-vscode-descriptionForeground cursor-help" />
-											</StandardTooltip>
+								{isAdvancedSettingsOpen && (
+									<div className="mt-4 space-y-4">
+										{/* Search Score Threshold Slider */}
+										<div className="space-y-2">
+											<div className="flex items-center gap-2">
+												<label className="text-sm font-medium">
+													{t("settings:codeIndex.searchMinScoreLabel")}
+												</label>
+												<StandardTooltip
+													content={t("settings:codeIndex.searchMinScoreDescription")}>
+													<span className="codicon codicon-info text-xs text-vscode-descriptionForeground cursor-help" />
+												</StandardTooltip>
+											</div>
+											<div className="flex items-center gap-2">
+												<Slider
+													min={CODEBASE_INDEX_DEFAULTS.MIN_SEARCH_SCORE}
+													max={CODEBASE_INDEX_DEFAULTS.MAX_SEARCH_SCORE}
+													step={CODEBASE_INDEX_DEFAULTS.SEARCH_SCORE_STEP}
+													value={[
+														currentSettings.codebaseIndexSearchMinScore ??
+															CODEBASE_INDEX_DEFAULTS.DEFAULT_SEARCH_MIN_SCORE,
+													]}
+													onValueChange={(values) =>
+														updateSetting("codebaseIndexSearchMinScore", values[0])
+													}
+													className="flex-1"
+													data-testid="search-min-score-slider"
+												/>
+												<span className="w-12 text-center">
+													{(
+														currentSettings.codebaseIndexSearchMinScore ??
+														CODEBASE_INDEX_DEFAULTS.DEFAULT_SEARCH_MIN_SCORE
+													).toFixed(2)}
+												</span>
+												<VSCodeButton
+													appearance="icon"
+													title={t("settings:codeIndex.resetToDefault")}
+													onClick={() =>
+														updateSetting(
+															"codebaseIndexSearchMinScore",
+															CODEBASE_INDEX_DEFAULTS.DEFAULT_SEARCH_MIN_SCORE,
+														)
+													}>
+													<span className="codicon codicon-discard" />
+												</VSCodeButton>
+											</div>
 										</div>
-										<div className="flex items-center gap-2">
-											<Slider
-												min={CODEBASE_INDEX_DEFAULTS.MIN_SEARCH_SCORE}
-												max={CODEBASE_INDEX_DEFAULTS.MAX_SEARCH_SCORE}
-												step={CODEBASE_INDEX_DEFAULTS.SEARCH_SCORE_STEP}
-												value={[
-													currentSettings.codebaseIndexSearchMinScore ??
-														CODEBASE_INDEX_DEFAULTS.DEFAULT_SEARCH_MIN_SCORE,
-												]}
-												onValueChange={(values) =>
-													updateSetting("codebaseIndexSearchMinScore", values[0])
-												}
-												className="flex-1"
-												data-testid="search-min-score-slider"
-											/>
-											<span className="w-12 text-center">
-												{(
-													currentSettings.codebaseIndexSearchMinScore ??
-													CODEBASE_INDEX_DEFAULTS.DEFAULT_SEARCH_MIN_SCORE
-												).toFixed(2)}
-											</span>
-											<VSCodeButton
-												appearance="icon"
-												title={t("settings:codeIndex.resetToDefault")}
-												onClick={() =>
-													updateSetting(
-														"codebaseIndexSearchMinScore",
-														CODEBASE_INDEX_DEFAULTS.DEFAULT_SEARCH_MIN_SCORE,
-													)
-												}>
-												<span className="codicon codicon-discard" />
-											</VSCodeButton>
+
+										{/* Maximum Search Results Slider */}
+										<div className="space-y-2">
+											<div className="flex items-center gap-2">
+												<label className="text-sm font-medium">
+													{t("settings:codeIndex.searchMaxResultsLabel")}
+												</label>
+												<StandardTooltip
+													content={t("settings:codeIndex.searchMaxResultsDescription")}>
+													<span className="codicon codicon-info text-xs text-vscode-descriptionForeground cursor-help" />
+												</StandardTooltip>
+											</div>
+											<div className="flex items-center gap-2">
+												<Slider
+													min={CODEBASE_INDEX_DEFAULTS.MIN_SEARCH_RESULTS}
+													max={CODEBASE_INDEX_DEFAULTS.MAX_SEARCH_RESULTS}
+													step={CODEBASE_INDEX_DEFAULTS.SEARCH_RESULTS_STEP}
+													value={[
+														currentSettings.codebaseIndexSearchMaxResults ??
+															CODEBASE_INDEX_DEFAULTS.DEFAULT_SEARCH_RESULTS,
+													]}
+													onValueChange={(values) =>
+														updateSetting("codebaseIndexSearchMaxResults", values[0])
+													}
+													className="flex-1"
+													data-testid="search-max-results-slider"
+												/>
+												<span className="w-12 text-center">
+													{currentSettings.codebaseIndexSearchMaxResults ??
+														CODEBASE_INDEX_DEFAULTS.DEFAULT_SEARCH_RESULTS}
+												</span>
+												<VSCodeButton
+													appearance="icon"
+													title={t("settings:codeIndex.resetToDefault")}
+													onClick={() =>
+														updateSetting(
+															"codebaseIndexSearchMaxResults",
+															CODEBASE_INDEX_DEFAULTS.DEFAULT_SEARCH_RESULTS,
+														)
+													}>
+													<span className="codicon codicon-discard" />
+												</VSCodeButton>
+											</div>
 										</div>
 									</div>
-
-									{/* Maximum Search Results Slider */}
-									<div className="space-y-2">
-										<div className="flex items-center gap-2">
-											<label className="text-sm font-medium">
-												{t("settings:codeIndex.searchMaxResultsLabel")}
-											</label>
-											<StandardTooltip
-												content={t("settings:codeIndex.searchMaxResultsDescription")}>
-												<span className="codicon codicon-info text-xs text-vscode-descriptionForeground cursor-help" />
-											</StandardTooltip>
-										</div>
-										<div className="flex items-center gap-2">
-											<Slider
-												min={CODEBASE_INDEX_DEFAULTS.MIN_SEARCH_RESULTS}
-												max={CODEBASE_INDEX_DEFAULTS.MAX_SEARCH_RESULTS}
-												step={CODEBASE_INDEX_DEFAULTS.SEARCH_RESULTS_STEP}
-												value={[
-													currentSettings.codebaseIndexSearchMaxResults ??
-														CODEBASE_INDEX_DEFAULTS.DEFAULT_SEARCH_RESULTS,
-												]}
-												onValueChange={(values) =>
-													updateSetting("codebaseIndexSearchMaxResults", values[0])
-												}
-												className="flex-1"
-												data-testid="search-max-results-slider"
-											/>
-											<span className="w-12 text-center">
-												{currentSettings.codebaseIndexSearchMaxResults ??
-													CODEBASE_INDEX_DEFAULTS.DEFAULT_SEARCH_RESULTS}
-											</span>
-											<VSCodeButton
-												appearance="icon"
-												title={t("settings:codeIndex.resetToDefault")}
-												onClick={() =>
-													updateSetting(
-														"codebaseIndexSearchMaxResults",
-														CODEBASE_INDEX_DEFAULTS.DEFAULT_SEARCH_RESULTS,
-													)
-												}>
-												<span className="codicon codicon-discard" />
-											</VSCodeButton>
-										</div>
-									</div>
-								</div>
-							)}
-						</div>
+								)}
+							</div>
+						)}
 
 						{/* Action Buttons */}
 						<div className="flex items-center justify-between gap-2 pt-6">

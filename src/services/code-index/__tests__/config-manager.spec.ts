@@ -343,6 +343,89 @@ describe("CodeIndexConfigManager", () => {
 			expect(result.requiresRestart).toBe(true)
 		})
 
+		it("should detect restart requirement when feature is enabled", async () => {
+			// Create a fresh config manager to ensure clean state
+			const freshConfigManager = new CodeIndexConfigManager(mockContextProxy)
+
+			// Initial state - disabled
+			mockContextProxy.getGlobalState.mockReturnValue({
+				codebaseIndexEnabled: false,
+				codebaseIndexQdrantUrl: "http://qdrant.local",
+				codebaseIndexEmbedderProvider: "openai",
+				codebaseIndexEmbedderModelId: "text-embedding-3-small",
+			})
+			setupSecretMocks({
+				codeIndexOpenAiKey: "test-key",
+				codeIndexQdrantApiKey: "test-key",
+			})
+
+			await freshConfigManager.loadConfiguration()
+
+			// Enable the feature
+			mockContextProxy.getGlobalState.mockReturnValue({
+				codebaseIndexEnabled: true,
+				codebaseIndexQdrantUrl: "http://qdrant.local",
+				codebaseIndexEmbedderProvider: "openai",
+				codebaseIndexEmbedderModelId: "text-embedding-3-small",
+			})
+
+			const result = await freshConfigManager.loadConfiguration()
+			expect(result.requiresRestart).toBe(true)
+		})
+
+		it("should detect restart requirement when feature is disabled", async () => {
+			// Create a fresh config manager to ensure clean state
+			const freshConfigManager = new CodeIndexConfigManager(mockContextProxy)
+
+			// Initial state - enabled
+			mockContextProxy.getGlobalState.mockReturnValue({
+				codebaseIndexEnabled: true,
+				codebaseIndexQdrantUrl: "http://qdrant.local",
+				codebaseIndexEmbedderProvider: "openai",
+				codebaseIndexEmbedderModelId: "text-embedding-3-small",
+			})
+			setupSecretMocks({
+				codeIndexOpenAiKey: "test-key",
+				codeIndexQdrantApiKey: "test-key",
+			})
+
+			await freshConfigManager.loadConfiguration()
+
+			// Disable the feature
+			mockContextProxy.getGlobalState.mockReturnValue({
+				codebaseIndexEnabled: false,
+				codebaseIndexQdrantUrl: "http://qdrant.local",
+				codebaseIndexEmbedderProvider: "openai",
+				codebaseIndexEmbedderModelId: "text-embedding-3-small",
+			})
+
+			const result = await freshConfigManager.loadConfiguration()
+			expect(result.requiresRestart).toBe(true)
+		})
+
+		it("should not require restart when feature remains disabled", async () => {
+			// Initial state - disabled
+			mockContextProxy.getGlobalState.mockReturnValue({
+				codebaseIndexEnabled: false,
+				codebaseIndexQdrantUrl: "http://qdrant.local",
+				codebaseIndexEmbedderProvider: "openai",
+				codebaseIndexEmbedderModelId: "text-embedding-3-small",
+			})
+
+			await configManager.loadConfiguration()
+
+			// Change other settings while keeping feature disabled
+			mockContextProxy.getGlobalState.mockReturnValue({
+				codebaseIndexEnabled: false,
+				codebaseIndexQdrantUrl: "http://qdrant.local",
+				codebaseIndexEmbedderProvider: "openai",
+				codebaseIndexEmbedderModelId: "text-embedding-3-large", // Changed model
+			})
+
+			const result = await configManager.loadConfiguration()
+			expect(result.requiresRestart).toBe(false)
+		})
+
 		describe("simplified restart detection", () => {
 			it("should detect restart requirement for API key changes", async () => {
 				// Initial state
@@ -1215,7 +1298,39 @@ describe("CodeIndexConfigManager", () => {
 			})
 		})
 
-		it("should return correct feature enabled state", () => {
+		it("should return correct feature enabled state when enabled", () => {
+			expect(configManager.isFeatureEnabled).toBe(true)
+		})
+
+		it("should return false when codebaseIndexEnabled is false", async () => {
+			mockContextProxy.getGlobalState.mockReturnValue({
+				codebaseIndexEnabled: false,
+				codebaseIndexQdrantUrl: "http://qdrant.local",
+				codebaseIndexEmbedderProvider: "openai",
+				codebaseIndexEmbedderModelId: "text-embedding-3-large",
+			})
+			setupSecretMocks({
+				codeIndexOpenAiKey: "test-openai-key",
+				codeIndexQdrantApiKey: "test-qdrant-key",
+			})
+
+			await configManager.loadConfiguration()
+			expect(configManager.isFeatureEnabled).toBe(false)
+		})
+
+		it("should return true when codebaseIndexEnabled is undefined (default)", async () => {
+			mockContextProxy.getGlobalState.mockReturnValue({
+				// codebaseIndexEnabled is undefined, should default to true
+				codebaseIndexQdrantUrl: "http://qdrant.local",
+				codebaseIndexEmbedderProvider: "openai",
+				codebaseIndexEmbedderModelId: "text-embedding-3-large",
+			})
+			setupSecretMocks({
+				codeIndexOpenAiKey: "test-openai-key",
+				codeIndexQdrantApiKey: "test-qdrant-key",
+			})
+
+			await configManager.loadConfiguration()
 			expect(configManager.isFeatureEnabled).toBe(true)
 		})
 
