@@ -59,6 +59,7 @@ async function generatePrompt(
 	partialReadsEnabled?: boolean,
 	settings?: Record<string, any>,
 	todoList?: TodoItem[],
+	todoListEnabled?: boolean,
 ): Promise<string> {
 	if (!context) {
 		throw new Error("Extension context is required for generating system prompt")
@@ -98,6 +99,7 @@ ${getToolDescriptionsForMode(
 	experiments,
 	partialReadsEnabled,
 	settings,
+	todoListEnabled,
 )}
 
 ${getToolUseGuidelinesSection(codeIndexManager)}
@@ -138,6 +140,7 @@ export const SYSTEM_PROMPT = async (
 	partialReadsEnabled?: boolean,
 	settings?: Record<string, any>,
 	todoList?: TodoItem[],
+	todoListEnabled?: boolean,
 ): Promise<string> => {
 	if (!context) {
 		throw new Error("Extension context is required for generating system prompt")
@@ -205,5 +208,6 @@ ${customInstructions}`
 		partialReadsEnabled,
 		settings,
 		todoList,
+		todoListEnabled,
 	)
 }

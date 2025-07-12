@@ -61,6 +61,7 @@ export function getToolDescriptionsForMode(
 	experiments?: Record<string, boolean>,
 	partialReadsEnabled?: boolean,
 	settings?: Record<string, any>,
+	todoListEnabled?: boolean,
 ): string {
 	const config = getModeConfig(mode, customModes)
 	const args: ToolArgs = {
@@ -107,6 +108,11 @@ export function getToolDescriptionsForMode(
 		!(codeIndexManager.isFeatureEnabled && codeIndexManager.isFeatureConfigured && codeIndexManager.isInitialized)
 	) {
 		tools.delete("codebase_search")
+	}
+
+	// Conditionally exclude update_todo_list if feature is disabled
+	if (todoListEnabled === false) {
+		tools.delete("update_todo_list")
 	}
 
 	// Map tool descriptions for allowed tools

@@ -61,7 +61,7 @@ import { inputEventTransform, noTransform } from "./transforms"
 import { ModelInfoView } from "./ModelInfoView"
 import { ApiErrorMessage } from "./ApiErrorMessage"
 import { ThinkingBudget } from "./ThinkingBudget"
-import { DiffSettingsControl } from "./DiffSettingsControl"
+import { AdvancedSettingsSection } from "./AdvancedSettingsSection"
 import { TemperatureControl } from "./TemperatureControl"
 import { RateLimitSecondsControl } from "./RateLimitSecondsControl"
 import { BedrockCustomArn } from "./providers/BedrockCustomArn"
@@ -533,9 +533,10 @@ const ApiOptions = ({
 
 			{!fromWelcomeView && (
 				<>
-					<DiffSettingsControl
+					<AdvancedSettingsSection
 						diffEnabled={apiConfiguration.diffEnabled}
 						fuzzyMatchThreshold={apiConfiguration.fuzzyMatchThreshold}
+						todoListEnabled={apiConfiguration.todoListEnabled}
 						onChange={(field, value) => setApiConfigurationField(field, value)}
 					/>
 					<TemperatureControl
