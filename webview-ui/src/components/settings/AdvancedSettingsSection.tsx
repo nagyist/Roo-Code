@@ -32,12 +32,11 @@ export const AdvancedSettingsSection: React.FC<AdvancedSettingsSectionProps> = (
 				appearance="secondary"
 				onClick={toggleExpanded}
 				className="flex items-center justify-between w-full text-left">
-				<span className="font-medium whitespace-nowrap">{t("settings:advanced.section.label")}</span>
-				<span className="ml-2">{isExpanded ? "▼" : "▶"}</span>
+				{`${t("settings:advanced.section.label")} ${isExpanded ? "▼" : "▶"}`}
 			</VSCodeButton>
 
 			{isExpanded && (
-				<div className="flex flex-col gap-4 pl-4 border-l-2 border-vscode-button-background">
+				<div className="flex flex-col gap-4">
 					<DiffSettingsControl
 						diffEnabled={diffEnabled}
 						fuzzyMatchThreshold={fuzzyMatchThreshold}
