@@ -220,8 +220,8 @@ export class ProviderSettingsManager {
 			const defaultTodoListEnabled = true
 
 			for (const [_name, apiConfig] of Object.entries(providerProfiles.apiConfigs)) {
-				if (apiConfig.todoListEnabled === undefined) {
-					apiConfig.todoListEnabled = defaultTodoListEnabled
+				if (apiConfig.enableTodoList === undefined) {
+					apiConfig.enableTodoList = defaultTodoListEnabled
 				}
 			}
 		} catch (error) {

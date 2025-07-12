@@ -558,7 +558,7 @@
 			}
 		},
 		"todoList": {
-			"label": "Enable todo list updates",
+			"label": "Enable todo lists",
 			"description": "When enabled, Roo will be able to create and update todo lists to track task progress. This helps organize complex tasks into manageable steps."
 		}
 	},

@@ -558,7 +558,7 @@
 			}
 		},
 		"todoList": {
-			"label": "Todo-Listen-Updates aktivieren",
+			"label": "Todo-Listen aktivieren",
 			"description": "Wenn aktiviert, kann Roo Todo-Listen erstellen und aktualisieren, um den Aufgabenfortschritt zu verfolgen. Dies hilft dabei, komplexe Aufgaben in überschaubare Schritte zu organisieren."
 		}
 	},

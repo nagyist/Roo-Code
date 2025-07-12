@@ -562,7 +562,7 @@
 			}
 		},
 		"todoList": {
-			"label": "Aktifkan pembaruan daftar tugas",
+			"label": "Aktifkan daftar tugas",
 			"description": "Ketika diaktifkan, Roo akan dapat membuat dan memperbarui daftar tugas untuk melacak kemajuan tugas. Ini membantu mengorganisir tugas kompleks menjadi langkah-langkah yang dapat dikelola."
 		}
 	},

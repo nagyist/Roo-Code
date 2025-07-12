@@ -558,7 +558,7 @@
 			}
 		},
 		"todoList": {
-			"label": "Włącz aktualizacje listy zadań",
+			"label": "Włącz listy zadań",
 			"description": "Gdy włączone, Roo będzie mógł tworzyć i aktualizować listy zadań do śledzenia postępu zadań. To pomaga organizować złożone zadania w zarządzalne kroki."
 		}
 	},

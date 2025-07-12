@@ -558,7 +558,7 @@
 			}
 		},
 		"todoList": {
-			"label": "Activer les mises à jour de listes de tâches",
+			"label": "Activer les listes de tâches",
 			"description": "Lorsque activé, Roo pourra créer et mettre à jour des listes de tâches pour suivre le progrès des tâches. Cela aide à organiser les tâches complexes en étapes gérables."
 		}
 	},

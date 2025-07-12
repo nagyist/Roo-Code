@@ -61,7 +61,6 @@ export function getToolDescriptionsForMode(
 	experiments?: Record<string, boolean>,
 	partialReadsEnabled?: boolean,
 	settings?: Record<string, any>,
-	todoListEnabled?: boolean,
 ): string {
 	const config = getModeConfig(mode, customModes)
 	const args: ToolArgs = {
@@ -111,7 +110,7 @@ export function getToolDescriptionsForMode(
 	}
 
 	// Conditionally exclude update_todo_list if feature is disabled
-	if (todoListEnabled === false) {
+	if (settings?.enableTodoList === false) {
 		tools.delete("update_todo_list")
 	}
 

@@ -558,7 +558,7 @@
 			}
 		},
 		"todoList": {
-			"label": "Abilita aggiornamenti elenco attività",
+			"label": "Abilita elenco attività",
 			"description": "Quando abilitato, Roo potrà creare e aggiornare elenchi di attività per tracciare il progresso delle attività. Questo aiuta a organizzare attività complesse in passaggi gestibili."
 		}
 	},

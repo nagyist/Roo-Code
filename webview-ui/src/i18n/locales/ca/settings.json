@@ -558,7 +558,7 @@
 			}
 		},
 		"todoList": {
-			"label": "Habilita actualitzacions de llistes de tasques",
+			"label": "Habilita llistes de tasques",
 			"description": "Quan està habilitat, Roo podrà crear i actualitzar llistes de tasques per fer seguiment del progrés de les tasques. Això ajuda a organitzar tasques complexes en passos manejables."
 		}
 	},

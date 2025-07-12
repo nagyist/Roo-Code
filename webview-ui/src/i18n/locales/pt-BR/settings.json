@@ -558,7 +558,7 @@
 			}
 		},
 		"todoList": {
-			"label": "Habilitar atualizações de lista de tarefas",
+			"label": "Habilitar listas de tarefas",
 			"description": "Quando habilitado, Roo poderá criar e atualizar listas de tarefas para acompanhar o progresso das tarefas. Isso ajuda a organizar tarefas complexas em etapas gerenciáveis."
 		}
 	},

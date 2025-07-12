@@ -110,7 +110,6 @@ export type TaskOptions = {
 	provider: ClineProvider
 	apiConfiguration: ProviderSettings
 	enableDiff?: boolean
-	enableTodoList?: boolean
 	enableCheckpoints?: boolean
 	fuzzyMatchThreshold?: number
 	consecutiveMistakeLimit?: number
@@ -173,7 +172,7 @@ export class Task extends EventEmitter<ClineEvents> {
 	diffViewProvider: DiffViewProvider
 	diffStrategy?: DiffStrategy
 	diffEnabled: boolean = false
-	todoListEnabled: boolean = true
+	enableTodoList: boolean = true
 	fuzzyMatchThreshold: number
 	didEditFile: boolean = false
 
@@ -215,7 +214,6 @@ export class Task extends EventEmitter<ClineEvents> {
 		provider,
 		apiConfiguration,
 		enableDiff = false,
-		enableTodoList = true,
 		enableCheckpoints = true,
 		fuzzyMatchThreshold = 1.0,
 		consecutiveMistakeLimit = 3,
@@ -256,7 +254,6 @@ export class Task extends EventEmitter<ClineEvents> {
 		this.urlContentFetcher = new UrlContentFetcher(provider.context)
 		this.browserSession = new BrowserSession(provider.context)
 		this.diffEnabled = enableDiff
-		this.todoListEnabled = enableTodoList
 		this.fuzzyMatchThreshold = fuzzyMatchThreshold
 		this.consecutiveMistakeLimit = consecutiveMistakeLimit
 		this.providerRef = new WeakRef(provider)
@@ -1613,6 +1610,7 @@ export class Task extends EventEmitter<ClineEvents> {
 		const state = await this.providerRef.deref()?.getState()
 
 		const {
+			apiConfiguration,
 			browserViewportSize,
 			mode,
 			customModes,
@@ -1625,6 +1623,9 @@ export class Task extends EventEmitter<ClineEvents> {
 			maxConcurrentFileReads,
 			maxReadFileLine,
 		} = state ?? {}
+
+		// Extract enableTodoList from provider settings
+		const enableTodoList = apiConfiguration?.enableTodoList ?? true
 
 		return await (async () => {
 			const provider = this.providerRef.deref()
@@ -1652,9 +1653,8 @@ export class Task extends EventEmitter<ClineEvents> {
 				maxReadFileLine !== -1,
 				{
 					maxConcurrentFileReads,
+					enableTodoList,
 				},
-				this.todoList,
-				this.todoListEnabled,
 			)
 		})()
 	}

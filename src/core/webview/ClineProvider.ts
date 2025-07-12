@@ -543,8 +543,8 @@ export class ClineProvider
 			experiments,
 		} = await this.getState()
 
-		// Extract todoListEnabled from provider settings
-		const todoListEnabled = apiConfiguration.todoListEnabled ?? true
+		// Extract enableTodoList from provider settings
+		const enableTodoList = apiConfiguration.enableTodoList ?? true
 
 		if (!ProfileValidator.isProfileAllowed(apiConfiguration, organizationAllowList)) {
 			throw new OrganizationAllowListViolationError(t("common:errors.violated_organization_allowlist"))
@@ -554,7 +554,6 @@ export class ClineProvider
 			provider: this,
 			apiConfiguration,
 			enableDiff,
-			enableTodoList: todoListEnabled,
 			enableCheckpoints,
 			fuzzyMatchThreshold,
 			task,

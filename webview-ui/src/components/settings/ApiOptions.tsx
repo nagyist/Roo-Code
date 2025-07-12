@@ -535,7 +535,7 @@ const ApiOptions = ({
 				<AdvancedSettingsSection
 					diffEnabled={apiConfiguration.diffEnabled}
 					fuzzyMatchThreshold={apiConfiguration.fuzzyMatchThreshold}
-					todoListEnabled={apiConfiguration.todoListEnabled}
+					enableTodoList={apiConfiguration.enableTodoList}
 					onChange={(field, value) => setApiConfigurationField(field, value)}>
 					<TemperatureControl
 						value={apiConfiguration.modelTemperature}

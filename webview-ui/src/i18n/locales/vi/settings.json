@@ -558,7 +558,7 @@
 			}
 		},
 		"todoList": {
-			"label": "Bật cập nhật danh sách việc cần làm",
+			"label": "Bật danh sách việc cần làm",
 			"description": "Khi được bật, Roo sẽ có thể tạo và cập nhật danh sách việc cần làm để theo dõi tiến độ nhiệm vụ. Điều này giúp tổ chức các nhiệm vụ phức tạp thành các bước có thể quản lý được."
 		}
 	},

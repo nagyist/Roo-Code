@@ -26,8 +26,8 @@ export const generateSystemPrompt = async (provider: ClineProvider, message: Web
 		maxConcurrentFileReads,
 	} = await provider.getState()
 
-	// Get todoListEnabled from provider settings with fallback to global setting
-	const todoListEnabled = apiConfiguration.todoListEnabled ?? true
+	// Get enableTodoList from provider settings with fallback to global setting
+	const enableTodoList = apiConfiguration.enableTodoList ?? true
 
 	// Check experiment to determine which diff strategy to use
 	const isMultiFileApplyDiffEnabled = experimentsModule.isEnabled(
@@ -85,9 +85,8 @@ export const generateSystemPrompt = async (provider: ClineProvider, message: Web
 		maxReadFileLine !== -1,
 		{
 			maxConcurrentFileReads,
+			enableTodoList,
 		},
-		undefined, // todoList parameter
-		todoListEnabled,
 	)
 
 	return systemPrompt

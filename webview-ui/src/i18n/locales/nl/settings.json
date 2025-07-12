@@ -558,7 +558,7 @@
 			}
 		},
 		"todoList": {
-			"label": "Todo-lijst updates inschakelen",
+			"label": "Todo-lijsten inschakelen",
 			"description": "Wanneer ingeschakeld, kan Roo todo-lijsten maken en bijwerken om taakvoortgang bij te houden. Dit helpt bij het organiseren van complexe taken in beheersbare stappen."
 		}
 	},

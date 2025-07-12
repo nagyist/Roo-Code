@@ -7,15 +7,15 @@ import { TodoListSettingsControl } from "./TodoListSettingsControl"
 interface AdvancedSettingsSectionProps {
 	diffEnabled?: boolean
 	fuzzyMatchThreshold?: number
-	todoListEnabled?: boolean
-	onChange: (field: "diffEnabled" | "fuzzyMatchThreshold" | "todoListEnabled", value: any) => void
+	enableTodoList?: boolean
+	onChange: (field: "diffEnabled" | "fuzzyMatchThreshold" | "enableTodoList", value: any) => void
 	children?: React.ReactNode
 }
 
 export const AdvancedSettingsSection: React.FC<AdvancedSettingsSectionProps> = ({
 	diffEnabled,
 	fuzzyMatchThreshold,
-	todoListEnabled,
+	enableTodoList,
 	onChange,
 	children,
 }) => {
@@ -42,7 +42,7 @@ export const AdvancedSettingsSection: React.FC<AdvancedSettingsSectionProps> = (
 						fuzzyMatchThreshold={fuzzyMatchThreshold}
 						onChange={onChange}
 					/>
-					<TodoListSettingsControl todoListEnabled={todoListEnabled} onChange={onChange} />
+					<TodoListSettingsControl enableTodoList={enableTodoList} onChange={onChange} />
 					{children}
 				</div>
 			)}

@@ -17,7 +17,7 @@ describe("getToolDescriptionsForMode", () => {
 		settings: undefined,
 	}
 
-	it("should include update_todo_list tool when todoListEnabled is true", () => {
+	it("should include update_todo_list tool when enableTodoList is true", () => {
 		const tools = getToolDescriptionsForMode(
 			mockArgs.mode,
 			mockArgs.cwd,
@@ -29,14 +29,13 @@ describe("getToolDescriptionsForMode", () => {
 			mockArgs.customModes,
 			mockArgs.experiments,
 			mockArgs.partialReadsEnabled,
-			mockArgs.settings,
-			true, // todoListEnabled
+			{ enableTodoList: true },
 		)
 
 		expect(tools).toContain("update_todo_list")
 	})
 
-	it("should exclude update_todo_list tool when todoListEnabled is false", () => {
+	it("should exclude update_todo_list tool when enableTodoList is false", () => {
 		const tools = getToolDescriptionsForMode(
 			mockArgs.mode,
 			mockArgs.cwd,
@@ -48,14 +47,13 @@ describe("getToolDescriptionsForMode", () => {
 			mockArgs.customModes,
 			mockArgs.experiments,
 			mockArgs.partialReadsEnabled,
-			mockArgs.settings,
-			false, // todoListEnabled
+			{ enableTodoList: false },
 		)
 
 		expect(tools).not.toContain("update_todo_list")
 	})
 
-	it("should include update_todo_list tool when todoListEnabled is undefined (default true)", () => {
+	it("should include update_todo_list tool when enableTodoList is undefined (default true)", () => {
 		const tools = getToolDescriptionsForMode(
 			mockArgs.mode,
 			mockArgs.cwd,
@@ -67,14 +65,13 @@ describe("getToolDescriptionsForMode", () => {
 			mockArgs.customModes,
 			mockArgs.experiments,
 			mockArgs.partialReadsEnabled,
-			mockArgs.settings,
-			undefined, // todoListEnabled
+			undefined, // settings
 		)
 
 		expect(tools).toContain("update_todo_list")
 	})
 
-	it("should include other tools regardless of todoListEnabled setting", () => {
+	it("should include other tools regardless of enableTodoList setting", () => {
 		const toolsWithTodo = getToolDescriptionsForMode(
 			mockArgs.mode,
 			mockArgs.cwd,
@@ -86,8 +83,7 @@ describe("getToolDescriptionsForMode", () => {
 			mockArgs.customModes,
 			mockArgs.experiments,
 			mockArgs.partialReadsEnabled,
-			mockArgs.settings,
-			true, // todoListEnabled
+			{ enableTodoList: true },
 		)
 
 		const toolsWithoutTodo = getToolDescriptionsForMode(
@@ -101,8 +97,7 @@ describe("getToolDescriptionsForMode", () => {
 			mockArgs.customModes,
 			mockArgs.experiments,
 			mockArgs.partialReadsEnabled,
-			mockArgs.settings,
-			false, // todoListEnabled
+			{ enableTodoList: false },
 		)
 
 		// Both should have other tools like read_file, write_to_file, etc.
