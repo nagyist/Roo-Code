@@ -3,17 +3,30 @@ import { CodeIndexServiceFactory } from "../service-factory"
 import type { MockedClass } from "vitest"
 
 // Mock vscode module
-vi.mock("vscode", () => ({
-	workspace: {
-		workspaceFolders: [
-			{
-				uri: { fsPath: "/test/workspace" },
-				name: "test",
-				index: 0,
-			},
-		],
-	},
-}))
+vi.mock("vscode", () => {
+	const mockDisposable = { dispose: vi.fn() }
+	return {
+		workspace: {
+			workspaceFolders: [
+				{
+					uri: { fsPath: "/test/workspace" },
+					name: "test",
+					index: 0,
+				},
+			],
+			createFileSystemWatcher: vi.fn(() => ({
+				onDidCreate: vi.fn(() => mockDisposable),
+				onDidChange: vi.fn(() => mockDisposable),
+				onDidDelete: vi.fn(() => mockDisposable),
+				dispose: vi.fn(),
+			})),
+		},
+		RelativePattern: vi.fn().mockImplementation((base, pattern) => ({
+			base,
+			pattern,
+		})),
+	}
+})
 
 // Mock only the essential dependencies
 vi.mock("../../../utils/path", () => ({

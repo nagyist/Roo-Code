@@ -9,11 +9,26 @@ vi.mock("../../ripgrep", () => ({
 }))
 
 // Mock vscode
-vi.mock("vscode", () => ({
-	env: {
-		appRoot: "/mock/app/root",
-	},
-}))
+vi.mock("vscode", () => {
+	const mockDisposable = { dispose: vi.fn() }
+	return {
+		env: {
+			appRoot: "/mock/app/root",
+		},
+		workspace: {
+			createFileSystemWatcher: vi.fn(() => ({
+				onDidCreate: vi.fn(() => mockDisposable),
+				onDidChange: vi.fn(() => mockDisposable),
+				onDidDelete: vi.fn(() => mockDisposable),
+				dispose: vi.fn(),
+			})),
+		},
+		RelativePattern: vi.fn().mockImplementation((base, pattern) => ({
+			base,
+			pattern,
+		})),
+	}
+})
 
 vi.mock("child_process", () => ({
 	spawn: vi.fn(),

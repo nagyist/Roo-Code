@@ -25,37 +25,50 @@ vi.mock("fs/promises", () => ({
 }))
 
 // Create a simple mock for vscode since we can't access the real one
-vi.mock("vscode", () => ({
-	workspace: {
-		workspaceFolders: [
-			{
+vi.mock("vscode", () => {
+	const mockDisposable = { dispose: vi.fn() }
+	return {
+		workspace: {
+			workspaceFolders: [
+				{
+					uri: {
+						fsPath: "/mock/workspace",
+					},
+				},
+			],
+			getWorkspaceFolder: vi.fn().mockReturnValue({
 				uri: {
 					fsPath: "/mock/workspace",
 				},
+			}),
+			fs: {
+				readFile: vi.fn().mockResolvedValue(Buffer.from("test content")),
 			},
-		],
-		getWorkspaceFolder: vi.fn().mockReturnValue({
-			uri: {
-				fsPath: "/mock/workspace",
-			},
-		}),
-		fs: {
-			readFile: vi.fn().mockResolvedValue(Buffer.from("test content")),
+			createFileSystemWatcher: vi.fn(() => ({
+				onDidCreate: vi.fn(() => mockDisposable),
+				onDidChange: vi.fn(() => mockDisposable),
+				onDidDelete: vi.fn(() => mockDisposable),
+				dispose: vi.fn(),
+			})),
 		},
-	},
-	Uri: {
-		file: vi.fn().mockImplementation((path) => path),
-	},
-	window: {
-		activeTextEditor: {
-			document: {
-				uri: {
-					fsPath: "/mock/workspace",
+		Uri: {
+			file: vi.fn().mockImplementation((path) => path),
+		},
+		window: {
+			activeTextEditor: {
+				document: {
+					uri: {
+						fsPath: "/mock/workspace",
+					},
 				},
 			},
 		},
-	},
-}))
+		RelativePattern: vi.fn().mockImplementation((base, pattern) => ({
+			base,
+			pattern,
+		})),
+	}
+})
 
 vi.mock("../../../../core/ignore/RooIgnoreController")
 vi.mock("ignore")
