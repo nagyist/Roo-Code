@@ -39,8 +39,6 @@ const TaskHeader = ({ task, contextTokens, buttonsDisabled, handleCondenseContex
 		</StandardTooltip>
 	)
 
-	const hasTodos = todos && Array.isArray(todos) && todos.length > 0
-
 	return (
 		<div className="py-2 px-3">
 			{/* Context Window Progress */}
