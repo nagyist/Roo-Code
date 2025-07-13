@@ -64,8 +64,7 @@ describe("Command Execution Timeout Integration", () => {
 	})
 
 	it("should pass timeout configuration to executeCommand", async () => {
-		const customTimeoutSeconds = 15
-		const customTimeout = customTimeoutSeconds * 1000 // Convert to milliseconds for internal use
+		const customTimeout = 15000
 		const options: ExecuteCommandOptions = {
 			executionId: "test-execution",
 			command: "echo test",
@@ -83,8 +82,7 @@ describe("Command Execution Timeout Integration", () => {
 	})
 
 	it("should handle timeout scenario", async () => {
-		const shortTimeoutSeconds = 0.1 // Very short timeout in seconds
-		const shortTimeout = shortTimeoutSeconds * 1000 // Convert to milliseconds
+		const shortTimeout = 100 // Very short timeout
 		const options: ExecuteCommandOptions = {
 			executionId: "test-execution",
 			command: "sleep 10",
@@ -106,13 +104,12 @@ describe("Command Execution Timeout Integration", () => {
 
 		// Should return timeout error
 		expect(result[0]).toBe(false) // Not rejected by user
-		expect(result[1]).toContain("timed out")
-		expect(result[1]).toContain(`${shortTimeoutSeconds}s`)
+		expect(result[1]).toContain("terminated after exceeding")
+		expect(result[1]).toContain(`${shortTimeout}ms`)
 	}, 10000) // Increase test timeout to 10 seconds
 
 	it("should abort process on timeout", async () => {
-		const shortTimeoutSeconds = 0.05
-		const shortTimeout = shortTimeoutSeconds * 1000
+		const shortTimeout = 50
 		const options: ExecuteCommandOptions = {
 			executionId: "test-execution",
 			command: "sleep 10",
@@ -135,11 +132,10 @@ describe("Command Execution Timeout Integration", () => {
 	}, 5000) // Increase test timeout to 5 seconds
 
 	it("should clean up timeout on successful completion", async () => {
-		const timeoutSeconds = 5
 		const options: ExecuteCommandOptions = {
 			executionId: "test-execution",
 			command: "echo test",
-			commandExecutionTimeout: timeoutSeconds * 1000,
+			commandExecutionTimeout: 5000,
 		}
 
 		// Mock a process that completes quickly
@@ -150,7 +146,7 @@ describe("Command Execution Timeout Integration", () => {
 
 		// Should complete successfully without timeout
 		expect(result[0]).toBe(false) // Not rejected
-		expect(result[1]).not.toContain("timed out")
+		expect(result[1]).not.toContain("terminated after exceeding")
 	})
 
 	it("should use default timeout when not specified (0 = no timeout)", async () => {
@@ -187,6 +183,6 @@ describe("Command Execution Timeout Integration", () => {
 
 		// Should complete successfully without timeout
 		expect(result[0]).toBe(false) // Not rejected
-		expect(result[1]).not.toContain("timed out")
+		expect(result[1]).not.toContain("terminated after exceeding")
 	})
 })

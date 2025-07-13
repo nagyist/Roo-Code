@@ -64,13 +64,10 @@ export async function executeCommandTool(
 			const clineProviderState = await clineProvider?.getState()
 			const { terminalOutputLineLimit = 500, terminalShellIntegrationDisabled = false } = clineProviderState ?? {}
 
-			// Get command execution timeout from VSCode configuration (in seconds)
-			const commandExecutionTimeoutSeconds = vscode.workspace
+			// Get command execution timeout from VSCode configuration
+			const commandExecutionTimeout = vscode.workspace
 				.getConfiguration(Package.name)
 				.get<number>("commandExecutionTimeout", 0)
-
-			// Convert seconds to milliseconds for internal use
-			const commandExecutionTimeout = commandExecutionTimeoutSeconds * 1000
 
 			const options: ExecuteCommandOptions = {
 				executionId,
@@ -236,7 +233,7 @@ export async function executeCommand(
 				if (cline.terminalProcess) {
 					cline.terminalProcess.abort()
 				}
-				reject(new Error(`Command execution timed out after ${commandExecutionTimeout / 1000}s`))
+				reject(new Error(`Command execution timed out after ${commandExecutionTimeout}ms`))
 			}, commandExecutionTimeout)
 		})
 
@@ -252,7 +249,7 @@ export async function executeCommand(
 
 				return [
 					false,
-					`Command execution timed out after ${commandExecutionTimeout / 1000}s. The command was terminated.`,
+					`The command was terminated after exceeding a user-configured ${commandExecutionTimeout}ms timeout. Do not try to re-run the command.`,
 				]
 			}
 			throw error
