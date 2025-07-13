@@ -1,5 +1,6 @@
 import fs from "fs/promises"
 import * as path from "path"
+import * as vscode from "vscode"
 
 import delay from "delay"
 
@@ -14,6 +15,7 @@ import { unescapeHtmlEntities } from "../../utils/text-normalization"
 import { ExitCodeDetails, RooTerminalCallbacks, RooTerminalProcess } from "../../integrations/terminal/types"
 import { TerminalRegistry } from "../../integrations/terminal/TerminalRegistry"
 import { Terminal } from "../../integrations/terminal/Terminal"
+import { Package } from "../../shared/package"
 
 class ShellIntegrationError extends Error {}
 
@@ -62,12 +64,18 @@ export async function executeCommandTool(
 			const clineProviderState = await clineProvider?.getState()
 			const { terminalOutputLineLimit = 500, terminalShellIntegrationDisabled = false } = clineProviderState ?? {}
 
+			// Get command execution timeout from VSCode configuration
+			const commandExecutionTimeout = vscode.workspace
+				.getConfiguration(Package.name)
+				.get<number>("commandExecutionTimeout", 30000)
+
 			const options: ExecuteCommandOptions = {
 				executionId,
 				command,
 				customCwd,
 				terminalShellIntegrationDisabled,
 				terminalOutputLineLimit,
+				commandExecutionTimeout,
 			}
 
 			try {
@@ -113,6 +121,7 @@ export type ExecuteCommandOptions = {
 	customCwd?: string
 	terminalShellIntegrationDisabled?: boolean
 	terminalOutputLineLimit?: number
+	commandExecutionTimeout?: number
 }
 
 export async function executeCommand(
@@ -123,6 +132,7 @@ export async function executeCommand(
 		customCwd,
 		terminalShellIntegrationDisabled = false,
 		terminalOutputLineLimit = 500,
+		commandExecutionTimeout = 30000,
 	}: ExecuteCommandOptions,
 ): Promise<[boolean, ToolResponse]> {
 	let workingDir: string
@@ -211,8 +221,43 @@ export async function executeCommand(
 	const process = terminal.runCommand(command, callbacks)
 	cline.terminalProcess = process
 
-	await process
-	cline.terminalProcess = undefined
+	// Implement command execution timeout
+	let timeoutId: NodeJS.Timeout | undefined
+	let isTimedOut = false
+
+	const timeoutPromise = new Promise<void>((_, reject) => {
+		timeoutId = setTimeout(() => {
+			isTimedOut = true
+			// Try to abort the process
+			if (cline.terminalProcess) {
+				cline.terminalProcess.abort()
+			}
+			reject(new Error(`Command execution timed out after ${commandExecutionTimeout}ms`))
+		}, commandExecutionTimeout)
+	})
+
+	try {
+		await Promise.race([process, timeoutPromise])
+	} catch (error) {
+		if (isTimedOut) {
+			// Handle timeout case
+			const status: CommandExecutionStatus = { executionId, status: "timeout" }
+			clineProvider?.postMessageToWebview({ type: "commandExecutionStatus", text: JSON.stringify(status) })
+
+			cline.terminalProcess = undefined
+
+			return [
+				false,
+				`Command execution timed out after ${commandExecutionTimeout}ms. The command was terminated.`,
+			]
+		}
+		throw error
+	} finally {
+		if (timeoutId) {
+			clearTimeout(timeoutId)
+		}
+		cline.terminalProcess = undefined
+	}
 
 	if (shellIntegrationError) {
 		throw new ShellIntegrationError(shellIntegrationError)

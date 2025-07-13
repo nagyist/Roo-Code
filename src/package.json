@@ -338,6 +338,13 @@
 					"default": [],
 					"description": "%commands.deniedCommands.description%"
 				},
+				"roo-cline.commandExecutionTimeout": {
+					"type": "number",
+					"default": 30000,
+					"minimum": 1000,
+					"maximum": 300000,
+					"description": "%commands.commandExecutionTimeout.description%"
+				},
 				"roo-cline.vsCodeLmModelSelector": {
 					"type": "object",
 					"properties": {
