@@ -1,0 +1,331 @@
+<analysis_algorithms>
+  <dependency_detection>
+    <explicit_dependencies>
+      <pattern type="issue_reference">
+        <regex>(?:depends on|blocks|blocked by|related to|fixes|closes|resolves)\s*#?(\d+)</regex>
+        <weight>high</weight>
+        <description>Direct issue references indicating dependencies</description>
+      </pattern>
+      
+      <pattern type="pr_reference">
+        <regex>(?:PR|pull request)\s*#?(\d+)</regex>
+        <weight>medium</weight>
+        <description>Pull request references that may indicate related work</description>
+      </pattern>
+      
+      <pattern type="milestone_dependency">
+        <condition>same_milestone_with_priority_order</condition>
+        <weight>medium</weight>
+        <description>Issues in same milestone with priority-based ordering</description>
+      </pattern>
+      
+      <pattern type="epic_relationship">
+        <condition>parent_child_epic_structure</condition>
+        <weight>high</weight>
+        <description>Epic and sub-issue relationships</description>
+      </pattern>
+    </explicit_dependencies>
+    
+    <implicit_dependencies>
+      <heuristic name="feature_area_overlap">
+        <description>Issues affecting the same feature area or component</description>
+        <algorithm>
+          1. Extract feature keywords from issue titles and descriptions
+          2. Calculate semantic similarity using keyword overlap
+          3. Apply component mapping based on file paths and labels
+          4. Score dependency likelihood based on overlap percentage
+        </algorithm>
+        <weight_calculation>
+          - High overlap (>70%): weight = 0.8
+          - Medium overlap (30-70%): weight = 0.5
+          - Low overlap (10-30%): weight = 0.2
+          - Minimal overlap (<10%): weight = 0.1
+        </weight_calculation>
+      </heuristic>
+      
+      <heuristic name="architectural_impact">
+        <description>Issues with potential architectural or breaking changes</description>
+        <indicators>
+          - Labels: breaking-change, architecture, api-change
+          - Keywords: refactor, restructure, breaking, API, interface
+          - File patterns: core/, api/, types/, schemas/
+        </indicators>
+        <conflict_rules>
+          - Two breaking changes: high conflict risk
+          - Breaking + feature: medium conflict risk
+          - Breaking + bugfix: low conflict risk
+        </conflict_rules>
+      </heuristic>
+      
+      <heuristic name="user_workflow_impact">
+        <description>Issues affecting the same user workflows or experiences</description>
+        <workflow_mapping>
+          - Authentication: login, signup, password, auth
+          - File operations: save, load, export, import
+          - UI/UX: interface, design, layout, theme
+          - Performance: speed, optimization, caching
+          - Integration: API, webhook, external
+        </workflow_mapping>
+      </heuristic>
+    </implicit_dependencies>
+  </dependency_detection>
+  
+  <file_overlap_analysis>
+    <direct_file_references>
+      <extraction_patterns>
+        <pattern type="file_path">
+          <regex>(?:src/|lib/|app/|components/)[a-zA-Z0-9/_.-]+\.[a-zA-Z]+</regex>
+          <confidence>high</confidence>
+        </pattern>
+        
+        <pattern type="error_stack_trace">
+          <regex>at\s+([a-zA-Z0-9/_.-]+\.[a-zA-Z]+):(\d+)</regex>
+          <confidence>high</confidence>
+        </pattern>
+        
+        <pattern type="import_statement">
+          <regex>(?:import|from|require)\s+.*?['"]([^'"]+)['"]</regex>
+          <confidence>medium</confidence>
+        </pattern>
+      </extraction_patterns>
+    </direct_file_references>
+    
+    <predictive_file_mapping>
+      <feature_to_files>
+        <mapping feature="authentication">
+          <files>
+            - src/auth/
+            - src/components/login/
+            - src/utils/auth.ts
+            - src/types/user.ts
+          </files>
+        </mapping>
+        
+        <mapping feature="file_operations">
+          <files>
+            - src/file/
+            - src/io/
+            - src/utils/file.ts
+            - src/components/file-browser/
+          </files>
+        </mapping>
+        
+        <mapping feature="ui_components">
+          <files>
+            - src/components/
+            - src/styles/
+            - webview-ui/src/
+            - src/themes/
+          </files>
+        </mapping>
+      </feature_to_files>
+      
+      <bug_to_files>
+        <algorithm>
+          1. Extract error messages and symptoms from bug reports
+          2. Search codebase for matching error strings
+          3. Identify files containing error handling for reported issues
+          4. Map UI bugs to component files based on description
+          5. Connect performance issues to relevant optimization areas
+        </algorithm>
+      </bug_to_files>
+    </predictive_file_mapping>
+    
+    <conflict_assessment>
+      <conflict_types>
+        <type name="direct_overlap" severity="high">
+          <description>Multiple issues affecting the exact same files</description>
+          <detection>Exact file path matches between issues</detection>
+          <mitigation>Sequential work or careful coordination required</mitigation>
+        </type>
+        
+        <type name="module_overlap" severity="medium">
+          <description>Issues affecting files in the same module or component</description>
+          <detection>Files in same directory or related import chains</detection>
+          <mitigation>Communication and merge coordination needed</mitigation>
+        </type>
+        
+        <type name="test_overlap" severity="medium">
+          <description>Shared test files or testing utilities</description>
+          <detection>Test files, mocks, or fixtures used by multiple features</detection>
+          <mitigation>Test coordination and shared fixture management</mitigation>
+        </type>
+        
+        <type name="config_overlap" severity="high">
+          <description>Shared configuration files or schemas</description>
+          <detection>Config files, package.json, tsconfig.json, etc.</detection>
+          <mitigation>Careful merge planning and validation required</mitigation>
+        </type>
+      </conflict_types>
+    </conflict_assessment>
+  </file_overlap_analysis>
+  
+  <parallelizability_scoring>
+    <scoring_factors>
+      <factor name="dependency_strength" weight="0.4">
+        <calculation>
+          - No dependencies: score = 1.0
+          - Weak dependencies: score = 0.7
+          - Medium dependencies: score = 0.4
+          - Strong dependencies: score = 0.1
+        </calculation>
+      </factor>
+      
+      <factor name="file_conflict_risk" weight="0.3">
+        <calculation>
+          - No file overlap: score = 1.0
+          - Different modules: score = 0.8
+          - Same module: score = 0.5
+          - Same files: score = 0.1
+        </calculation>
+      </factor>
+      
+      <factor name="complexity_compatibility" weight="0.2">
+        <calculation>
+          - Simple + Simple: score = 1.0
+          - Simple + Complex: score = 0.7
+          - Complex + Complex: score = 0.3
+        </calculation>
+      </factor>
+      
+      <factor name="team_resource_availability" weight="0.1">
+        <calculation>
+          - Different assignees: score = 1.0
+          - Same assignee: score = 0.2
+          - Overlapping expertise needed: score = 0.5
+        </calculation>
+      </factor>
+    </scoring_factors>
+    
+    <aggregation_methods>
+      <method name="weighted_average">
+        <description>Standard weighted average of all factors</description>
+        <formula>sum(factor_score * factor_weight) / sum(factor_weights)</formula>
+      </method>
+      
+      <method name="conservative_minimum">
+        <description>Conservative approach using lowest factor score</description>
+        <formula>min(factor_scores) * confidence_multiplier</formula>
+      </method>
+      
+      <method name="risk_adjusted">
+        <description>Adjust score based on project risk tolerance</description>
+        <formula>base_score * risk_tolerance_factor * project_complexity_factor</formula>
+      </method>
+    </aggregation_methods>
+    
+    <confidence_calculation>
+      <factors>
+        <factor name="data_completeness">
+          <description>How much information is available about each issue</description>
+          <metrics>
+            - Issue description completeness
+            - Number of comments and clarifications
+            - Linked PRs and related issues
+            - File references and technical details
+          </metrics>
+        </factor>
+        
+        <factor name="analysis_coverage">
+          <description>How thoroughly the analysis algorithms could process the issues</description>
+          <metrics>
+            - Successful pattern matching rate
+            - Codebase search result quality
+            - Dependency detection success
+            - File mapping accuracy
+          </metrics>
+        </factor>
+        
+        <factor name="historical_accuracy">
+          <description>Track record of similar analyses in this repository</description>
+          <metrics>
+            - Previous analysis accuracy
+            - Conflict prediction success rate
+            - False positive/negative rates
+            - User feedback and corrections
+          </metrics>
+        </factor>
+      </factors>
+    </confidence_calculation>
+  </parallelizability_scoring>
+  
+  <recommendation_generation>
+    <grouping_strategies>
+      <strategy name="maximum_parallelism">
+        <description>Maximize the number of issues that can be worked on in parallel</description>
+        <algorithm>
+          1. Sort issues by parallelizability score (highest first)
+          2. Greedily assign issues to parallel groups
+          3. Check each new issue against existing group members
+          4. Add to group if no conflicts, otherwise create new group
+        </algorithm>
+      </strategy>
+      
+      <strategy name="risk_minimization">
+        <description>Minimize the risk of conflicts and coordination overhead</description>
+        <algorithm>
+          1. Identify high-risk issue pairs
+          2. Create sequential chains for dependent issues
+          3. Group remaining issues by feature area
+          4. Optimize group sizes for team capacity
+        </algorithm>
+      </strategy>
+      
+      <strategy name="balanced_workload">
+        <description>Balance parallel work across team members and expertise areas</description>
+        <algorithm>
+          1. Analyze issue complexity and required skills
+          2. Map issues to available team members
+          3. Create balanced groups considering workload and expertise
+          4. Optimize for both parallelism and team efficiency
+        </algorithm>
+      </strategy>
+    </grouping_strategies>
+    
+    <output_formats>
+      <format name="technical_report">
+        <sections>
+          - Analysis methodology and parameters
+          - Individual issue assessments
+          - Dependency graph and conflict matrix
+          - Detailed scoring explanations
+          - Risk factors and mitigation strategies
+        </sections>
+      </format>
+      
+      <format name="management_summary">
+        <sections>
+          - Executive summary and key recommendations
+          - Resource allocation suggestions
+          - Timeline and milestone impact
+          - Risk assessment and contingency plans
+        </sections>
+      </format>
+      
+      <format name="developer_guide">
+        <sections>
+          - Practical work group assignments
+          - Coordination and communication guidelines
+          - Merge conflict prevention strategies
+          - Testing and integration recommendations
+        </sections>
+      </format>
+      
+      <format name="api_response">
+        <structure>
+          {
+            "analysis_id": "unique_identifier",
+            "timestamp": "ISO_8601_datetime",
+            "issues_analyzed": ["issue_references"],
+            "parallelizability_score": "0.0_to_1.0",
+            "confidence_level": "0.0_to_1.0",
+            "parallel_groups": [["issue_group_1"], ["issue_group_2"]],
+            "sequential_dependencies": [{"from": "issue", "to": "issue", "reason": "dependency_type"}],
+            "risk_factors": [{"type": "risk_type", "severity": "high|medium|low", "description": "details"}],
+            "recommendations": ["actionable_recommendations"]
+          }
+        </structure>
+      </format>
+    </output_formats>
+  </recommendation_generation>
+</analysis_algorithms>

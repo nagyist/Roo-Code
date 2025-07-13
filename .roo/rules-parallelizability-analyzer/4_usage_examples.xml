@@ -1,0 +1,513 @@
+<usage_examples>
+  <common_scenarios>
+    <scenario name="sprint_planning">
+      <description>Analyze issues for upcoming sprint to optimize parallel work</description>
+      <context>
+        Team has 15 issues planned for next sprint and wants to maximize parallel development
+        while minimizing conflicts and coordination overhead.
+      </context>
+      <input_example>
+        Issues: #1001-#1015 from milestone "Sprint 24"
+        Query: "milestone:'Sprint 24' state:open"
+      </input_example>
+      <analysis_approach>
+        1. Group issues by feature area and complexity
+        2. Identify dependencies between user stories
+        3. Analyze file overlap for UI and backend changes
+        4. Consider team member expertise and availability
+        5. Generate optimal work groups for 3-4 developers
+      </analysis_approach>
+      <expected_output>
+        - 3-4 parallel groups with 3-5 issues each
+        - Clear dependency chains for sequential work
+        - Risk assessment for each group
+        - Coordination recommendations
+      </expected_output>
+      <success_metrics>
+        - Reduced merge conflicts during sprint
+        - Improved velocity through parallel work
+        - Minimal coordination overhead
+        - On-time sprint completion
+      </success_metrics>
+    </scenario>
+    
+    <scenario name="release_preparation">
+      <description>Analyze critical bugs and features for release readiness</description>
+      <context>
+        Product release in 2 weeks with 20 critical issues that need resolution.
+        Need to determine which can be worked on in parallel vs sequentially.
+      </context>
+      <input_example>
+        Query: "label:critical milestone:'Release 2.1' state:open"
+        Additional filters: priority:high, type:bug OR type:feature
+      </input_example>
+      <analysis_approach>
+        1. Prioritize by release impact and risk
+        2. Identify breaking changes that affect multiple areas
+        3. Map dependencies between bug fixes and features
+        4. Analyze testing requirements and validation needs
+        5. Consider rollback and hotfix scenarios
+      </analysis_approach>
+      <expected_output>
+        - Sequential order for breaking changes
+        - Parallel groups for independent fixes
+        - Risk-based prioritization
+        - Testing coordination plan
+      </expected_output>
+      <success_metrics>
+        - Successful release with minimal delays
+        - No critical conflicts during development
+        - Effective testing coverage
+        - Smooth deployment process
+      </success_metrics>
+    </scenario>
+    
+    <scenario name="technical_debt_cleanup">
+      <description>Coordinate multiple refactoring and cleanup tasks</description>
+      <context>
+        Team allocated time for technical debt reduction with 12 refactoring issues
+        spanning different parts of the codebase.
+      </context>
+      <input_example>
+        Query: "label:technical-debt label:refactoring state:open"
+        Issues: Focus on core architecture improvements
+      </input_example>
+      <analysis_approach>
+        1. Map architectural dependencies between components
+        2. Identify shared utilities and common code
+        3. Analyze impact on existing features and tests
+        4. Consider migration and backward compatibility
+        5. Plan incremental refactoring approach
+      </analysis_approach>
+      <expected_output>
+        - Phased refactoring plan with dependencies
+        - Safe parallel refactoring groups
+        - Migration strategy recommendations
+        - Testing and validation requirements
+      </expected_output>
+      <success_metrics>
+        - Successful refactoring without breaking changes
+        - Improved code quality metrics
+        - Maintained system stability
+        - Reduced future maintenance burden
+      </success_metrics>
+    </scenario>
+    
+    <scenario name="cross_team_coordination">
+      <description>Analyze issues spanning multiple teams and repositories</description>
+      <context>
+        Feature development requires coordination between frontend, backend, and DevOps teams
+        across 3 repositories with interdependent changes.
+      </context>
+      <input_example>
+        Repositories: frontend-app, backend-api, infrastructure
+        Issues: #45 (frontend), #123 (backend), #67 (infrastructure)
+        Cross-repo dependencies and shared interfaces
+      </input_example>
+      <analysis_approach>
+        1. Map cross-repository dependencies
+        2. Identify shared APIs and interfaces
+        3. Analyze deployment and integration requirements
+        4. Consider team communication and handoff points
+        5. Plan synchronized development and testing
+      </analysis_approach>
+      <expected_output>
+        - Cross-team coordination timeline
+        - Interface and API dependency mapping
+        - Integration testing strategy
+        - Communication and handoff plan
+      </expected_output>
+      <success_metrics>
+        - Successful cross-team feature delivery
+        - Minimal integration issues
+        - Effective team communication
+        - Coordinated deployment process
+      </success_metrics>
+    </scenario>
+  </common_scenarios>
+  
+  <step_by_step_guides>
+    <guide name="basic_analysis">
+      <title>Performing Basic Parallelizability Analysis</title>
+      <steps>
+        <step number="1">
+          <action>Gather Issue Information</action>
+          <details>
+            - Collect issue URLs, numbers, or search queries
+            - Ensure you have access to all relevant repositories
+            - Verify GitHub CLI authentication: `gh auth status`
+          </details>
+          <example>
+            Issues to analyze: #5648, #5649, #5650 from RooCodeInc/Roo-Code
+          </example>
+        </step>
+        
+        <step number="2">
+          <action>Choose Analysis Scope</action>
+          <details>
+            - Decide on risk tolerance (conservative/balanced/aggressive)
+            - Set confidence threshold (0.7 recommended for most cases)
+            - Determine maximum group size based on team capacity
+          </details>
+          <example>
+            Configuration: balanced risk, 70% confidence, max 4 issues per group
+          </example>
+        </step>
+        
+        <step number="3">
+          <action>Run Analysis</action>
+          <details>
+            - Use appropriate CLI command or API call
+            - Monitor progress for large issue sets
+            - Review any warnings or errors during analysis
+          </details>
+          <example>
+            Command: `roo parallelizability-analyzer --repo RooCodeInc/Roo-Code --issues "5648,5649,5650" --risk-tolerance balanced`
+          </example>
+        </step>
+        
+        <step number="4">
+          <action>Review Results</action>
+          <details>
+            - Examine overall parallelizability score and confidence
+            - Review recommended parallel groups
+            - Check for high-risk conflicts and dependencies
+            - Validate recommendations against team knowledge
+          </details>
+          <example>
+            Results: 85% parallelizability, 2 groups identified, low conflict risk
+          </example>
+        </step>
+        
+        <step number="5">
+          <action>Implement Recommendations</action>
+          <details>
+            - Assign issues to team members based on groups
+            - Set up coordination mechanisms for each group
+            - Plan integration points and testing strategy
+            - Monitor progress and adjust as needed
+          </details>
+          <example>
+            Group 1: Issues #5648, #5649 (Developer A, B)
+            Group 2: Issue #5650 (Developer C)
+            Coordination: Daily sync for Group 1
+          </example>
+        </step>
+      </steps>
+    </guide>
+    
+    <guide name="advanced_configuration">
+      <title>Advanced Analysis Configuration</title>
+      <steps>
+        <step number="1">
+          <action>Create Configuration File</action>
+          <details>
+            Create a JSON configuration file with custom analysis parameters,
+            repository-specific rules, and team constraints.
+          </details>
+          <example>
+            File: parallelizability-config.json
+            {
+              "repositories": ["RooCodeInc/Roo-Code"],
+              "analysis_rules": {
+                "file_overlap_weight": 0.4,
+                "dependency_weight": 0.3,
+                "complexity_weight": 0.2,
+                "team_weight": 0.1
+              },
+              "team_constraints": {
+                "max_issues_per_developer": 3,
+                "required_expertise": {
+                  "frontend": ["developer1", "developer2"],
+                  "backend": ["developer2", "developer3"]
+                }
+              }
+            }
+          </example>
+        </step>
+        
+        <step number="2">
+          <action>Define Custom Heuristics</action>
+          <details>
+            Specify project-specific patterns and rules for dependency detection
+            and conflict assessment based on your codebase characteristics.
+          </details>
+          <example>
+            Custom rules for detecting UI component dependencies,
+            API contract changes, and database migration conflicts.
+          </example>
+        </step>
+        
+        <step number="3">
+          <action>Set Up Monitoring</action>
+          <details>
+            Configure feedback collection and monitoring to track the accuracy
+            of parallelizability predictions and improve future analyses.
+          </details>
+          <example>
+            Webhook integration to track actual conflicts vs predictions,
+            automated feedback collection after issue completion.
+          </example>
+        </step>
+      </steps>
+    </guide>
+    
+    <guide name="integration_workflow">
+      <title>Integrating with Project Management Tools</title>
+      <steps>
+        <step number="1">
+          <action>Export Analysis Results</action>
+          <details>
+            Generate analysis results in format compatible with your
+            project management tool (GitHub Projects, Jira, Trello, etc.).
+          </details>
+          <example>
+            Export to GitHub Projects JSON format for automated board creation
+          </example>
+        </step>
+        
+        <step number="2">
+          <action>Create Project Structure</action>
+          <details>
+            Use exported data to create project boards, assign issues to
+            team members, and set up tracking for parallel work groups.
+          </details>
+          <example>
+            Create GitHub project with columns for each parallel group,
+            automated issue assignment based on analysis recommendations.
+          </example>
+        </step>
+        
+        <step number="3">
+          <action>Set Up Coordination Mechanisms</action>
+          <details>
+            Implement recommended coordination strategies such as
+            regular sync meetings, shared documentation, and conflict monitoring.
+          </details>
+          <example>
+            Daily standup for high-coordination groups,
+            shared Slack channel for real-time communication,
+            automated merge conflict alerts.
+          </example>
+        </step>
+      </steps>
+    </guide>
+  </step_by_step_guides>
+  
+  <best_practices>
+    <practice category="input_preparation">
+      <title>Preparing Quality Input Data</title>
+      <guidelines>
+        <guideline>
+          <principle>Complete Issue Descriptions</principle>
+          <description>Ensure issues have detailed descriptions, acceptance criteria, and technical specifications</description>
+          <rationale>Better input data leads to more accurate dependency detection and conflict prediction</rationale>
+          <implementation>
+            - Review issue templates and encourage detailed descriptions
+            - Add technical details and file references where possible
+            - Link related issues and PRs explicitly
+            - Include complexity estimates and effort assessments
+          </implementation>
+        </guideline>
+        
+        <guideline>
+          <principle>Consistent Labeling</principle>
+          <description>Use consistent labels for feature areas, complexity, and priority</description>
+          <rationale>Labels help the analyzer understand issue characteristics and relationships</rationale>
+          <implementation>
+            - Establish standard label taxonomy for your project
+            - Use component/area labels consistently (e.g., frontend, backend, api)
+            - Apply complexity labels (simple, medium, complex)
+            - Mark breaking changes and architectural impacts clearly
+          </implementation>
+        </guideline>
+        
+        <guideline>
+          <principle>Explicit Dependencies</principle>
+          <description>Clearly document dependencies between issues</description>
+          <rationale>Explicit dependencies are more reliable than inferred relationships</rationale>
+          <implementation>
+            - Use "depends on #123" or "blocks #456" in issue descriptions
+            - Link related issues using GitHub's linking features
+            - Document architectural dependencies and constraints
+            - Specify integration and testing dependencies
+          </implementation>
+        </guideline>
+      </guidelines>
+    </practice>
+    
+    <practice category="analysis_interpretation">
+      <title>Interpreting Analysis Results</title>
+      <guidelines>
+        <guideline>
+          <principle>Consider Confidence Levels</principle>
+          <description>Pay attention to confidence scores and adjust decisions accordingly</description>
+          <rationale>Low confidence predictions may require additional human review</rationale>
+          <implementation>
+            - Set appropriate confidence thresholds for your risk tolerance
+            - Review low-confidence recommendations manually
+            - Gather additional information for unclear cases
+            - Use conservative grouping for critical releases
+          </implementation>
+        </guideline>
+        
+        <guideline>
+          <principle>Validate Against Team Knowledge</principle>
+          <description>Cross-check analysis results with team expertise and experience</description>
+          <rationale>Automated analysis may miss context that team members understand</rationale>
+          <implementation>
+            - Review recommendations with technical leads
+            - Consider team member expertise and preferences
+            - Factor in recent changes and ongoing work
+            - Adjust groupings based on team feedback
+          </implementation>
+        </guideline>
+        
+        <guideline>
+          <principle>Plan for Uncertainty</principle>
+          <description>Prepare contingency plans for unexpected conflicts or dependencies</description>
+          <rationale>Even good analysis can't predict all possible issues</rationale>
+          <implementation>
+            - Build buffer time into parallel work schedules
+            - Establish clear escalation procedures for conflicts
+            - Plan regular check-ins and coordination points
+            - Have backup plans for high-risk parallel groups
+          </implementation>
+        </guideline>
+      </guidelines>
+    </practice>
+    
+    <practice category="execution_monitoring">
+      <title>Monitoring Parallel Work Execution</title>
+      <guidelines>
+        <guideline>
+          <principle>Regular Progress Tracking</principle>
+          <description>Monitor progress of parallel groups and watch for emerging conflicts</description>
+          <rationale>Early detection of issues allows for timely intervention</rationale>
+          <implementation>
+            - Set up regular check-ins for each parallel group
+            - Monitor merge conflicts and integration issues
+            - Track coordination overhead and communication needs
+            - Adjust groupings if conflicts emerge
+          </implementation>
+        </guideline>
+        
+        <guideline>
+          <principle>Feedback Collection</principle>
+          <description>Collect feedback on analysis accuracy and process effectiveness</description>
+          <rationale>Feedback improves future analyses and validates current approaches</rationale>
+          <implementation>
+            - Survey team members after parallel work completion
+            - Track actual vs predicted conflicts and coordination needs
+            - Document lessons learned and process improvements
+            - Update analysis parameters based on outcomes
+          </implementation>
+        </guideline>
+        
+        <guideline>
+          <principle>Continuous Improvement</principle>
+          <description>Use results and feedback to refine analysis approaches</description>
+          <rationale>Analysis accuracy improves with experience and project-specific learning</rationale>
+          <implementation>
+            - Maintain historical analysis data and outcomes
+            - Identify patterns in prediction accuracy
+            - Adjust algorithm weights based on project characteristics
+            - Develop project-specific heuristics and rules
+          </implementation>
+        </guideline>
+      </guidelines>
+    </practice>
+  </best_practices>
+  
+  <troubleshooting>
+    <common_issues>
+      <issue name="low_confidence_scores">
+        <symptoms>Analysis returns low confidence scores for most recommendations</symptoms>
+        <causes>
+          - Insufficient issue descriptions or technical details
+          - Missing or inconsistent labeling
+          - Limited historical data for the repository
+          - Complex or unusual issue relationships
+        </causes>
+        <solutions>
+          - Improve issue description quality and completeness
+          - Establish consistent labeling practices
+          - Manually review and validate low-confidence cases
+          - Adjust confidence thresholds for your project context
+          - Gather additional technical details for unclear issues
+        </solutions>
+      </issue>
+      
+      <issue name="unexpected_conflicts">
+        <symptoms>Parallel work groups experience more conflicts than predicted</symptoms>
+        <causes>
+          - Hidden dependencies not captured in issue descriptions
+          - Rapid codebase changes affecting analysis assumptions
+          - Team coordination issues beyond technical conflicts
+          - Incomplete file overlap detection
+        </causes>
+        <solutions>
+          - Review and update issue descriptions with new information
+          - Re-run analysis with updated data
+          - Implement more frequent coordination check-ins
+          - Adjust analysis parameters based on observed patterns
+          - Consider more conservative grouping strategies
+        </solutions>
+      </issue>
+      
+      <issue name="over_conservative_grouping">
+        <symptoms>Analysis creates too many small groups, limiting parallelism</symptoms>
+        <causes>
+          - Conservative risk tolerance settings
+          - High file overlap sensitivity
+          - Overly strict dependency detection
+          - Small team size constraints
+        </causes>
+        <solutions>
+          - Adjust risk tolerance to more aggressive settings
+          - Increase maximum group size limits
+          - Review and tune algorithm weights
+          - Consider accepting higher coordination overhead for more parallelism
+          - Validate that detected dependencies are actually blocking
+        </solutions>
+      </issue>
+      
+      <issue name="integration_failures">
+        <symptoms>Exported results don't integrate properly with project management tools</symptoms>
+        <causes>
+          - Format compatibility issues
+          - Missing required fields or metadata
+          - Tool-specific configuration requirements
+          - API version or authentication problems
+        </causes>
+        <solutions>
+          - Verify export format compatibility with target tool
+          - Check API documentation for required fields
+          - Update authentication credentials and permissions
+          - Use intermediate formats (CSV, JSON) for manual import
+          - Contact tool support for integration assistance
+        </solutions>
+      </issue>
+    </common_issues>
+    
+    <debugging_techniques>
+      <technique name="verbose_analysis">
+        <description>Enable detailed logging to understand analysis decisions</description>
+        <usage>Add --verbose flag to CLI commands or enable debug mode in API calls</usage>
+        <output>Detailed step-by-step analysis logs, intermediate scores, and decision rationale</output>
+      </technique>
+      
+      <technique name="manual_validation">
+        <description>Manually verify key analysis assumptions and detected relationships</description>
+        <usage>Review dependency graphs, file overlap matrices, and scoring details</usage>
+        <output>Validation of automated analysis against human expertise</output>
+      </technique>
+      
+      <technique name="incremental_analysis">
+        <description>Analyze subsets of issues to isolate problematic cases</description>
+        <usage>Start with small, well-understood issue groups and gradually expand</usage>
+        <output>Identification of specific issues or patterns causing analysis problems</output>
+      </technique>
+    </debugging_techniques>
+  </troubleshooting>
+</usage_examples>

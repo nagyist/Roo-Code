@@ -202,3 +202,30 @@ customModes:
     whenToUse: Use this mode to orchestrate the process of fixing a GitHub issue. Provide a GitHub issue URL, and this mode will coordinate a series of subtasks to analyze the issue, explore the code, create a plan, implement the solution, and prepare a pull request.
     groups: []
     source: project
+  - slug: parallelizability-analyzer
+    name: 🔀 Parallelizability Analyzer
+    roleDefinition: |-
+      You are Roo, a parallelizability analysis specialist focused on determining whether groups of GitHub issues can be worked on in parallel without conflicts. Your expertise includes:
+      - Analyzing GitHub issues to identify dependencies, file overlaps, and potential conflicts
+      - Using static analysis and heuristics to assess parallelizability
+      - Evaluating labels, metadata, and issue relationships for conflict detection
+      - Generating comprehensive reports on parallel work feasibility
+      - Integrating with task management and parallel worker coordination systems
+      - Providing CLI and API interfaces for automated scheduling workflows
+      
+      You help teams optimize their development workflow by:
+      - Accepting groups of issues via URLs, numbers, or search queries
+      - Performing deep analysis of code dependencies and file overlaps
+      - Applying configurable rules and heuristics for conflict detection
+      - Generating detailed parallelizability reports with recommendations
+      - Supporting integration with external task management systems
+      - Enabling automated parallel work scheduling and coordination
+    whenToUse: Use this mode when you need to analyze whether a group of GitHub issues can be worked on in parallel without conflicts. Provide issue URLs, numbers, or search queries, and this mode will assess dependencies, file overlaps, and potential conflicts to determine parallelizability.
+    groups:
+      - read
+      - - edit
+        - fileRegex: (\.roo/temp/parallelizability-analyzer/.*\.(json|md|txt)$|\.roo/rules-parallelizability-analyzer/.*\.xml$)
+          description: Analysis output files and mode configuration
+      - command
+      - mcp
+    source: project

@@ -1,0 +1,451 @@
+<cli_and_integration>
+  <command_line_interface>
+    <usage_patterns>
+      <pattern name="single_repository_analysis">
+        <command>roo parallelizability-analyzer --repo owner/repo --issues "123,124,125"</command>
+        <description>Analyze specific issues within a single repository</description>
+        <example>roo parallelizability-analyzer --repo RooCodeInc/Roo-Code --issues "5648,5649,5650"</example>
+      </pattern>
+      
+      <pattern name="url_based_analysis">
+        <command>roo parallelizability-analyzer --urls "url1,url2,url3"</command>
+        <description>Analyze issues from multiple repositories using full URLs</description>
+        <example>roo parallelizability-analyzer --urls "https://github.com/owner/repo1/issues/123,https://github.com/owner/repo2/issues/456"</example>
+      </pattern>
+      
+      <pattern name="search_query_analysis">
+        <command>roo parallelizability-analyzer --repo owner/repo --query "label:bug milestone:v1.0"</command>
+        <description>Analyze issues matching a search query</description>
+        <example>roo parallelizability-analyzer --repo RooCodeInc/Roo-Code --query "label:enhancement milestone:next-release"</example>
+      </pattern>
+      
+      <pattern name="mixed_input_analysis">
+        <command>roo parallelizability-analyzer --input-file analysis_config.json</command>
+        <description>Use a configuration file with mixed input types</description>
+        <config_format>
+          {
+            "repositories": ["owner/repo1", "owner/repo2"],
+            "issues": [123, 124, 125],
+            "urls": ["https://github.com/owner/repo/issues/456"],
+            "queries": [
+              {"repo": "owner/repo", "query": "label:bug"},
+              {"repo": "owner/repo", "query": "milestone:v2.0"}
+            ]
+          }
+        </config_format>
+      </pattern>
+    </usage_patterns>
+    
+    <command_options>
+      <option name="--repo">
+        <type>string</type>
+        <description>Repository in owner/name format</description>
+        <required>conditional</required>
+        <example>--repo RooCodeInc/Roo-Code</example>
+      </option>
+      
+      <option name="--issues">
+        <type>comma-separated-list</type>
+        <description>Issue numbers to analyze</description>
+        <example>--issues "123,124,125"</example>
+      </option>
+      
+      <option name="--urls">
+        <type>comma-separated-list</type>
+        <description>Full GitHub issue URLs</description>
+        <example>--urls "https://github.com/owner/repo/issues/123,https://github.com/owner/repo/issues/124"</example>
+      </option>
+      
+      <option name="--query">
+        <type>string</type>
+        <description>GitHub search query for issues</description>
+        <example>--query "label:bug milestone:v1.0 state:open"</example>
+      </option>
+      
+      <option name="--input-file">
+        <type>file-path</type>
+        <description>JSON configuration file with analysis parameters</description>
+        <example>--input-file ./analysis-config.json</example>
+      </option>
+      
+      <option name="--output-format">
+        <type>enum</type>
+        <values>json|markdown|html|csv|yaml</values>
+        <default>markdown</default>
+        <description>Output format for analysis results</description>
+      </option>
+      
+      <option name="--output-file">
+        <type>file-path</type>
+        <description>File to save analysis results</description>
+        <example>--output-file ./parallelizability-report.md</example>
+      </option>
+      
+      <option name="--confidence-threshold">
+        <type>float</type>
+        <range>0.0-1.0</range>
+        <default>0.7</default>
+        <description>Minimum confidence level for recommendations</description>
+      </option>
+      
+      <option name="--risk-tolerance">
+        <type>enum</type>
+        <values>conservative|balanced|aggressive</values>
+        <default>balanced</default>
+        <description>Risk tolerance for parallel work recommendations</description>
+      </option>
+      
+      <option name="--max-group-size">
+        <type>integer</type>
+        <default>5</default>
+        <description>Maximum number of issues per parallel group</description>
+      </option>
+      
+      <option name="--include-dependencies">
+        <type>boolean</type>
+        <default>true</default>
+        <description>Include dependency analysis in results</description>
+      </option>
+      
+      <option name="--include-file-analysis">
+        <type>boolean</type>
+        <default>true</default>
+        <description>Include file overlap analysis</description>
+      </option>
+      
+      <option name="--verbose">
+        <type>boolean</type>
+        <default>false</default>
+        <description>Enable detailed logging and progress output</description>
+      </option>
+      
+      <option name="--dry-run">
+        <type>boolean</type>
+        <default>false</default>
+        <description>Validate inputs without performing analysis</description>
+      </option>
+    </command_options>
+    
+    <output_examples>
+      <example format="json">
+        {
+          "analysis_id": "pa_20240113_142530",
+          "timestamp": "2024-01-13T14:25:30Z",
+          "configuration": {
+            "risk_tolerance": "balanced",
+            "confidence_threshold": 0.7,
+            "max_group_size": 5
+          },
+          "issues_analyzed": [
+            {"repo": "RooCodeInc/Roo-Code", "number": 5648, "title": "Create parallelizability-analyzer mode"},
+            {"repo": "RooCodeInc/Roo-Code", "number": 5649, "title": "Improve error handling"}
+          ],
+          "overall_assessment": {
+            "parallelizability_score": 0.85,
+            "confidence_level": 0.92,
+            "total_issues": 2,
+            "parallel_groups": 1,
+            "sequential_dependencies": 0
+          },
+          "parallel_groups": [
+            {
+              "group_id": 1,
+              "issues": [5648, 5649],
+              "parallelizability_score": 0.85,
+              "estimated_conflict_risk": "low",
+              "coordination_requirements": ["regular sync meetings", "shared documentation"]
+            }
+          ],
+          "sequential_dependencies": [],
+          "risk_factors": [
+            {
+              "type": "file_overlap",
+              "severity": "low",
+              "description": "Minor overlap in configuration files",
+              "affected_issues": [5648, 5649],
+              "mitigation": "Coordinate changes to .roomodes file"
+            }
+          ],
+          "recommendations": [
+            "Issues 5648 and 5649 can be worked on in parallel with minimal coordination",
+            "Establish shared documentation for configuration changes",
+            "Plan integration testing after both issues are complete"
+          ]
+        }
+      </example>
+      
+      <example format="markdown">
+        # Parallelizability Analysis Report
+        
+        **Analysis ID:** pa_20240113_142530  
+        **Generated:** 2024-01-13 14:25:30 UTC  
+        **Configuration:** Balanced risk tolerance, 70% confidence threshold
+        
+        ## Executive Summary
+        
+        ✅ **High Parallelizability** (Score: 0.85, Confidence: 92%)
+        
+        - **2 issues analyzed** across 1 repository
+        - **1 parallel group** identified
+        - **0 sequential dependencies** found
+        - **Low conflict risk** overall
+        
+        ## Recommended Parallel Groups
+        
+        ### Group 1: Core Feature Development
+        - **Issues:** #5648, #5649
+        - **Parallelizability Score:** 0.85
+        - **Conflict Risk:** Low
+        - **Coordination Needs:** Regular sync, shared docs
+        
+        ## Risk Assessment
+        
+        ### Low Risk Factors
+        - **File Overlap:** Minor overlap in configuration files
+          - **Affected Issues:** #5648, #5649
+          - **Mitigation:** Coordinate changes to .roomodes file
+        
+        ## Recommendations
+        
+        1. Issues #5648 and #5649 can be worked on in parallel with minimal coordination
+        2. Establish shared documentation for configuration changes
+        3. Plan integration testing after both issues are complete
+        
+        ## Detailed Analysis
+        
+        [Additional technical details would follow...]
+      </example>
+    </output_examples>
+  </command_line_interface>
+  
+  <api_integration>
+    <rest_endpoints>
+      <endpoint path="/api/v1/parallelizability/analyze" method="POST">
+        <description>Perform parallelizability analysis on a set of issues</description>
+        <request_body>
+          {
+            "issues": [
+              {"repo": "owner/name", "number": 123},
+              {"url": "https://github.com/owner/repo/issues/456"}
+            ],
+            "queries": [
+              {"repo": "owner/name", "query": "label:bug milestone:v1.0"}
+            ],
+            "configuration": {
+              "risk_tolerance": "balanced",
+              "confidence_threshold": 0.7,
+              "max_group_size": 5,
+              "include_dependencies": true,
+              "include_file_analysis": true
+            }
+          }
+        </request_body>
+        <response_format>Same as CLI JSON output</response_format>
+      </endpoint>
+      
+      <endpoint path="/api/v1/parallelizability/status/{analysis_id}" method="GET">
+        <description>Get the status of a running analysis</description>
+        <response>
+          {
+            "analysis_id": "pa_20240113_142530",
+            "status": "running|completed|failed",
+            "progress": 0.75,
+            "estimated_completion": "2024-01-13T14:30:00Z",
+            "current_step": "file_overlap_analysis"
+          }
+        </response>
+      </endpoint>
+      
+      <endpoint path="/api/v1/parallelizability/results/{analysis_id}" method="GET">
+        <description>Retrieve completed analysis results</description>
+        <query_parameters>
+          <parameter name="format">json|markdown|html|csv</parameter>
+          <parameter name="include_raw_data">boolean</parameter>
+        </query_parameters>
+      </endpoint>
+    </rest_endpoints>
+    
+    <webhook_integration>
+      <webhook_events>
+        <event name="analysis_completed">
+          <description>Triggered when parallelizability analysis completes</description>
+          <payload>
+            {
+              "event": "analysis_completed",
+              "analysis_id": "pa_20240113_142530",
+              "timestamp": "2024-01-13T14:30:00Z",
+              "summary": {
+                "parallelizability_score": 0.85,
+                "parallel_groups": 1,
+                "high_risk_conflicts": 0
+              },
+              "results_url": "/api/v1/parallelizability/results/pa_20240113_142530"
+            }
+          </payload>
+        </event>
+        
+        <event name="analysis_failed">
+          <description>Triggered when analysis fails</description>
+          <payload>
+            {
+              "event": "analysis_failed",
+              "analysis_id": "pa_20240113_142530",
+              "timestamp": "2024-01-13T14:30:00Z",
+              "error": {
+                "code": "INSUFFICIENT_DATA",
+                "message": "Unable to access issue data for analysis",
+                "details": "GitHub API rate limit exceeded"
+              }
+            }
+          }
+          </payload>
+        </event>
+      </webhook_events>
+    </webhook_integration>
+  </api_integration>
+  
+  <task_management_integration>
+    <github_projects>
+      <integration_features>
+        <feature name="automated_board_creation">
+          <description>Create GitHub project boards based on parallelizability analysis</description>
+          <implementation>
+            1. Create project board with columns for each parallel group
+            2. Add issues to appropriate columns
+            3. Set up automation rules for issue movement
+            4. Add labels for coordination requirements
+          </implementation>
+        </feature>
+        
+        <feature name="dependency_tracking">
+          <description>Use GitHub issue linking to track dependencies</description>
+          <implementation>
+            1. Create "blocks" and "depends on" relationships
+            2. Add dependency labels to issues
+            3. Set up automated checks for dependency resolution
+            4. Generate dependency visualization in project board
+          </implementation>
+        </feature>
+      </integration_features>
+    </github_projects>
+    
+    <external_tools>
+      <tool name="jira">
+        <export_format>
+          {
+            "project_key": "PROJ",
+            "epic_structure": [
+              {
+                "epic_name": "Parallel Group 1",
+                "issues": [
+                  {"key": "PROJ-123", "summary": "Issue title", "priority": "High"},
+                  {"key": "PROJ-124", "summary": "Issue title", "priority": "Medium"}
+                ]
+              }
+            ],
+            "dependencies": [
+              {"from": "PROJ-123", "to": "PROJ-124", "type": "blocks"}
+            ]
+          }
+        </export_format>
+      </tool>
+      
+      <tool name="trello">
+        <export_format>
+          {
+            "board_name": "Parallel Work Planning",
+            "lists": [
+              {
+                "name": "Parallel Group 1",
+                "cards": [
+                  {"name": "Issue #123: Title", "description": "Details", "labels": ["high-priority"]},
+                  {"name": "Issue #124: Title", "description": "Details", "labels": ["medium-priority"]}
+                ]
+              }
+            ]
+          }
+        </export_format>
+      </tool>
+      
+      <tool name="asana">
+        <export_format>
+          {
+            "project_name": "Parallel Development",
+            "sections": [
+              {
+                "name": "Parallel Group 1",
+                "tasks": [
+                  {"name": "Issue #123", "notes": "Description", "assignee": "user@example.com"},
+                  {"name": "Issue #124", "notes": "Description", "assignee": "user2@example.com"}
+                ]
+              }
+            ],
+            "dependencies": [
+              {"task": "Issue #123", "depends_on": ["Issue #122"]}
+            ]
+          }
+        </export_format>
+      </tool>
+    </external_tools>
+  </task_management_integration>
+  
+  <monitoring_and_feedback>
+    <parallel_work_monitoring>
+      <metrics>
+        <metric name="conflict_occurrence_rate">
+          <description>Track actual conflicts vs predicted conflicts</description>
+          <calculation>actual_conflicts / predicted_conflicts</calculation>
+        </metric>
+        
+        <metric name="coordination_overhead">
+          <description>Measure communication and coordination costs</description>
+          <indicators>
+            - Number of sync meetings required
+            - Merge conflict resolution time
+            - Code review coordination complexity
+          </indicators>
+        </metric>
+        
+        <metric name="parallel_efficiency">
+          <description>Compare parallel vs sequential completion times</description>
+          <calculation>(sequential_estimate - parallel_actual) / sequential_estimate</calculation>
+        </metric>
+      </metrics>
+    </parallel_work_monitoring>
+    
+    <feedback_collection>
+      <feedback_types>
+        <type name="accuracy_feedback">
+          <description>User reports on prediction accuracy</description>
+          <collection_method>Post-completion survey or API feedback</collection_method>
+          <data_points>
+            - Were conflicts predicted accurately?
+            - Were parallel groups optimal?
+            - What unexpected issues arose?
+          </data_points>
+        </type>
+        
+        <type name="process_feedback">
+          <description>Feedback on analysis process and recommendations</description>
+          <collection_method>Continuous feedback during work execution</collection_method>
+          <data_points>
+            - Was coordination guidance helpful?
+            - Were risk mitigation strategies effective?
+            - How could recommendations be improved?
+          </data_points>
+        </type>
+      </feedback_types>
+      
+      <learning_integration>
+        <description>Use feedback to improve future analyses</description>
+        <implementation>
+          1. Store feedback with analysis parameters and outcomes
+          2. Identify patterns in prediction errors
+          3. Adjust algorithm weights based on historical accuracy
+          4. Update heuristics based on project-specific learnings
+          5. Improve confidence calculations using outcome data
+        </implementation>
+      </learning_integration>
+    </feedback_collection>
+  </monitoring_and_feedback>
+</cli_and_integration>

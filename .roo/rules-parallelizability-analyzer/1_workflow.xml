@@ -1,0 +1,278 @@
+<workflow>
+  <step number="1">
+    <name>Initialize Analysis Context</name>
+    <instructions>
+      The user will provide a group of GitHub issues for parallelizability analysis. Issues can be provided as:
+      - Individual URLs (e.g., "https://github.com/owner/repo/issues/123")
+      - Issue numbers with repository context (e.g., "#123, #124, #125" for current repo)
+      - Search queries (e.g., "label:bug milestone:v1.0")
+      - Mixed formats
+      
+      1. **Create Analysis Directory**: Create a unique directory for this analysis session.
+         <execute_command>
+         <command>mkdir -p .roo/temp/parallelizability-analyzer/$(date +%Y%m%d_%H%M%S)</command>
+         </execute_command>
+      
+      2. **Parse Input**: Identify and normalize all issue references.
+         - Extract owner/repo/number from URLs
+         - Resolve issue numbers to full references
+         - Execute search queries to get issue lists
+         - Handle authentication errors gracefully
+      
+      3. **Retrieve Issue Data**: For each identified issue, fetch comprehensive data.
+         <execute_command>
+         <command>gh issue view [issue_number] --repo [owner]/[repo] --json number,title,body,state,labels,assignees,milestone,createdAt,updatedAt,closedAt,author,comments</command>
+         </execute_command>
+      
+      4. **Save Context**: Store all issue data and analysis metadata.
+         - Save individual issue data as JSON files
+         - Create analysis manifest with issue list and metadata
+         - Record analysis parameters and configuration
+      
+      5. **Validate Input**: Ensure all issues are accessible and contain sufficient data for analysis.
+    </instructions>
+  </step>
+
+  <step number="2">
+    <name>Analyze Issue Dependencies</name>
+    <instructions>
+      Perform comprehensive dependency analysis to identify relationships between issues.
+      
+      1. **Extract Dependencies**: Analyze issue content for explicit dependencies.
+         - Parse issue bodies and comments for references to other issues
+         - Identify "depends on", "blocks", "related to" relationships
+         - Extract linked PRs and their relationships
+         - Map milestone and epic dependencies
+      
+      2. **Analyze Labels and Metadata**: Examine labels for conflict indicators.
+         - Identify breaking change labels
+         - Check for architectural impact labels
+         - Analyze priority and urgency indicators
+         - Map feature area and component labels
+      
+      3. **Detect Implicit Dependencies**: Use heuristics to find hidden relationships.
+         - Analyze issue titles for related functionality
+         - Check for similar error messages or symptoms
+         - Identify issues affecting the same user workflows
+         - Map issues to common architectural components
+      
+      4. **Create Dependency Graph**: Build a comprehensive dependency map.
+         - Create nodes for each issue with metadata
+         - Add edges for all identified relationships
+         - Weight edges by dependency strength and type
+         - Identify dependency cycles and critical paths
+      
+      5. **Save Dependency Analysis**: Store results for next analysis phase.
+    </instructions>
+  </step>
+
+  <step number="3">
+    <name>Perform File Overlap Analysis</name>
+    <instructions>
+      Analyze potential file conflicts by examining what files each issue might affect.
+      
+      1. **Extract File References**: Identify files mentioned in issues.
+         - Parse issue bodies for file paths and names
+         - Extract file references from linked PRs
+         - Analyze error messages for affected files
+         - Map feature descriptions to likely file locations
+      
+      2. **Predict Affected Files**: Use codebase analysis to predict file impacts.
+         - Search codebase for functionality mentioned in issues
+         - Map bug reports to likely source file locations
+         - Identify test files that would need updates
+         - Predict configuration and documentation changes
+      
+      3. **Analyze File Overlap Patterns**: Identify potential conflicts.
+         - Direct overlaps: Same files mentioned in multiple issues
+         - Indirect overlaps: Related files in same modules/components
+         - Test file conflicts: Shared test utilities and fixtures
+         - Configuration conflicts: Shared config files and schemas
+      
+      4. **Assess Conflict Severity**: Rate the likelihood and impact of conflicts.
+         - High risk: Direct file overlaps with complex changes
+         - Medium risk: Related files in same component
+         - Low risk: Independent files with minimal interaction
+         - No risk: Completely separate file sets
+      
+      5. **Generate File Conflict Matrix**: Create a comprehensive conflict map.
+         - Matrix showing file overlap between all issue pairs
+         - Conflict severity ratings and explanations
+         - Recommendations for conflict resolution strategies
+    </instructions>
+  </step>
+
+  <step number="4">
+    <name>Apply Parallelizability Heuristics</name>
+    <instructions>
+      Apply sophisticated heuristics and rules to determine parallelizability.
+      
+      1. **Load Analysis Rules**: Apply configurable analysis rules.
+         - Load default heuristics for common conflict patterns
+         - Apply repository-specific rules if configured
+         - Consider project-specific architectural constraints
+         - Factor in team workflow and review processes
+      
+      2. **Analyze Issue Characteristics**: Evaluate individual issue properties.
+         - Issue complexity and estimated effort
+         - Required expertise and team member assignments
+         - Breaking change potential and backward compatibility
+         - Testing requirements and validation complexity
+      
+      3. **Evaluate Team Constraints**: Consider human resource factors.
+         - Assignee conflicts and expertise overlap
+         - Review capacity and approval workflows
+         - Communication overhead for related changes
+         - Merge conflict resolution capabilities
+      
+      4. **Apply Temporal Constraints**: Consider timing and sequencing factors.
+         - Milestone deadlines and release schedules
+         - Dependency ordering requirements
+         - Testing and validation timelines
+         - Integration and deployment constraints
+      
+      5. **Calculate Parallelizability Scores**: Generate quantitative assessments.
+         - Individual issue parallelizability ratings
+         - Pairwise conflict probability scores
+         - Group parallelizability confidence levels
+         - Risk-adjusted parallel work recommendations
+    </instructions>
+  </step>
+
+  <step number="5">
+    <name>Generate Analysis Report</name>
+    <instructions>
+      Create comprehensive reports on parallelizability analysis results.
+      
+      1. **Prepare Report Structure**: Organize findings into clear sections.
+         - Executive summary with key recommendations
+         - Detailed analysis methodology and assumptions
+         - Individual issue assessments and characteristics
+         - Pairwise conflict analysis and risk ratings
+         - Group parallelizability recommendations
+      
+      2. **Create Visualizations**: Generate helpful visual representations.
+         - Dependency graph diagrams
+         - File overlap heat maps
+         - Parallelizability matrices
+         - Risk assessment charts
+         - Timeline and scheduling recommendations
+      
+      3. **Provide Actionable Recommendations**: Offer specific guidance.
+         - Optimal parallel work groupings
+         - Sequential work ordering for conflicting issues
+         - Risk mitigation strategies for parallel work
+         - Monitoring and coordination recommendations
+         - Fallback plans for conflict resolution
+      
+      4. **Format for Different Audiences**: Create multiple report formats.
+         - Technical report with detailed analysis
+         - Management summary with key decisions
+         - Developer guide with practical recommendations
+         - API response format for automated systems
+      
+      5. **Save Analysis Results**: Store all outputs for future reference.
+         - Save reports in multiple formats (JSON, Markdown, HTML)
+         - Store raw analysis data for audit trails
+         - Create shareable links and summaries
+         - Archive results with timestamp and configuration
+    </instructions>
+  </step>
+
+  <step number="6">
+    <name>Present Results and Recommendations</name>
+    <instructions>
+      Present the analysis results to the user with clear recommendations.
+      
+      1. **Read Analysis Results**: Load the generated reports and data.
+         <read_file>
+         <args>
+           <file>
+             <path>.roo/temp/parallelizability-analyzer/[SESSION_ID]/analysis_report.md</path>
+           </file>
+         </args>
+         </read_file>
+      
+      2. **Present Executive Summary**: Show key findings and recommendations.
+         <ask_followup_question>
+         <question>
+           Parallelizability analysis complete! Here are the key findings:
+
+           **Issues Analyzed:** [Number] issues across [repositories]
+           **Overall Parallelizability:** [High/Medium/Low] confidence
+           
+           **Recommended Parallel Groups:**
+           [List of issue groups that can be worked on in parallel]
+           
+           **Sequential Dependencies:**
+           [List of issues that must be done in sequence]
+           
+           **High-Risk Conflicts:**
+           [List of issue pairs with significant conflict potential]
+           
+           **Detailed Analysis:**
+           [Summary of methodology and key findings]
+           
+           Would you like to see the detailed analysis, export results, or take action on these recommendations?
+         </question>
+         <follow_up>
+           <suggest>Show me the detailed technical analysis</suggest>
+           <suggest>Export results for task management integration</suggest>
+           <suggest>Create work assignments based on recommendations</suggest>
+           <suggest>Analyze a different set of issues</suggest>
+         </follow_up>
+         </ask_followup_question>
+      
+      3. **Handle User Requests**: Respond to user choices for additional information or actions.
+         - Provide detailed technical reports
+         - Export data in various formats
+         - Integrate with task management systems
+         - Prepare work assignment recommendations
+      
+      4. **Offer Integration Options**: Provide ways to act on the analysis.
+         - Generate GitHub project board configurations
+         - Create team assignment recommendations
+         - Export to external project management tools
+         - Set up monitoring for parallel work coordination
+    </instructions>
+  </step>
+
+  <step number="7">
+    <name>Integration and Export</name>
+    <instructions>
+      Provide integration capabilities for acting on analysis results.
+      
+      1. **Export Formats**: Support multiple output formats for different tools.
+         - JSON for API integration
+         - CSV for spreadsheet analysis
+         - Markdown for documentation
+         - YAML for configuration management
+         - XML for enterprise systems
+      
+      2. **Task Management Integration**: Connect with popular project management tools.
+         - GitHub Projects integration
+         - Jira ticket organization
+         - Trello board setup
+         - Asana task grouping
+         - Custom API endpoints
+      
+      3. **Team Coordination**: Provide tools for team communication and coordination.
+         - Generate team assignment recommendations
+         - Create communication templates
+         - Set up conflict monitoring alerts
+         - Provide progress tracking mechanisms
+      
+      4. **Monitoring and Updates**: Enable ongoing parallelizability monitoring.
+         - Set up automated re-analysis triggers
+         - Monitor for new dependencies or conflicts
+         - Track parallel work progress and outcomes
+         - Learn from results to improve future analysis
+      
+      5. **Documentation and Sharing**: Make results accessible and shareable.
+         - Generate shareable report URLs
+         - Create presentation-ready summaries
+         - Provide audit trails and methodology documentation
+         - Enable collaborative review and feedback
+    </instructions>
+  </step>
+</workflow>
