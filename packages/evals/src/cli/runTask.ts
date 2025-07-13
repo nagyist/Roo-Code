@@ -27,9 +27,10 @@ import {
 } from "../db/index.js"
 import { EVALS_REPO_PATH } from "../exercises/index.js"
 
-import { Logger, getTag, isDockerContainer } from "./utils.js"
+import { Logger, getTag, isDockerContainer, getExecutionEnvironment } from "./utils.js"
 import { redisClient, getPubSubKey, registerRunner, deregisterRunner } from "./redis.js"
 import { runUnitTest } from "./runUnitTest.js"
+import { AzureContainerAppsExecutor, getAzureContainerAppsConfig } from "./azureContainerApps.js"
 
 class SubprocessTimeoutError extends Error {
 	constructor(timeout: number) {
@@ -44,7 +45,8 @@ export const processTask = async ({ taskId, logger }: { taskId: number; logger?:
 	const run = await findRun(task.runId)
 	await registerRunner({ runId: run.id, taskId })
 
-	const containerized = isDockerContainer()
+	const executionEnvironment = getExecutionEnvironment()
+	const containerized = executionEnvironment !== "local"
 
 	logger =
 		logger ||
@@ -79,6 +81,28 @@ export const processTask = async ({ taskId, logger }: { taskId: number; logger?:
 }
 
 export const processTaskInContainer = async ({
+	taskId,
+	logger,
+	maxRetries = 10,
+}: {
+	taskId: number
+	logger: Logger
+	maxRetries?: number
+}) => {
+	const executionMethod = process.env.HOST_EXECUTION_METHOD || "docker"
+
+	logger.info(`Using execution method: ${executionMethod}`)
+
+	switch (executionMethod) {
+		case "azure-container-apps":
+			return await processTaskInAzureContainerApps({ taskId, logger, maxRetries })
+		case "docker":
+		default:
+			return await processTaskInDocker({ taskId, logger, maxRetries })
+	}
+}
+
+export const processTaskInDocker = async ({
 	taskId,
 	logger,
 	maxRetries = 10,
@@ -139,6 +163,54 @@ export const processTaskInContainer = async ({
 	logger.error(`all ${maxRetries + 1} attempts failed, giving up`)
 
 	// TODO: Mark task as failed.
+}
+
+export const processTaskInAzureContainerApps = async ({
+	taskId,
+	logger,
+	maxRetries = 10,
+}: {
+	taskId: number
+	logger: Logger
+	maxRetries?: number
+}) => {
+	try {
+		logger.info(`Processing task ${taskId} using Azure Container Apps`)
+
+		// Get Azure configuration
+		const azureConfig = getAzureContainerAppsConfig()
+		const executor = new AzureContainerAppsExecutor(azureConfig, logger)
+
+		// Prepare the command to run inside the container
+		const command = ["sh", "-c", `pnpm --filter @roo-code/evals cli --taskId ${taskId}`]
+
+		// Environment variables for the container
+		const environmentVariables = {
+			HOST_EXECUTION_METHOD: "azure-container-apps",
+			DATABASE_URL: process.env.DATABASE_URL || "",
+			REDIS_URL: process.env.REDIS_URL || "",
+			OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY || "",
+			// Add any other required environment variables
+		}
+
+		// Job configuration
+		const jobConfig = {
+			jobName: `evals-task-${taskId}-${Date.now()}`,
+			command,
+			environmentVariables,
+			cpu: 1.0,
+			memory: "2Gi",
+			maxRetries,
+		}
+
+		// Execute the job
+		await executor.executeJob(jobConfig)
+
+		logger.info(`Azure Container Apps job completed successfully for task ${taskId}`)
+	} catch (error) {
+		logger.error(`Azure Container Apps execution failed for task ${taskId}: ${error}`)
+		throw error
+	}
 }
 
 type RunTaskOptions = {

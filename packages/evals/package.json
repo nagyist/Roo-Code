@@ -10,6 +10,7 @@
 		"_test": "dotenvx run -f .env.test -- vitest run",
 		"clean": "rimraf dist .turbo",
 		"cli": "dotenvx run -f .env.development .env.local -- tsx src/cli/index.ts",
+		"cli:azure": "dotenvx run -f .env.azure .env.azure.local -- tsx src/cli/index.ts",
 		"drizzle-kit": "dotenvx run -f .env.development -- tsx node_modules/drizzle-kit/bin.cjs",
 		"drizzle-kit:test": "dotenvx run -f .env.test -- tsx node_modules/drizzle-kit/bin.cjs",
 		"drizzle-kit:production": "dotenvx run -f .env.production -- tsx node_modules/drizzle-kit/bin.cjs",
@@ -22,9 +23,14 @@
 		"db:stop": "docker compose down db",
 		"redis:start": "docker compose up -d redis",
 		"redis:stop": "docker compose down redis",
-		"services:start": "docker compose up -d db redis"
+		"services:start": "docker compose up -d db redis",
+		"azure:deploy": "cd azure && ./deploy.sh",
+		"azure:build-image": "docker build -f Dockerfile.runner -t evals-runner:latest ../../",
+		"azure:push-image": "docker tag evals-runner:latest $AZURE_CONTAINER_REGISTRY_SERVER/evals-runner:latest && docker push $AZURE_CONTAINER_REGISTRY_SERVER/evals-runner:latest"
 	},
 	"dependencies": {
+		"@azure/arm-appcontainers": "^2.2.0",
+		"@azure/identity": "^4.9.1",
 		"@roo-code/ipc": "workspace:^",
 		"@roo-code/types": "workspace:^",
 		"cmd-ts": "^0.13.0",

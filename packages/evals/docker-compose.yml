@@ -12,6 +12,9 @@
 #
 # To enable docker execution, run:
 # docker run -it --rm --network evals_default -v /var/run/docker.sock:/var/run/docker.sock -e HOST_EXECUTION_METHOD=docker evals-runner bash
+#
+# To enable Azure Container Apps execution, run:
+# docker run -it --rm --network evals_default -e HOST_EXECUTION_METHOD=azure-container-apps evals-runner bash
 
 services:
     db:

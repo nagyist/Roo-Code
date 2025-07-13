@@ -18,6 +18,30 @@ export const isDockerContainer = () => {
 	}
 }
 
+export const isAzureContainerApps = () => {
+	try {
+		// Azure Container Apps sets specific environment variables
+		return !!(
+			process.env.CONTAINER_APP_NAME ||
+			process.env.CONTAINER_APP_REVISION ||
+			process.env.CONTAINER_APP_REPLICA_NAME ||
+			process.env.HOST_EXECUTION_METHOD === "azure-container-apps"
+		)
+	} catch (_error) {
+		return false
+	}
+}
+
+export const getExecutionEnvironment = () => {
+	if (isAzureContainerApps()) {
+		return "azure-container-apps"
+	} else if (isDockerContainer()) {
+		return "docker"
+	} else {
+		return "local"
+	}
+}
+
 export const resetEvalsRepo = async ({ run, cwd }: { run: Run; cwd: string }) => {
 	await execa({ cwd })`git config user.name "Roo Code"`
 	await execa({ cwd })`git config user.email "support@roocode.com"`

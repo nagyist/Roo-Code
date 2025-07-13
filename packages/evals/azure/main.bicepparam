@@ -1,0 +1,12 @@
+using './main.bicep'
+
+param containerAppEnvironmentName = 'evals-env'
+param containerAppName = 'evals-runner'
+param location = 'East US'
+param containerRegistryServer = 'your-registry.azurecr.io'
+param containerImage = 'your-registry.azurecr.io/evals-runner:latest'
+param containerRegistryUsername = 'your-registry-username'
+param containerRegistryPassword = 'your-registry-password'
+param databaseUrl = 'postgres://username:password@hostname:5432/database'
+param redisUrl = 'redis://hostname:6379'
+param openRouterApiKey = 'your-openrouter-api-key'
