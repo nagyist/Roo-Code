@@ -342,7 +342,7 @@
 					"type": "number",
 					"default": 0,
 					"minimum": 0,
-					"maximum": 300000,
+					"maximum": 600,
 					"description": "%commands.commandExecutionTimeout.description%"
 				},
 				"roo-cline.vsCodeLmModelSelector": {

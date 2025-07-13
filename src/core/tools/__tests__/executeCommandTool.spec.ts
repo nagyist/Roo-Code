@@ -278,10 +278,12 @@ describe("executeCommandTool", () => {
 		it("should include timeout parameter in ExecuteCommandOptions", () => {
 			// This test verifies that the timeout configuration is properly typed
 			// The actual timeout logic is tested in integration tests
+			// Note: timeout is stored internally in milliseconds but configured in seconds
+			const timeoutSeconds = 15
 			const options = {
 				executionId: "test-id",
 				command: "echo test",
-				commandExecutionTimeout: 15000,
+				commandExecutionTimeout: timeoutSeconds * 1000, // Convert to milliseconds
 			}
 
 			// Verify the options object has the expected structure

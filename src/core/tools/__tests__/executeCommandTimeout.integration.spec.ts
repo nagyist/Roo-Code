@@ -64,7 +64,8 @@ describe("Command Execution Timeout Integration", () => {
 	})
 
 	it("should pass timeout configuration to executeCommand", async () => {
-		const customTimeout = 15000
+		const customTimeoutSeconds = 15
+		const customTimeout = customTimeoutSeconds * 1000 // Convert to milliseconds for internal use
 		const options: ExecuteCommandOptions = {
 			executionId: "test-execution",
 			command: "echo test",
@@ -82,7 +83,8 @@ describe("Command Execution Timeout Integration", () => {
 	})
 
 	it("should handle timeout scenario", async () => {
-		const shortTimeout = 100 // Very short timeout
+		const shortTimeoutSeconds = 0.1 // Very short timeout in seconds
+		const shortTimeout = shortTimeoutSeconds * 1000 // Convert to milliseconds
 		const options: ExecuteCommandOptions = {
 			executionId: "test-execution",
 			command: "sleep 10",
@@ -105,11 +107,12 @@ describe("Command Execution Timeout Integration", () => {
 		// Should return timeout error
 		expect(result[0]).toBe(false) // Not rejected by user
 		expect(result[1]).toContain("timed out")
-		expect(result[1]).toContain(`${shortTimeout}ms`)
+		expect(result[1]).toContain(`${shortTimeoutSeconds}s`)
 	}, 10000) // Increase test timeout to 10 seconds
 
 	it("should abort process on timeout", async () => {
-		const shortTimeout = 50
+		const shortTimeoutSeconds = 0.05
+		const shortTimeout = shortTimeoutSeconds * 1000
 		const options: ExecuteCommandOptions = {
 			executionId: "test-execution",
 			command: "sleep 10",
@@ -132,10 +135,11 @@ describe("Command Execution Timeout Integration", () => {
 	}, 5000) // Increase test timeout to 5 seconds
 
 	it("should clean up timeout on successful completion", async () => {
+		const timeoutSeconds = 5
 		const options: ExecuteCommandOptions = {
 			executionId: "test-execution",
 			command: "echo test",
-			commandExecutionTimeout: 5000,
+			commandExecutionTimeout: timeoutSeconds * 1000,
 		}
 
 		// Mock a process that completes quickly
