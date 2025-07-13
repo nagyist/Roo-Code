@@ -20,7 +20,8 @@ CAPABILITIES
 		codeIndexManager &&
 		codeIndexManager.isFeatureEnabled &&
 		codeIndexManager.isFeatureConfigured &&
-		codeIndexManager.isInitialized
+		codeIndexManager.isInitialized &&
+		codeIndexManager.state === "Indexed"
 			? `
 - You can use the \`codebase_search\` tool to perform semantic searches across your entire codebase. This tool is powerful for finding functionally relevant code, even if you don't know the exact keywords or file names. It's particularly useful for understanding how features are implemented across multiple files, discovering usages of a particular API, or finding code examples related to a concept. This capability relies on a pre-built index of your code.`
 			: ""

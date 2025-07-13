@@ -7,6 +7,7 @@ describe("getToolUseGuidelinesSection", () => {
 		isFeatureEnabled: true,
 		isFeatureConfigured: true,
 		isInitialized: true,
+		state: "Indexed",
 	} as CodeIndexManager
 
 	// Mock CodeIndexManager with codebase search unavailable
@@ -14,6 +15,15 @@ describe("getToolUseGuidelinesSection", () => {
 		isFeatureEnabled: false,
 		isFeatureConfigured: false,
 		isInitialized: false,
+		state: "Standby",
+	} as CodeIndexManager
+
+	// Mock CodeIndexManager with indexing in progress
+	const mockCodeIndexManagerIndexing = {
+		isFeatureEnabled: true,
+		isFeatureConfigured: true,
+		isInitialized: true,
+		state: "Indexing",
 	} as CodeIndexManager
 
 	describe("when codebase_search is available", () => {
@@ -59,6 +69,30 @@ describe("getToolUseGuidelinesSection", () => {
 			const guidelines = getToolUseGuidelinesSection(mockCodeIndexManagerDisabled)
 
 			// Check that all numbered items are present with correct numbering
+			expect(guidelines).toContain("1. In <thinking> tags")
+			expect(guidelines).toContain("2. Choose the most appropriate tool")
+			expect(guidelines).toContain("3. If multiple actions are needed")
+			expect(guidelines).toContain("4. Formulate your tool use")
+			expect(guidelines).toContain("5. After each tool use")
+			expect(guidelines).toContain("6. ALWAYS wait for user confirmation")
+		})
+	})
+
+	describe("when codebase_search is configured but indexing is in progress", () => {
+		it("should not include codebase_search enforcement when indexing is not complete", () => {
+			const guidelines = getToolUseGuidelinesSection(mockCodeIndexManagerIndexing)
+
+			// Check that the guidelines do not include the codebase_search enforcement
+			expect(guidelines).not.toContain(
+				"CRITICAL: For ANY exploration of code you haven't examined yet in this conversation, you MUST use the `codebase_search` tool FIRST",
+			)
+			expect(guidelines).not.toContain("semantic search to find relevant code based on meaning")
+		})
+
+		it("should maintain proper numbering without codebase_search when indexing", () => {
+			const guidelines = getToolUseGuidelinesSection(mockCodeIndexManagerIndexing)
+
+			// Check that all numbered items are present with correct numbering (same as disabled case)
 			expect(guidelines).toContain("1. In <thinking> tags")
 			expect(guidelines).toContain("2. Choose the most appropriate tool")
 			expect(guidelines).toContain("3. If multiple actions are needed")

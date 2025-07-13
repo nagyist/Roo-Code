@@ -8,7 +8,8 @@ export function getObjectiveSection(
 		codeIndexManager &&
 		codeIndexManager.isFeatureEnabled &&
 		codeIndexManager.isFeatureConfigured &&
-		codeIndexManager.isInitialized
+		codeIndexManager.isInitialized &&
+		codeIndexManager.state === "Indexed"
 
 	const codebaseSearchInstruction = isCodebaseSearchAvailable
 		? "First, for ANY exploration of code you haven't examined yet in this conversation, you MUST use the `codebase_search` tool to search for relevant code based on the task's intent BEFORE using any other search or file exploration tools. This applies throughout the entire task, not just at the beginning - whenever you need to explore a new area of code, codebase_search must come first. Then, "

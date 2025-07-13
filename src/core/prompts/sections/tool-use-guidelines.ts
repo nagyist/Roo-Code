@@ -5,7 +5,8 @@ export function getToolUseGuidelinesSection(codeIndexManager?: CodeIndexManager)
 		codeIndexManager &&
 		codeIndexManager.isFeatureEnabled &&
 		codeIndexManager.isFeatureConfigured &&
-		codeIndexManager.isInitialized
+		codeIndexManager.isInitialized &&
+		codeIndexManager.state === "Indexed"
 
 	// Build guidelines array with automatic numbering
 	let itemNumber = 1

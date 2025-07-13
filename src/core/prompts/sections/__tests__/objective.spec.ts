@@ -7,6 +7,7 @@ describe("getObjectiveSection", () => {
 		isFeatureEnabled: true,
 		isFeatureConfigured: true,
 		isInitialized: true,
+		state: "Indexed",
 	} as CodeIndexManager
 
 	// Mock CodeIndexManager with codebase search unavailable
@@ -14,6 +15,15 @@ describe("getObjectiveSection", () => {
 		isFeatureEnabled: false,
 		isFeatureConfigured: false,
 		isInitialized: false,
+		state: "Standby",
+	} as CodeIndexManager
+
+	// Mock CodeIndexManager with indexing in progress
+	const mockCodeIndexManagerIndexing = {
+		isFeatureEnabled: true,
+		isFeatureConfigured: true,
+		isInitialized: true,
+		state: "Indexing",
 	} as CodeIndexManager
 
 	describe("when codebase_search is available", () => {
@@ -32,6 +42,16 @@ describe("getObjectiveSection", () => {
 	describe("when codebase_search is not available", () => {
 		it("should not include codebase_search enforcement", () => {
 			const objective = getObjectiveSection(mockCodeIndexManagerDisabled)
+
+			// Check that the objective does not include the codebase_search enforcement
+			expect(objective).not.toContain("you MUST use the `codebase_search` tool")
+			expect(objective).not.toContain("BEFORE using any other search or file exploration tools")
+		})
+	})
+
+	describe("when codebase_search is configured but indexing is in progress", () => {
+		it("should not include codebase_search enforcement when indexing is not complete", () => {
+			const objective = getObjectiveSection(mockCodeIndexManagerIndexing)
 
 			// Check that the objective does not include the codebase_search enforcement
 			expect(objective).not.toContain("you MUST use the `codebase_search` tool")
