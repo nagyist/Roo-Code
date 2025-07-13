@@ -58,7 +58,7 @@ describe("Command Execution Timeout Integration", () => {
 
 		// Mock VSCode configuration
 		const mockGetConfiguration = vitest.fn().mockReturnValue({
-			get: vitest.fn().mockReturnValue(30000), // Default 30 second timeout
+			get: vitest.fn().mockReturnValue(0), // Default 0 (no timeout)
 		})
 		;(vscode.workspace.getConfiguration as any).mockReturnValue(mockGetConfiguration())
 	})
@@ -149,11 +149,11 @@ describe("Command Execution Timeout Integration", () => {
 		expect(result[1]).not.toContain("timed out")
 	})
 
-	it("should use default timeout when not specified", async () => {
+	it("should use default timeout when not specified (0 = no timeout)", async () => {
 		const options: ExecuteCommandOptions = {
 			executionId: "test-execution",
 			command: "echo test",
-			// commandExecutionTimeout not specified, should use default
+			// commandExecutionTimeout not specified, should use default (0)
 		}
 
 		const quickProcess = Promise.resolve()
@@ -161,7 +161,28 @@ describe("Command Execution Timeout Integration", () => {
 
 		await executeCommand(mockTask as Task, options)
 
-		// Should complete without issues using default timeout
+		// Should complete without issues using default (no timeout)
 		expect(mockTerminal.runCommand).toHaveBeenCalled()
+	})
+
+	it("should not timeout when commandExecutionTimeout is 0", async () => {
+		const options: ExecuteCommandOptions = {
+			executionId: "test-execution",
+			command: "sleep 10",
+			commandExecutionTimeout: 0, // No timeout
+		}
+
+		// Create a process that resolves after a delay to simulate a long-running command
+		const longRunningProcess = new Promise((resolve) => {
+			setTimeout(resolve, 200) // 200ms delay
+		})
+
+		mockTerminal.runCommand.mockReturnValue(longRunningProcess)
+
+		const result = await executeCommand(mockTask as Task, options)
+
+		// Should complete successfully without timeout
+		expect(result[0]).toBe(false) // Not rejected
+		expect(result[1]).not.toContain("timed out")
 	})
 })

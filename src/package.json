@@ -340,8 +340,8 @@
 				},
 				"roo-cline.commandExecutionTimeout": {
 					"type": "number",
-					"default": 30000,
-					"minimum": 1000,
+					"default": 0,
+					"minimum": 0,
 					"maximum": 300000,
 					"description": "%commands.commandExecutionTimeout.description%"
 				},

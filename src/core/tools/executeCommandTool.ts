@@ -67,7 +67,7 @@ export async function executeCommandTool(
 			// Get command execution timeout from VSCode configuration
 			const commandExecutionTimeout = vscode.workspace
 				.getConfiguration(Package.name)
-				.get<number>("commandExecutionTimeout", 30000)
+				.get<number>("commandExecutionTimeout", 0)
 
 			const options: ExecuteCommandOptions = {
 				executionId,
@@ -132,7 +132,7 @@ export async function executeCommand(
 		customCwd,
 		terminalShellIntegrationDisabled = false,
 		terminalOutputLineLimit = 500,
-		commandExecutionTimeout = 30000,
+		commandExecutionTimeout = 0,
 	}: ExecuteCommandOptions,
 ): Promise<[boolean, ToolResponse]> {
 	let workingDir: string
@@ -221,42 +221,51 @@ export async function executeCommand(
 	const process = terminal.runCommand(command, callbacks)
 	cline.terminalProcess = process
 
-	// Implement command execution timeout
-	let timeoutId: NodeJS.Timeout | undefined
-	let isTimedOut = false
+	// Implement command execution timeout (skip if timeout is 0)
+	if (commandExecutionTimeout > 0) {
+		let timeoutId: NodeJS.Timeout | undefined
+		let isTimedOut = false
 
-	const timeoutPromise = new Promise<void>((_, reject) => {
-		timeoutId = setTimeout(() => {
-			isTimedOut = true
-			// Try to abort the process
-			if (cline.terminalProcess) {
-				cline.terminalProcess.abort()
+		const timeoutPromise = new Promise<void>((_, reject) => {
+			timeoutId = setTimeout(() => {
+				isTimedOut = true
+				// Try to abort the process
+				if (cline.terminalProcess) {
+					cline.terminalProcess.abort()
+				}
+				reject(new Error(`Command execution timed out after ${commandExecutionTimeout}ms`))
+			}, commandExecutionTimeout)
+		})
+
+		try {
+			await Promise.race([process, timeoutPromise])
+		} catch (error) {
+			if (isTimedOut) {
+				// Handle timeout case
+				const status: CommandExecutionStatus = { executionId, status: "timeout" }
+				clineProvider?.postMessageToWebview({ type: "commandExecutionStatus", text: JSON.stringify(status) })
+
+				cline.terminalProcess = undefined
+
+				return [
+					false,
+					`Command execution timed out after ${commandExecutionTimeout}ms. The command was terminated.`,
+				]
 			}
-			reject(new Error(`Command execution timed out after ${commandExecutionTimeout}ms`))
-		}, commandExecutionTimeout)
-	})
-
-	try {
-		await Promise.race([process, timeoutPromise])
-	} catch (error) {
-		if (isTimedOut) {
-			// Handle timeout case
-			const status: CommandExecutionStatus = { executionId, status: "timeout" }
-			clineProvider?.postMessageToWebview({ type: "commandExecutionStatus", text: JSON.stringify(status) })
-
+			throw error
+		} finally {
+			if (timeoutId) {
+				clearTimeout(timeoutId)
+			}
 			cline.terminalProcess = undefined
-
-			return [
-				false,
-				`Command execution timed out after ${commandExecutionTimeout}ms. The command was terminated.`,
-			]
 		}
-		throw error
-	} finally {
-		if (timeoutId) {
-			clearTimeout(timeoutId)
+	} else {
+		// No timeout - just wait for the process to complete
+		try {
+			await process
+		} finally {
+			cline.terminalProcess = undefined
 		}
-		cline.terminalProcess = undefined
 	}
 
 	if (shellIntegrationError) {

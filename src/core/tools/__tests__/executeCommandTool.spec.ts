@@ -298,7 +298,7 @@ describe("executeCommandTool", () => {
 				customCwd: undefined,
 				terminalShellIntegrationDisabled: false,
 				terminalOutputLineLimit: 500,
-				commandExecutionTimeout: 30000,
+				commandExecutionTimeout: 0,
 			}
 
 			// Verify all required properties exist
