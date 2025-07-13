@@ -18,9 +18,15 @@ vi.mock("../../cache-manager")
 vi.mock("../../../core/ignore/RooIgnoreController", () => ({
 	RooIgnoreController: vi.fn().mockImplementation(() => ({
 		validateAccess: vi.fn().mockReturnValue(true),
+		initialize: vi.fn().mockResolvedValue(undefined),
 	})),
 }))
-vi.mock("ignore")
+vi.mock("ignore", () => ({
+	default: vi.fn(() => ({
+		add: vi.fn(),
+		ignores: vi.fn().mockReturnValue(false),
+	})),
+}))
 vi.mock("../parser", () => ({
 	codeParser: {
 		parseFile: vi.fn().mockResolvedValue([]),
@@ -124,14 +130,7 @@ describe("FileWatcher", () => {
 			ignores: vi.fn().mockReturnValue(false),
 		}
 
-		fileWatcher = new FileWatcher(
-			"/mock/workspace",
-			mockContext,
-			mockCacheManager,
-			mockEmbedder,
-			mockVectorStore,
-			mockIgnoreInstance,
-		)
+		fileWatcher = new FileWatcher("/mock/workspace", mockContext, mockCacheManager, mockEmbedder, mockVectorStore)
 	})
 
 	describe("file filtering", () => {
