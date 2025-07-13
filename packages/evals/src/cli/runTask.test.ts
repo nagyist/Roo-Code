@@ -110,7 +110,7 @@ describe("runTask execution methods", () => {
 		it("should retry on failure", async () => {
 			const execaMock = vi.mocked(await import("execa")).execa
 			execaMock.mockClear()
-			execaMock.mockRejectedValueOnce(new Error("Container failed")).mockResolvedValueOnce({ exitCode: 0 } as any)
+			execaMock.mockRejectedValueOnce(new Error("Container failed")).mockResolvedValueOnce({ exitCode: 0 } as any) // eslint-disable-line @typescript-eslint/no-explicit-any
 
 			await processTaskInDocker({
 				taskId: 123,
@@ -149,7 +149,7 @@ describe("runTask execution methods", () => {
 			const { AzureContainerAppsExecutor } = await import("./azureContainerApps.js")
 			const mockExecutor = vi.mocked(AzureContainerAppsExecutor)
 			const mockExecuteJob = vi.fn().mockResolvedValue(undefined)
-			mockExecutor.mockImplementation(() => ({ executeJob: mockExecuteJob }) as any)
+			mockExecutor.mockImplementation(() => ({ executeJob: mockExecuteJob }) as any) // eslint-disable-line @typescript-eslint/no-explicit-any
 
 			await processTaskInAzureContainerApps({
 				taskId: 123,
@@ -178,7 +178,7 @@ describe("runTask execution methods", () => {
 			const { AzureContainerAppsExecutor } = await import("./azureContainerApps.js")
 			const mockExecutor = vi.mocked(AzureContainerAppsExecutor)
 			const mockExecuteJob = vi.fn().mockRejectedValue(new Error("Azure execution failed"))
-			mockExecutor.mockImplementation(() => ({ executeJob: mockExecuteJob }) as any)
+			mockExecutor.mockImplementation(() => ({ executeJob: mockExecuteJob }) as any) // eslint-disable-line @typescript-eslint/no-explicit-any
 
 			await expect(
 				processTaskInAzureContainerApps({
