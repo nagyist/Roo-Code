@@ -36,6 +36,7 @@ export class DirectoryScanner implements IDirectoryScanner {
 		private readonly codeParser: ICodeParser,
 		private readonly cacheManager: CacheManager,
 		private readonly ignoreInstance: Ignore,
+		private readonly rooIgnoreController?: RooIgnoreController,
 	) {}
 
 	/**
@@ -62,10 +63,15 @@ export class DirectoryScanner implements IDirectoryScanner {
 		// Filter out directories (marked with trailing '/')
 		const filePaths = allPaths.filter((p) => !p.endsWith("/"))
 
-		// Initialize RooIgnoreController if not provided
-		const ignoreController = new RooIgnoreController(directoryPath)
-
-		await ignoreController.initialize()
+		// Use injected RooIgnoreController or create a fallback
+		let ignoreController: RooIgnoreController
+		if (this.rooIgnoreController) {
+			ignoreController = this.rooIgnoreController
+		} else {
+			// Fallback for backward compatibility
+			ignoreController = new RooIgnoreController(directoryPath)
+			await ignoreController.initialize()
+		}
 
 		// Filter paths using .rooignore
 		const allowedPaths = ignoreController.filterPaths(filePaths)

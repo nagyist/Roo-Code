@@ -60,7 +60,7 @@ export class RooIgnoreController {
 	/**
 	 * Load custom patterns from .rooignore if it exists
 	 */
-	private async loadRooIgnore(): Promise<void> {
+	public async loadRooIgnore(): Promise<void> {
 		try {
 			// Reset ignore instance to prevent duplicate patterns
 			this.ignoreInstance = ignore()
@@ -183,7 +183,7 @@ export class RooIgnoreController {
 	 * Clean up resources when the controller is no longer needed
 	 */
 	dispose(): void {
-		this.disposables.forEach((d) => d.dispose())
+		this.disposables.forEach((d) => d?.dispose?.())
 		this.disposables = []
 	}
 

@@ -12,9 +12,11 @@ import { CacheManager } from "./cache-manager"
 import fs from "fs/promises"
 import ignore from "ignore"
 import path from "path"
+import { findGitignoreFiles } from "../glob/list-files"
 import { t } from "../../i18n"
 import { TelemetryService } from "@roo-code/telemetry"
 import { TelemetryEventName } from "@roo-code/types"
+import { RooIgnoreController } from "../../core/ignore/RooIgnoreController"
 
 export class CodeIndexManager {
 	// --- Singleton Implementation ---
@@ -27,6 +29,7 @@ export class CodeIndexManager {
 	private _orchestrator: CodeIndexOrchestrator | undefined
 	private _searchService: CodeIndexSearchService | undefined
 	private _cacheManager: CacheManager | undefined
+	private _rooIgnoreController: RooIgnoreController | undefined
 
 	public static getInstance(context: vscode.ExtensionContext): CodeIndexManager | undefined {
 		// Use first workspace folder consistently
@@ -70,7 +73,13 @@ export class CodeIndexManager {
 	}
 
 	private assertInitialized() {
-		if (!this._configManager || !this._orchestrator || !this._searchService || !this._cacheManager) {
+		if (
+			!this._configManager ||
+			!this._orchestrator ||
+			!this._searchService ||
+			!this._cacheManager ||
+			!this._rooIgnoreController
+		) {
 			throw new Error("CodeIndexManager not initialized. Call initialize() first.")
 		}
 	}
@@ -98,6 +107,13 @@ export class CodeIndexManager {
 		} catch (error) {
 			return false
 		}
+	}
+
+	/**
+	 * Get the global RooIgnoreController instance
+	 */
+	public get rooIgnoreController(): RooIgnoreController | undefined {
+		return this._rooIgnoreController
 	}
 
 	/**
@@ -186,6 +202,9 @@ export class CodeIndexManager {
 		if (this._orchestrator) {
 			this.stopWatcher()
 		}
+		if (this._rooIgnoreController) {
+			this._rooIgnoreController.dispose()
+		}
 		this._stateManager.dispose()
 	}
 
@@ -228,6 +247,7 @@ export class CodeIndexManager {
 		// Clear existing services to ensure clean state
 		this._orchestrator = undefined
 		this._searchService = undefined
+		// Note: Keep _rooIgnoreController to preserve file watchers unless it doesn't exist
 
 		// (Re)Initialize service factory
 		this._serviceFactory = new CodeIndexServiceFactory(
@@ -244,26 +264,41 @@ export class CodeIndexManager {
 			return
 		}
 
-		const ignorePath = path.join(workspacePath, ".gitignore")
+		// Load all .gitignore files from workspace root up to parent directories
 		try {
-			const content = await fs.readFile(ignorePath, "utf8")
-			ignoreInstance.add(content)
+			const gitignoreFiles = await findGitignoreFiles(workspacePath)
+			for (const gitignoreFile of gitignoreFiles) {
+				try {
+					const content = await fs.readFile(gitignoreFile, "utf8")
+					ignoreInstance.add(content)
+				} catch (error) {
+					console.warn(`Failed to read .gitignore file at ${gitignoreFile}:`, error)
+				}
+			}
+			// Always ignore .gitignore files themselves
 			ignoreInstance.add(".gitignore")
 		} catch (error) {
-			// Should never happen: reading file failed even though it exists
-			console.error("Unexpected error loading .gitignore:", error)
+			console.error("Error finding .gitignore files:", error)
 			TelemetryService.instance.captureEvent(TelemetryEventName.CODE_INDEX_ERROR, {
 				error: error instanceof Error ? error.message : String(error),
 				stack: error instanceof Error ? error.stack : undefined,
-				location: "_recreateServices",
+				location: "_recreateServices.gitignore",
 			})
 		}
+
+		// Initialize or reuse RooIgnoreController with file watchers
+		if (!this._rooIgnoreController) {
+			this._rooIgnoreController = new RooIgnoreController(workspacePath)
+		}
+		// Always reload .rooignore patterns to ensure they're up to date
+		await this._rooIgnoreController.loadRooIgnore()
 
 		// (Re)Create shared service instances
 		const { embedder, vectorStore, scanner, fileWatcher } = this._serviceFactory.createServices(
 			this.context,
 			this._cacheManager!,
 			ignoreInstance,
+			this._rooIgnoreController,
 		)
 
 		// Validate embedder configuration before proceeding

@@ -12,7 +12,17 @@ vi.mock("vscode", () => ({
 				index: 0,
 			},
 		],
+		createFileSystemWatcher: vi.fn(() => ({
+			onDidCreate: vi.fn(),
+			onDidChange: vi.fn(),
+			onDidDelete: vi.fn(),
+			dispose: vi.fn(),
+		})),
 	},
+	RelativePattern: vi.fn().mockImplementation((base, pattern) => ({
+		base,
+		pattern,
+	})),
 }))
 
 // Mock only the essential dependencies
@@ -178,6 +188,10 @@ describe("CodeIndexManager - handleSettingsChange regression", () => {
 			// Simulate an initialized manager by setting the required properties
 			;(manager as any)._orchestrator = { stopWatcher: vi.fn() }
 			;(manager as any)._searchService = {}
+			;(manager as any)._rooIgnoreController = {
+				dispose: vi.fn(),
+				loadRooIgnore: vi.fn().mockResolvedValue(undefined),
+			}
 
 			// Verify manager is considered initialized
 			expect(manager.isInitialized).toBe(true)

@@ -184,7 +184,7 @@ async function createIgnoreInstance(dirPath: string): Promise<ReturnType<typeof 
 /**
  * Find all .gitignore files from the given directory up to the workspace root
  */
-async function findGitignoreFiles(startPath: string): Promise<string[]> {
+export async function findGitignoreFiles(startPath: string): Promise<string[]> {
 	const gitignoreFiles: string[] = []
 	let currentPath = startPath
 
@@ -311,7 +311,6 @@ function isDirectoryExplicitlyIgnored(dirName: string): boolean {
 
 	return false
 }
-
 
 /**
  * Combine file and directory results and format them properly
