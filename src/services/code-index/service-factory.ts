@@ -144,9 +144,8 @@ export class CodeIndexServiceFactory {
 		embedder: IEmbedder,
 		vectorStore: IVectorStore,
 		parser: ICodeParser,
-		ignoreInstance: Ignore,
 	): DirectoryScanner {
-		return new DirectoryScanner(embedder, vectorStore, parser, this.cacheManager, ignoreInstance)
+		return new DirectoryScanner(embedder, vectorStore, parser, this.cacheManager)
 	}
 
 	/**
@@ -157,9 +156,8 @@ export class CodeIndexServiceFactory {
 		embedder: IEmbedder,
 		vectorStore: IVectorStore,
 		cacheManager: CacheManager,
-		ignoreInstance: Ignore,
 	): IFileWatcher {
-		return new FileWatcher(this.workspacePath, context, cacheManager, embedder, vectorStore, ignoreInstance)
+		return new FileWatcher(this.workspacePath, context, cacheManager, embedder, vectorStore)
 	}
 
 	/**
@@ -169,7 +167,6 @@ export class CodeIndexServiceFactory {
 	public createServices(
 		context: vscode.ExtensionContext,
 		cacheManager: CacheManager,
-		ignoreInstance: Ignore,
 	): {
 		embedder: IEmbedder
 		vectorStore: IVectorStore
@@ -184,8 +181,8 @@ export class CodeIndexServiceFactory {
 		const embedder = this.createEmbedder()
 		const vectorStore = this.createVectorStore()
 		const parser = codeParser
-		const scanner = this.createDirectoryScanner(embedder, vectorStore, parser, ignoreInstance)
-		const fileWatcher = this.createFileWatcher(context, embedder, vectorStore, cacheManager, ignoreInstance)
+		const scanner = this.createDirectoryScanner(embedder, vectorStore, parser)
+		const fileWatcher = this.createFileWatcher(context, embedder, vectorStore, cacheManager)
 
 		return {
 			embedder,

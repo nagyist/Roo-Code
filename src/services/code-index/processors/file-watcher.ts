@@ -31,7 +31,6 @@ import { sanitizeErrorMessage } from "../shared/validation-helpers"
  * Implementation of the file watcher interface
  */
 export class FileWatcher implements IFileWatcher {
-	private ignoreInstance?: Ignore
 	private fileWatcher?: vscode.FileSystemWatcher
 	private ignoreController: RooIgnoreController
 	private accumulatedEvents: Map<string, { uri: vscode.Uri; type: "create" | "change" | "delete" }> = new Map()
@@ -76,19 +75,18 @@ export class FileWatcher implements IFileWatcher {
 		private readonly cacheManager: CacheManager,
 		private embedder?: IEmbedder,
 		private vectorStore?: IVectorStore,
-		ignoreInstance?: Ignore,
 		ignoreController?: RooIgnoreController,
 	) {
 		this.ignoreController = ignoreController || new RooIgnoreController(workspacePath)
-		if (ignoreInstance) {
-			this.ignoreInstance = ignoreInstance
-		}
 	}
 
 	/**
 	 * Initializes the file watcher
 	 */
 	async initialize(): Promise<void> {
+		// Initialize the ignore controller
+		await this.ignoreController.initialize()
+
 		// Create file watcher
 		const filePattern = new vscode.RelativePattern(
 			this.workspacePath,
@@ -495,12 +493,8 @@ export class FileWatcher implements IFileWatcher {
 				}
 			}
 
-			// Check if file should be ignored
-			const relativeFilePath = generateRelativeFilePath(filePath, this.workspacePath)
-			if (
-				!this.ignoreController.validateAccess(filePath) ||
-				(this.ignoreInstance && this.ignoreInstance.ignores(relativeFilePath))
-			) {
+			// Check if file should be ignored using unified ignore controller
+			if (!this.ignoreController.validateAccess(filePath)) {
 				return {
 					path: filePath,
 					status: "skipped" as const,

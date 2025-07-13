@@ -236,7 +236,6 @@ export class CodeIndexManager {
 			this._cacheManager!,
 		)
 
-		const ignoreInstance = ignore()
 		const workspacePath = getWorkspacePath()
 
 		if (!workspacePath) {
@@ -244,26 +243,10 @@ export class CodeIndexManager {
 			return
 		}
 
-		const ignorePath = path.join(workspacePath, ".gitignore")
-		try {
-			const content = await fs.readFile(ignorePath, "utf8")
-			ignoreInstance.add(content)
-			ignoreInstance.add(".gitignore")
-		} catch (error) {
-			// Should never happen: reading file failed even though it exists
-			console.error("Unexpected error loading .gitignore:", error)
-			TelemetryService.instance.captureEvent(TelemetryEventName.CODE_INDEX_ERROR, {
-				error: error instanceof Error ? error.message : String(error),
-				stack: error instanceof Error ? error.stack : undefined,
-				location: "_recreateServices",
-			})
-		}
-
-		// (Re)Create shared service instances
+		// (Re)Create shared service instances - ignore patterns are now handled by RooIgnoreController
 		const { embedder, vectorStore, scanner, fileWatcher } = this._serviceFactory.createServices(
 			this.context,
 			this._cacheManager!,
-			ignoreInstance,
 		)
 
 		// Validate embedder configuration before proceeding

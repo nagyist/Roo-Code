@@ -16,13 +16,15 @@ export class RooIgnoreController {
 	private ignoreInstance: Ignore
 	private disposables: vscode.Disposable[] = []
 	rooIgnoreContent: string | undefined
+	private gitIgnoreContent: string | undefined
+	private currentIgnoreSource: "rooignore" | "gitignore" | "default" | "none" = "none"
 
 	constructor(cwd: string) {
 		this.cwd = cwd
 		this.ignoreInstance = ignore()
 		this.rooIgnoreContent = undefined
-		// Set up file watcher for .rooignore
-		this.setupFileWatcher()
+		// Set up file watchers for both .rooignore and .gitignore
+		this.setupFileWatchers()
 	}
 
 	/**
@@ -30,53 +32,131 @@ export class RooIgnoreController {
 	 * Must be called after construction and before using the controller
 	 */
 	async initialize(): Promise<void> {
-		await this.loadRooIgnore()
+		await this.loadIgnorePatterns()
 	}
 
 	/**
-	 * Set up the file watcher for .rooignore changes
+	 * Set up file watchers for both .rooignore and .gitignore changes
 	 */
-	private setupFileWatcher(): void {
+	private setupFileWatchers(): void {
+		// Watch .rooignore
 		const rooignorePattern = new vscode.RelativePattern(this.cwd, ".rooignore")
-		const fileWatcher = vscode.workspace.createFileSystemWatcher(rooignorePattern)
+		const rooignoreWatcher = vscode.workspace.createFileSystemWatcher(rooignorePattern)
 
-		// Watch for changes and updates
+		// Watch .gitignore
+		const gitignorePattern = new vscode.RelativePattern(this.cwd, ".gitignore")
+		const gitignoreWatcher = vscode.workspace.createFileSystemWatcher(gitignorePattern)
+
+		// Watch for changes and updates to both files
 		this.disposables.push(
-			fileWatcher.onDidChange(() => {
-				this.loadRooIgnore()
+			rooignoreWatcher.onDidChange(() => {
+				this.loadIgnorePatterns()
 			}),
-			fileWatcher.onDidCreate(() => {
-				this.loadRooIgnore()
+			rooignoreWatcher.onDidCreate(() => {
+				this.loadIgnorePatterns()
 			}),
-			fileWatcher.onDidDelete(() => {
-				this.loadRooIgnore()
+			rooignoreWatcher.onDidDelete(() => {
+				this.loadIgnorePatterns()
+			}),
+			gitignoreWatcher.onDidChange(() => {
+				this.loadIgnorePatterns()
+			}),
+			gitignoreWatcher.onDidCreate(() => {
+				this.loadIgnorePatterns()
+			}),
+			gitignoreWatcher.onDidDelete(() => {
+				this.loadIgnorePatterns()
 			}),
 		)
 
-		// Add fileWatcher itself to disposables
-		this.disposables.push(fileWatcher)
+		// Add fileWatchers themselves to disposables
+		this.disposables.push(rooignoreWatcher, gitignoreWatcher)
+	}
+
+	/**
+	 * Load ignore patterns with .gitignore fallback support
+	 */
+	private async loadIgnorePatterns(): Promise<void> {
+		try {
+			// Reset ignore instance to prevent duplicate patterns
+			this.ignoreInstance = ignore()
+
+			// Try to load .rooignore first
+			const rooIgnorePath = path.join(this.cwd, ".rooignore")
+			const rooIgnoreExists = await fileExistsAtPath(rooIgnorePath)
+
+			if (rooIgnoreExists) {
+				const content = await fs.readFile(rooIgnorePath, "utf8")
+				const trimmedContent = content.trim()
+
+				if (trimmedContent) {
+					// .rooignore exists and has content - use it exclusively
+					this.rooIgnoreContent = content
+					this.gitIgnoreContent = undefined
+					this.currentIgnoreSource = "rooignore"
+					this.ignoreInstance.add(content)
+					this.ignoreInstance.add(".rooignore")
+					return
+				} else {
+					// .rooignore exists but is empty - fall back to .gitignore
+					this.rooIgnoreContent = content
+				}
+			} else {
+				this.rooIgnoreContent = undefined
+			}
+
+			// Try to load .gitignore as fallback
+			const gitIgnorePath = path.join(this.cwd, ".gitignore")
+			const gitIgnoreExists = await fileExistsAtPath(gitIgnorePath)
+
+			if (gitIgnoreExists) {
+				const content = await fs.readFile(gitIgnorePath, "utf8")
+				this.gitIgnoreContent = content
+				this.currentIgnoreSource = "gitignore"
+				this.ignoreInstance.add(content)
+				this.ignoreInstance.add(".gitignore")
+			} else {
+				// Neither file exists - use default patterns for common directories
+				this.gitIgnoreContent = undefined
+				this.currentIgnoreSource = "default"
+				this.addDefaultIgnorePatterns()
+			}
+		} catch (error) {
+			console.error("Unexpected error loading ignore patterns:", error)
+			// Fallback to default patterns on error
+			this.currentIgnoreSource = "default"
+			this.addDefaultIgnorePatterns()
+		}
+	}
+
+	/**
+	 * Add default ignore patterns for common directories that should typically be excluded
+	 */
+	private addDefaultIgnorePatterns(): void {
+		const defaultPatterns = [
+			"node_modules/",
+			"vendor/",
+			".git/",
+			".svn/",
+			".hg/",
+			"dist/",
+			"build/",
+			"out/",
+			"target/",
+			"*.log",
+			".DS_Store",
+			"Thumbs.db",
+		]
+
+		this.ignoreInstance.add(defaultPatterns)
 	}
 
 	/**
 	 * Load custom patterns from .rooignore if it exists
+	 * @deprecated Use loadIgnorePatterns() instead
 	 */
 	private async loadRooIgnore(): Promise<void> {
-		try {
-			// Reset ignore instance to prevent duplicate patterns
-			this.ignoreInstance = ignore()
-			const ignorePath = path.join(this.cwd, ".rooignore")
-			if (await fileExistsAtPath(ignorePath)) {
-				const content = await fs.readFile(ignorePath, "utf8")
-				this.rooIgnoreContent = content
-				this.ignoreInstance.add(content)
-				this.ignoreInstance.add(".rooignore")
-			} else {
-				this.rooIgnoreContent = undefined
-			}
-		} catch (error) {
-			// Should never happen: reading file failed even though it exists
-			console.error("Unexpected error loading .rooignore:", error)
-		}
+		await this.loadIgnorePatterns()
 	}
 
 	/**
@@ -85,16 +165,12 @@ export class RooIgnoreController {
 	 * @returns true if file is accessible, false if ignored
 	 */
 	validateAccess(filePath: string): boolean {
-		// Always allow access if .rooignore does not exist
-		if (!this.rooIgnoreContent) {
-			return true
-		}
 		try {
 			// Normalize path to be relative to cwd and use forward slashes
 			const absolutePath = path.resolve(this.cwd, filePath)
 			const relativePath = path.relative(this.cwd, absolutePath).toPosix()
 
-			// Ignore expects paths to be path.relative()'d
+			// Use the unified ignore instance which now handles .rooignore, .gitignore, or default patterns
 			return !this.ignoreInstance.ignores(relativePath)
 		} catch (error) {
 			// console.error(`Error validating access for ${filePath}:`, error)
@@ -109,10 +185,7 @@ export class RooIgnoreController {
 	 * @returns path of file that is being accessed if it is being accessed, undefined if command is allowed
 	 */
 	validateCommand(command: string): string | undefined {
-		// Always allow if no .rooignore exists
-		if (!this.rooIgnoreContent) {
-			return undefined
-		}
+		// Use unified ignore patterns (rooignore, gitignore, or defaults)
 
 		// Split command into parts and get the base command
 		const parts = command.trim().split(/\s+/)
@@ -188,14 +261,30 @@ export class RooIgnoreController {
 	}
 
 	/**
-	 * Get formatted instructions about the .rooignore file for the LLM
-	 * @returns Formatted instructions or undefined if .rooignore doesn't exist
+	 * Get the current ignore source being used
+	 * @returns The source of ignore patterns currently in use
+	 */
+	getIgnoreSource(): "rooignore" | "gitignore" | "default" | "none" {
+		return this.currentIgnoreSource
+	}
+
+	/**
+	 * Get formatted instructions about the ignore patterns for the LLM
+	 * @returns Formatted instructions or undefined if no patterns are active
 	 */
 	getInstructions(): string | undefined {
-		if (!this.rooIgnoreContent) {
-			return undefined
-		}
+		switch (this.currentIgnoreSource) {
+			case "rooignore":
+				return `# .rooignore\n\n(The following is provided by a root-level .rooignore file where the user has specified files and directories that should not be accessed. When using list_files, you'll notice a ${LOCK_TEXT_SYMBOL} next to files that are blocked. Attempting to access the file's contents e.g. through read_file will result in an error.)\n\n${this.rooIgnoreContent}\n.rooignore`
 
-		return `# .rooignore\n\n(The following is provided by a root-level .rooignore file where the user has specified files and directories that should not be accessed. When using list_files, you'll notice a ${LOCK_TEXT_SYMBOL} next to files that are blocked. Attempting to access the file's contents e.g. through read_file will result in an error.)\n\n${this.rooIgnoreContent}\n.rooignore`
+			case "gitignore":
+				return `# .gitignore (fallback)\n\n(The following is provided by a root-level .gitignore file being used as fallback since no .rooignore file was found or it was empty. When using list_files, you'll notice a ${LOCK_TEXT_SYMBOL} next to files that are blocked. Attempting to access the file's contents e.g. through read_file will result in an error.)\n\n${this.gitIgnoreContent}\n.gitignore`
+
+			case "default":
+				return `# Default ignore patterns\n\n(The following default ignore patterns are being used since neither .rooignore nor .gitignore files were found. These patterns exclude common directories that are typically not needed for code analysis. When using list_files, you'll notice a ${LOCK_TEXT_SYMBOL} next to files that are blocked.)\n\nnode_modules/\nvendor/\n.git/\n.svn/\n.hg/\ndist/\nbuild/\nout/\ntarget/\n*.log\n.DS_Store\nThumbs.db`
+
+			default:
+				return undefined
+		}
 	}
 }

@@ -104,13 +104,7 @@ describe("DirectoryScanner", () => {
 			ignores: vi.fn().mockReturnValue(false),
 		}
 
-		scanner = new DirectoryScanner(
-			mockEmbedder,
-			mockVectorStore,
-			mockCodeParser,
-			mockCacheManager,
-			mockIgnoreInstance,
-		)
+		scanner = new DirectoryScanner(mockEmbedder, mockVectorStore, mockCodeParser, mockCacheManager)
 
 		// Mock default implementations - create proper Stats object
 		mockStats = {
