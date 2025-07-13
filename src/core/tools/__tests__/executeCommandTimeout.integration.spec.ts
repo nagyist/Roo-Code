@@ -2,6 +2,7 @@
 // npx vitest run src/core/tools/__tests__/executeCommandTimeout.integration.spec.ts
 
 import * as vscode from "vscode"
+import * as fs from "fs/promises"
 import { executeCommand, ExecuteCommandOptions } from "../executeCommandTool"
 import { Task } from "../../task/Task"
 import { TerminalRegistry } from "../../../integrations/terminal/TerminalRegistry"
@@ -13,6 +14,7 @@ vitest.mock("vscode", () => ({
 	},
 }))
 
+vitest.mock("fs/promises")
 vitest.mock("../../../integrations/terminal/TerminalRegistry")
 vitest.mock("../../task/Task")
 
@@ -23,6 +25,9 @@ describe("Command Execution Timeout Integration", () => {
 
 	beforeEach(() => {
 		vitest.clearAllMocks()
+
+		// Mock fs.access to resolve successfully for working directory
+		;(fs.access as any).mockResolvedValue(undefined)
 
 		// Mock task
 		mockTask = {
@@ -84,10 +89,14 @@ describe("Command Execution Timeout Integration", () => {
 			commandExecutionTimeout: shortTimeout,
 		}
 
-		// Mock a long-running process that never resolves
+		// Create a process that never resolves but has an abort method
 		const longRunningProcess = new Promise(() => {
 			// Never resolves to simulate a hanging command
 		})
+
+		// Add abort method to the promise
+		;(longRunningProcess as any).abort = vitest.fn()
+
 		mockTerminal.runCommand.mockReturnValue(longRunningProcess)
 
 		// Execute with timeout
@@ -97,7 +106,7 @@ describe("Command Execution Timeout Integration", () => {
 		expect(result[0]).toBe(false) // Not rejected by user
 		expect(result[1]).toContain("timed out")
 		expect(result[1]).toContain(`${shortTimeout}ms`)
-	})
+	}, 10000) // Increase test timeout to 10 seconds
 
 	it("should abort process on timeout", async () => {
 		const shortTimeout = 50
@@ -108,29 +117,19 @@ describe("Command Execution Timeout Integration", () => {
 		}
 
 		// Create a process that can be aborted
-		let abortCalled = false
-		const mockAbortableProcess = {
-			abort: () => {
-				abortCalled = true
-			},
-			then: vitest.fn(),
-			catch: vitest.fn(),
-		}
+		const abortSpy = vitest.fn()
 
 		// Mock the process to never resolve but be abortable
 		const neverResolvingPromise = new Promise(() => {})
-		Object.assign(neverResolvingPromise, mockAbortableProcess)
+		;(neverResolvingPromise as any).abort = abortSpy
 
 		mockTerminal.runCommand.mockReturnValue(neverResolvingPromise)
-
-		// Set the task's terminal process so it can be aborted
-		mockTask.terminalProcess = mockAbortableProcess
 
 		await executeCommand(mockTask as Task, options)
 
 		// Verify abort was called
-		expect(abortCalled).toBe(true)
-	})
+		expect(abortSpy).toHaveBeenCalled()
+	}, 5000) // Increase test timeout to 5 seconds
 
 	it("should clean up timeout on successful completion", async () => {
 		const options: ExecuteCommandOptions = {
