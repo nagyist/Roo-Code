@@ -47,13 +47,10 @@ vi.mock("@src/context/ExtensionStateContext", () => ({
 describe("TaskHeader", () => {
 	const defaultProps: TaskHeaderProps = {
 		task: { type: "say", ts: Date.now(), text: "Test task", images: [] },
-		tokensIn: 100,
-		tokensOut: 50,
-		totalCost: 0.05,
 		contextTokens: 200,
 		buttonsDisabled: false,
 		handleCondenseContext: vi.fn(),
-		onClose: vi.fn(),
+		todos: [],
 	}
 
 	const queryClient = new QueryClient()
@@ -65,31 +62,6 @@ describe("TaskHeader", () => {
 			</QueryClientProvider>,
 		)
 	}
-
-	it("should display cost when totalCost is greater than 0", () => {
-		renderTaskHeader()
-		expect(screen.getByText("$0.05")).toBeInTheDocument()
-	})
-
-	it("should not display cost when totalCost is 0", () => {
-		renderTaskHeader({ totalCost: 0 })
-		expect(screen.queryByText("$0.0000")).not.toBeInTheDocument()
-	})
-
-	it("should not display cost when totalCost is null", () => {
-		renderTaskHeader({ totalCost: null as any })
-		expect(screen.queryByText(/\$/)).not.toBeInTheDocument()
-	})
-
-	it("should not display cost when totalCost is undefined", () => {
-		renderTaskHeader({ totalCost: undefined as any })
-		expect(screen.queryByText(/\$/)).not.toBeInTheDocument()
-	})
-
-	it("should not display cost when totalCost is NaN", () => {
-		renderTaskHeader({ totalCost: NaN })
-		expect(screen.queryByText(/\$/)).not.toBeInTheDocument()
-	})
 
 	it("should render the condense context button", () => {
 		renderTaskHeader()

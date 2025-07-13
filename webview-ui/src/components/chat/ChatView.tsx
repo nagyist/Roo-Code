@@ -48,6 +48,7 @@ import BrowserSessionRow from "./BrowserSessionRow"
 import ChatRow from "./ChatRow"
 import ChatTextArea from "./ChatTextArea"
 import TaskHeader from "./TaskHeader"
+import { TaskActivityBar } from "./TaskActivityBar"
 import AutoApproveMenu from "./AutoApproveMenu"
 import SystemPromptWarning from "./SystemPromptWarning"
 import ProfileViolationWarning from "./ProfileViolationWarning"
@@ -1612,17 +1613,20 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 			)}
 			{task ? (
 				<>
-					<TaskHeader
+					<TaskActivityBar
 						task={task}
 						tokensIn={apiMetrics.totalTokensIn}
 						tokensOut={apiMetrics.totalTokensOut}
-						cacheWrites={apiMetrics.totalCacheWrites}
-						cacheReads={apiMetrics.totalCacheReads}
+						cacheWrites={apiMetrics.totalCacheWrites || 0}
+						cacheReads={apiMetrics.totalCacheReads || 0}
 						totalCost={apiMetrics.totalCost}
+						onClose={handleTaskCloseButtonClick}
+					/>
+					<TaskHeader
+						task={task}
 						contextTokens={apiMetrics.contextTokens}
 						buttonsDisabled={sendingDisabled}
 						handleCondenseContext={handleCondenseContext}
-						onClose={handleTaskCloseButtonClick}
 						todos={latestTodos}
 					/>
 
