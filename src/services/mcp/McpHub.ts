@@ -978,6 +978,29 @@ export class McpHub {
 					this.setupFileWatcher(name, validatedConfig, source)
 					if (!validatedConfig.disabled) {
 						await this.connectToServer(name, validatedConfig, source)
+					} else {
+						// Create a disconnected server entry for disabled servers
+						const disconnectedServer: McpConnection = {
+							server: {
+								name,
+								config: JSON.stringify(validatedConfig),
+								status: "disconnected",
+								disabled: true,
+								source,
+								projectPath:
+									source === "project"
+										? vscode.workspace.workspaceFolders?.[0]?.uri.fsPath
+										: undefined,
+								errorHistory: [],
+								error: "Server disabled",
+								tools: [],
+								resources: [],
+								resourceTemplates: [],
+							},
+							client: {} as any,
+							transport: {} as any,
+						}
+						this.connections.push(disconnectedServer)
 					}
 				} catch (error) {
 					this.showErrorMessage(`Failed to connect to new MCP server ${name}`, error)
@@ -989,9 +1012,83 @@ export class McpHub {
 					await this.deleteConnection(name, source)
 					if (!validatedConfig.disabled) {
 						await this.connectToServer(name, validatedConfig, source)
+					} else {
+						// Create a disconnected server entry for disabled servers
+						const disconnectedServer: McpConnection = {
+							server: {
+								name,
+								config: JSON.stringify(validatedConfig),
+								status: "disconnected",
+								disabled: true,
+								source,
+								projectPath:
+									source === "project"
+										? vscode.workspace.workspaceFolders?.[0]?.uri.fsPath
+										: undefined,
+								errorHistory: currentConnection.server.errorHistory || [],
+								error: "Server disabled",
+								tools: [],
+								resources: [],
+								resourceTemplates: [],
+							},
+							client: {} as any,
+							transport: {} as any,
+						}
+						this.connections.push(disconnectedServer)
 					}
 				} catch (error) {
 					this.showErrorMessage(`Failed to reconnect MCP server ${name}`, error)
+					// If this was a disabled server, still create the disconnected entry
+					if (validatedConfig.disabled) {
+						const disconnectedServer: McpConnection = {
+							server: {
+								name,
+								config: JSON.stringify(validatedConfig),
+								status: "disconnected",
+								disabled: true,
+								source,
+								projectPath:
+									source === "project"
+										? vscode.workspace.workspaceFolders?.[0]?.uri.fsPath
+										: undefined,
+								errorHistory: currentConnection.server.errorHistory || [],
+								error: "Server disabled",
+								tools: [],
+								resources: [],
+								resourceTemplates: [],
+							},
+							client: {} as any,
+							transport: {} as any,
+						}
+						this.connections.push(disconnectedServer)
+					}
+				}
+			} else if (validatedConfig.disabled && currentConnection.server.status === "connected") {
+				// Existing server that became disabled - disconnect it
+				try {
+					await this.deleteConnection(name, source)
+					// Create a disconnected server entry to maintain the server in the list
+					const disconnectedServer: McpConnection = {
+						server: {
+							name,
+							config: JSON.stringify(validatedConfig),
+							status: "disconnected",
+							disabled: true,
+							source,
+							projectPath:
+								source === "project" ? vscode.workspace.workspaceFolders?.[0]?.uri.fsPath : undefined,
+							errorHistory: currentConnection.server.errorHistory || [],
+							error: "Server disabled",
+							tools: [],
+							resources: [],
+							resourceTemplates: [],
+						},
+						client: currentConnection.client,
+						transport: currentConnection.transport,
+					}
+					this.connections.push(disconnectedServer)
+				} catch (error) {
+					this.showErrorMessage(`Failed to disconnect disabled MCP server ${name}`, error)
 				}
 			}
 			// If server exists with same config, do nothing
@@ -1261,8 +1358,41 @@ export class McpHub {
 				try {
 					connection.server.disabled = disabled
 
-					// Only refresh capabilities if connected
-					if (connection.server.status === "connected") {
+					if (disabled && connection.server.status === "connected") {
+						// If disabling a connected server, disconnect it
+						await this.deleteConnection(serverName, serverSource)
+						// Create a disconnected server entry to maintain the server in the list
+						const disconnectedServer: McpConnection = {
+							server: {
+								name: serverName,
+								config: connection.server.config,
+								status: "disconnected",
+								disabled: true,
+								source: serverSource,
+								projectPath: connection.server.projectPath,
+								errorHistory: connection.server.errorHistory || [],
+								error: "Server disabled",
+								tools: [],
+								resources: [],
+								resourceTemplates: [],
+							},
+							client: connection.client,
+							transport: connection.transport,
+						}
+						this.connections.push(disconnectedServer)
+					} else if (!disabled && connection.server.status === "disconnected") {
+						// If enabling a disconnected server, try to reconnect it
+						try {
+							const parsedConfig = JSON.parse(connection.server.config)
+							const validatedConfig = this.validateServerConfig(parsedConfig, serverName)
+							await this.deleteConnection(serverName, serverSource)
+							await this.connectToServer(serverName, validatedConfig, serverSource)
+						} catch (reconnectError) {
+							console.error(`Failed to reconnect server ${serverName}:`, reconnectError)
+							connection.server.error = `Failed to reconnect: ${reconnectError instanceof Error ? reconnectError.message : String(reconnectError)}`
+						}
+					} else if (connection.server.status === "connected") {
+						// Only refresh capabilities if still connected and not disabled
 						connection.server.tools = await this.fetchToolsList(serverName, serverSource)
 						connection.server.resources = await this.fetchResourcesList(serverName, serverSource)
 						connection.server.resourceTemplates = await this.fetchResourceTemplatesList(
@@ -1271,7 +1401,7 @@ export class McpHub {
 						)
 					}
 				} catch (error) {
-					console.error(`Failed to refresh capabilities for ${serverName}:`, error)
+					console.error(`Failed to handle server state change for ${serverName}:`, error)
 				}
 			}
 

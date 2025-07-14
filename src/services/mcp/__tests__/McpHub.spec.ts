@@ -65,6 +65,22 @@ vi.mock("vscode", () => ({
 	Disposable: {
 		from: vi.fn(),
 	},
+	Uri: {
+		file: vi.fn().mockImplementation((path: string) => ({
+			scheme: "file",
+			authority: "",
+			path: path,
+			query: "",
+			fragment: "",
+			fsPath: path,
+			with: vi.fn(),
+			toJSON: vi.fn(),
+		})),
+	},
+	RelativePattern: vi.fn().mockImplementation((base: string, pattern: string) => ({
+		base,
+		pattern,
+	})),
 }))
 vi.mock("fs/promises")
 vi.mock("../../../core/webview/ClineProvider")
@@ -92,7 +108,6 @@ describe("McpHub", () => {
 
 		// Mock console.error to suppress error messages during tests
 		console.error = vi.fn()
-
 
 		const mockUri: Uri = {
 			scheme: "file",
@@ -569,6 +584,175 @@ describe("McpHub", () => {
 			await expect(mcpHub.readResource("disabled-server", "some/uri")).rejects.toThrow(
 				'Server "disabled-server" is disabled',
 			)
+		})
+
+		it("should disconnect server when disabled via toggleServerDisabled", async () => {
+			const mockConfig = {
+				mcpServers: {
+					"test-server": {
+						type: "stdio",
+						command: "node",
+						args: ["test.js"],
+						disabled: false,
+					},
+				},
+			}
+
+			// Mock reading initial config
+			vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(mockConfig))
+
+			// Set up mock connection with connected status
+			const mockConnection: McpConnection = {
+				server: {
+					name: "test-server",
+					config: JSON.stringify({
+						type: "stdio",
+						command: "node",
+						args: ["test.js"],
+						disabled: false,
+					}),
+					status: "connected",
+					disabled: false,
+					source: "global",
+					errorHistory: [],
+				},
+				client: {
+					close: vi.fn().mockResolvedValue(undefined),
+				} as any,
+				transport: {
+					close: vi.fn().mockResolvedValue(undefined),
+				} as any,
+			}
+			mcpHub.connections = [mockConnection]
+
+			await mcpHub.toggleServerDisabled("test-server", true)
+
+			// Verify the server was disconnected and marked as disabled
+			const updatedConnection = mcpHub.connections.find((conn) => conn.server.name === "test-server")
+			expect(updatedConnection).toBeDefined()
+			expect(updatedConnection?.server.status).toBe("disconnected")
+			expect(updatedConnection?.server.disabled).toBe(true)
+			expect(updatedConnection?.server.error).toBe("Server disabled")
+
+			// Verify transport and client were closed
+			expect(mockConnection.transport.close).toHaveBeenCalled()
+			expect(mockConnection.client.close).toHaveBeenCalled()
+		})
+
+		it("should reconnect server when enabled via toggleServerDisabled", async () => {
+			const mockConfig = {
+				mcpServers: {
+					"test-server": {
+						type: "stdio",
+						command: "node",
+						args: ["test.js"],
+						disabled: true,
+					},
+				},
+			}
+
+			// Mock reading initial config
+			vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(mockConfig))
+
+			// Set up mock connection with disconnected status
+			const mockConnection: McpConnection = {
+				server: {
+					name: "test-server",
+					config: JSON.stringify({
+						type: "stdio",
+						command: "node",
+						args: ["test.js"],
+						disabled: true,
+					}),
+					status: "disconnected",
+					disabled: true,
+					source: "global",
+					errorHistory: [],
+				},
+				client: {} as any,
+				transport: {} as any,
+			}
+			mcpHub.connections = [mockConnection]
+
+			// Mock the connectToServer method to avoid actual connection
+			const connectToServerSpy = vi.spyOn(mcpHub as any, "connectToServer").mockResolvedValue(undefined)
+
+			await mcpHub.toggleServerDisabled("test-server", false)
+
+			// Verify connectToServer was called to reconnect
+			expect(connectToServerSpy).toHaveBeenCalledWith("test-server", expect.any(Object), "global")
+		})
+
+		it("should disconnect server when disabled via updateServerConnections", async () => {
+			// Set up mock connection with connected status
+			const mockConnection: McpConnection = {
+				server: {
+					name: "test-server",
+					config: JSON.stringify({
+						type: "stdio",
+						command: "node",
+						args: ["test.js"],
+						disabled: false,
+					}),
+					status: "connected",
+					disabled: false,
+					source: "global",
+					errorHistory: [],
+				},
+				client: {
+					close: vi.fn().mockResolvedValue(undefined),
+				} as any,
+				transport: {
+					close: vi.fn().mockResolvedValue(undefined),
+				} as any,
+			}
+			mcpHub.connections = [mockConnection]
+
+			// Update with disabled config
+			const newServers = {
+				"test-server": {
+					type: "stdio",
+					command: "node",
+					args: ["test.js"],
+					disabled: true,
+				},
+			}
+
+			await mcpHub.updateServerConnections(newServers, "global", false)
+
+			// Debug: Log the connections after update
+			console.log(
+				"Connections after update:",
+				mcpHub.connections.map((c) => ({
+					name: c.server.name,
+					status: c.server.status,
+					disabled: c.server.disabled,
+				})),
+			)
+			console.log("Total connections:", mcpHub.connections.length)
+			console.log("Looking for server:", "test-server")
+
+			// Verify the server was disconnected and marked as disabled
+			const updatedConnection = mcpHub.connections.find((conn) => conn.server.name === "test-server")
+			console.log(
+				"Found connection:",
+				updatedConnection
+					? {
+							name: updatedConnection.server.name,
+							status: updatedConnection.server.status,
+							disabled: updatedConnection.server.disabled,
+						}
+					: "undefined",
+			)
+			expect(updatedConnection).toBeDefined()
+			expect(updatedConnection?.server.status).toBe("disconnected")
+			expect(updatedConnection?.server.disabled).toBe(true)
+			// The error message should indicate the server is disabled (could be "Server disabled" or contain error details)
+			expect(updatedConnection?.server.error).toBeTruthy()
+
+			// Verify transport and client were closed
+			expect(mockConnection.transport.close).toHaveBeenCalled()
+			expect(mockConnection.client.close).toHaveBeenCalled()
 		})
 	})
 
