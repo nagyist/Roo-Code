@@ -3,8 +3,10 @@ import { OpenAiEmbedder } from "./embedders/openai"
 import { CodeIndexOllamaEmbedder } from "./embedders/ollama"
 import { OpenAICompatibleEmbedder } from "./embedders/openai-compatible"
 import { GeminiEmbedder } from "./embedders/gemini"
+import { FastEmbedEmbedder } from "./embedders/fastembed"
 import { EmbedderProvider, getDefaultModelId, getModelDimension } from "../../shared/embeddingModels"
 import { QdrantVectorStore } from "./vector-store/qdrant-client"
+import { LibSQLVectorStore } from "./vector-store/libsql-vector-store"
 import { codeParser, DirectoryScanner, FileWatcher } from "./processors"
 import { ICodeParser, IEmbedder, IFileWatcher, IVectorStore } from "./interfaces"
 import { CodeIndexConfigManager } from "./config-manager"
@@ -64,6 +66,10 @@ export class CodeIndexServiceFactory {
 				throw new Error(t("embeddings:serviceFactory.geminiConfigMissing"))
 			}
 			return new GeminiEmbedder(config.geminiOptions.apiKey)
+		} else if (provider === "fastembed") {
+			return new FastEmbedEmbedder({
+				fastEmbedModel: config.modelId,
+			})
 		}
 
 		throw new Error(
@@ -129,12 +135,21 @@ export class CodeIndexServiceFactory {
 			}
 		}
 
-		if (!config.qdrantUrl) {
-			throw new Error(t("embeddings:serviceFactory.qdrantUrlMissing"))
-		}
+		// Check if using local vector store
+		const vectorStoreType = config.vectorStoreType || "qdrant" // Default to qdrant for backward compatibility
 
-		// Assuming constructor is updated: new QdrantVectorStore(workspacePath, url, vectorSize, apiKey?)
-		return new QdrantVectorStore(this.workspacePath, config.qdrantUrl, vectorSize, config.qdrantApiKey)
+		if (vectorStoreType === "local") {
+			const localStorePath = config.localVectorStorePath || `${this.workspacePath}/.roo/vector-store`
+			return new LibSQLVectorStore(localStorePath, "codebase_index", vectorSize)
+		} else {
+			// Default to Qdrant
+			if (!config.qdrantUrl) {
+				throw new Error(t("embeddings:serviceFactory.qdrantUrlMissing"))
+			}
+
+			// Assuming constructor is updated: new QdrantVectorStore(workspacePath, url, vectorSize, apiKey?)
+			return new QdrantVectorStore(this.workspacePath, config.qdrantUrl, vectorSize, config.qdrantApiKey)
+		}
 	}
 
 	/**

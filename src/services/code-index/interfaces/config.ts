@@ -15,6 +15,8 @@ export interface CodeIndexConfig {
 	geminiOptions?: { apiKey: string }
 	qdrantUrl?: string
 	qdrantApiKey?: string
+	vectorStoreType?: "qdrant" | "local"
+	localVectorStorePath?: string
 	searchMinScore?: number
 	searchMaxResults?: number
 }

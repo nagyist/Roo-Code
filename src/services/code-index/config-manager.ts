@@ -20,6 +20,8 @@ export class CodeIndexConfigManager {
 	private geminiOptions?: { apiKey: string }
 	private qdrantUrl?: string = "http://localhost:6333"
 	private qdrantApiKey?: string
+	private vectorStoreType?: "qdrant" | "local"
+	private localVectorStorePath?: string
 	private searchMinScore?: number
 	private searchMaxResults?: number
 
@@ -54,6 +56,8 @@ export class CodeIndexConfigManager {
 		const {
 			codebaseIndexEnabled,
 			codebaseIndexQdrantUrl,
+			codebaseIndexVectorStoreType,
+			codebaseIndexLocalVectorStorePath,
 			codebaseIndexEmbedderProvider,
 			codebaseIndexEmbedderBaseUrl,
 			codebaseIndexEmbedderModelId,
@@ -72,6 +76,8 @@ export class CodeIndexConfigManager {
 		this.codebaseIndexEnabled = codebaseIndexEnabled ?? true
 		this.qdrantUrl = codebaseIndexQdrantUrl
 		this.qdrantApiKey = qdrantApiKey ?? ""
+		this.vectorStoreType = codebaseIndexVectorStoreType as "qdrant" | "local" | undefined
+		this.localVectorStorePath = codebaseIndexLocalVectorStorePath
 		this.searchMinScore = codebaseIndexSearchMinScore
 		this.searchMaxResults = codebaseIndexSearchMaxResults
 
@@ -93,13 +99,15 @@ export class CodeIndexConfigManager {
 
 		this.openAiOptions = { openAiNativeApiKey: openAiKey }
 
-		// Set embedder provider with support for openai-compatible
+		// Set embedder provider with support for openai-compatible and fastembed
 		if (codebaseIndexEmbedderProvider === "ollama") {
 			this.embedderProvider = "ollama"
 		} else if (codebaseIndexEmbedderProvider === "openai-compatible") {
 			this.embedderProvider = "openai-compatible"
 		} else if (codebaseIndexEmbedderProvider === "gemini") {
 			this.embedderProvider = "gemini"
+		} else if (codebaseIndexEmbedderProvider === "fastembed") {
+			this.embedderProvider = "fastembed"
 		} else {
 			this.embedderProvider = "openai"
 		}
@@ -188,26 +196,28 @@ export class CodeIndexConfigManager {
 	 * Checks if the service is properly configured based on the embedder type.
 	 */
 	public isConfigured(): boolean {
+		// Check if we have a vector store configured (either Qdrant or local)
+		const hasVectorStore = this.qdrantUrl || this.vectorStoreType === "local"
+
 		if (this.embedderProvider === "openai") {
 			const openAiKey = this.openAiOptions?.openAiNativeApiKey
-			const qdrantUrl = this.qdrantUrl
-			return !!(openAiKey && qdrantUrl)
+			return !!(openAiKey && hasVectorStore)
 		} else if (this.embedderProvider === "ollama") {
 			// Ollama model ID has a default, so only base URL is strictly required for config
 			const ollamaBaseUrl = this.ollamaOptions?.ollamaBaseUrl
-			const qdrantUrl = this.qdrantUrl
-			return !!(ollamaBaseUrl && qdrantUrl)
+			return !!(ollamaBaseUrl && hasVectorStore)
 		} else if (this.embedderProvider === "openai-compatible") {
 			const baseUrl = this.openAiCompatibleOptions?.baseUrl
 			const apiKey = this.openAiCompatibleOptions?.apiKey
-			const qdrantUrl = this.qdrantUrl
-			const isConfigured = !!(baseUrl && apiKey && qdrantUrl)
+			const isConfigured = !!(baseUrl && apiKey && hasVectorStore)
 			return isConfigured
 		} else if (this.embedderProvider === "gemini") {
 			const apiKey = this.geminiOptions?.apiKey
-			const qdrantUrl = this.qdrantUrl
-			const isConfigured = !!(apiKey && qdrantUrl)
+			const isConfigured = !!(apiKey && hasVectorStore)
 			return isConfigured
+		} else if (this.embedderProvider === "fastembed") {
+			// FastEmbed is local and doesn't require API keys, just a vector store
+			return !!hasVectorStore
 		}
 		return false // Should not happen if embedderProvider is always set correctly
 	}
@@ -353,6 +363,8 @@ export class CodeIndexConfigManager {
 			geminiOptions: this.geminiOptions,
 			qdrantUrl: this.qdrantUrl,
 			qdrantApiKey: this.qdrantApiKey,
+			vectorStoreType: this.vectorStoreType,
+			localVectorStorePath: this.localVectorStorePath,
 			searchMinScore: this.currentSearchMinScore,
 			searchMaxResults: this.currentSearchMaxResults,
 		}
