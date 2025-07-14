@@ -31,6 +31,11 @@ export const EMBEDDING_MODEL_PROFILES: EmbeddingModelProfiles = {
 			scoreThreshold: 0.15,
 			queryPrefix: "Represent this query for searching relevant code: ",
 		},
+		"manutic/nomic-embed-code": {
+			dimension: 3584,
+			scoreThreshold: 0.15,
+			queryPrefix: "Represent this query for searching relevant code: ",
+		},
 		"mxbai-embed-large": { dimension: 1024, scoreThreshold: 0.4 },
 		"all-minilm": { dimension: 384, scoreThreshold: 0.4 },
 		// Add default Ollama model if applicable, e.g.:
