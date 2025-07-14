@@ -54,6 +54,7 @@ import { SetCachedStateField, SetExperimentEnabled } from "./types"
 import { SectionHeader } from "./SectionHeader"
 import ApiConfigManager from "./ApiConfigManager"
 import ApiOptions from "./ApiOptions"
+import { GeneralSettings } from "./GeneralSettings"
 import { AutoApproveSettings } from "./AutoApproveSettings"
 import { BrowserSettings } from "./BrowserSettings"
 import { CheckpointSettings } from "./CheckpointSettings"
@@ -79,6 +80,7 @@ export interface SettingsViewRef {
 }
 
 const sectionNames = [
+	"general",
 	"providers",
 	"autoApprove",
 	"browser",
@@ -392,6 +394,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 
 	const sections: { id: SectionName; icon: LucideIcon }[] = useMemo(
 		() => [
+			{ id: "general", icon: SquareMousePointer },
 			{ id: "providers", icon: Webhook },
 			{ id: "autoApprove", icon: CheckCheck },
 			{ id: "browser", icon: SquareMousePointer },
@@ -539,6 +542,9 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 
 				{/* Content area */}
 				<TabContent className="p-0 flex-1 overflow-auto">
+					{/* General Section */}
+					{activeTab === "general" && <GeneralSettings />}
+
 					{/* Providers Section */}
 					{activeTab === "providers" && (
 						<div>

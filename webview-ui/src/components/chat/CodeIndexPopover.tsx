@@ -7,7 +7,6 @@ import {
 	VSCodeDropdown,
 	VSCodeOption,
 	VSCodeLink,
-	VSCodeCheckbox,
 } from "@vscode/webview-ui-toolkit/react"
 import * as ProgressPrimitive from "@radix-ui/react-progress"
 import { vscode } from "@src/utils/vscode"
@@ -513,20 +512,6 @@ export const CodeIndexPopover: React.FC<CodeIndexPopoverProps> = ({
 					</div>
 
 					<div className="p-4">
-						{/* Enable/Disable Toggle */}
-						<div className="mb-4">
-							<div className="flex items-center gap-2">
-								<VSCodeCheckbox
-									checked={currentSettings.codebaseIndexEnabled}
-									onChange={(e: any) => updateSetting("codebaseIndexEnabled", e.target.checked)}>
-									<span className="font-medium">{t("settings:codeIndex.enableLabel")}</span>
-								</VSCodeCheckbox>
-								<StandardTooltip content={t("settings:codeIndex.enableDescription")}>
-									<span className="codicon codicon-info text-xs text-vscode-descriptionForeground cursor-help" />
-								</StandardTooltip>
-							</div>
-						</div>
-
 						{/* Status Section */}
 						<div className="space-y-2">
 							<h4 className="text-sm font-medium">{t("settings:codeIndex.statusTitle")}</h4>
