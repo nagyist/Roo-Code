@@ -109,10 +109,14 @@ describe("Ollama Fetcher", () => {
 			const result = await getOllamaModels(baseUrl)
 
 			expect(mockedAxios.get).toHaveBeenCalledTimes(1)
-			expect(mockedAxios.get).toHaveBeenCalledWith(`${baseUrl}/api/tags`)
+			expect(mockedAxios.get).toHaveBeenCalledWith(`${baseUrl}/api/tags`, { timeout: 10000 })
 
 			expect(mockedAxios.post).toHaveBeenCalledTimes(1)
-			expect(mockedAxios.post).toHaveBeenCalledWith(`${baseUrl}/api/show`, { model: modelName })
+			expect(mockedAxios.post).toHaveBeenCalledWith(
+				`${baseUrl}/api/show`,
+				{ model: modelName },
+				{ timeout: 10000 },
+			)
 
 			expect(typeof result).toBe("object")
 			expect(result).not.toBeInstanceOf(Array)
@@ -131,7 +135,7 @@ describe("Ollama Fetcher", () => {
 			const result = await getOllamaModels(baseUrl)
 
 			expect(mockedAxios.get).toHaveBeenCalledTimes(1)
-			expect(mockedAxios.get).toHaveBeenCalledWith(`${baseUrl}/api/tags`)
+			expect(mockedAxios.get).toHaveBeenCalledWith(`${baseUrl}/api/tags`, { timeout: 10000 })
 			expect(mockedAxios.post).not.toHaveBeenCalled()
 			expect(result).toEqual({})
 		})
@@ -147,12 +151,31 @@ describe("Ollama Fetcher", () => {
 			const result = await getOllamaModels(baseUrl)
 
 			expect(mockedAxios.get).toHaveBeenCalledTimes(1)
-			expect(mockedAxios.get).toHaveBeenCalledWith(`${baseUrl}/api/tags`)
+			expect(mockedAxios.get).toHaveBeenCalledWith(`${baseUrl}/api/tags`, { timeout: 10000 })
 			expect(mockedAxios.post).not.toHaveBeenCalled()
 			expect(consoleInfoSpy).toHaveBeenCalledWith(`Failed connecting to Ollama at ${baseUrl}`)
 			expect(result).toEqual({})
 
 			consoleInfoSpy.mockRestore() // Restore original console.info
+		})
+
+		it("should log a warning message and return an empty object on timeout", async () => {
+			const baseUrl = "http://localhost:11434"
+			const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {}) // Spy and suppress output
+
+			const timeoutError = new Error("timeout of 10000ms exceeded") as any
+			timeoutError.code = "ECONNABORTED"
+			mockedAxios.get.mockRejectedValueOnce(timeoutError)
+
+			const result = await getOllamaModels(baseUrl)
+
+			expect(mockedAxios.get).toHaveBeenCalledTimes(1)
+			expect(mockedAxios.get).toHaveBeenCalledWith(`${baseUrl}/api/tags`, { timeout: 10000 })
+			expect(mockedAxios.post).not.toHaveBeenCalled()
+			expect(consoleWarnSpy).toHaveBeenCalledWith(`Connection to Ollama at ${baseUrl} timed out after 10 seconds`)
+			expect(result).toEqual({})
+
+			consoleWarnSpy.mockRestore() // Restore original console.warn
 		})
 
 		it("should handle models with null families field in API response", async () => {
@@ -205,10 +228,14 @@ describe("Ollama Fetcher", () => {
 			const result = await getOllamaModels(baseUrl)
 
 			expect(mockedAxios.get).toHaveBeenCalledTimes(1)
-			expect(mockedAxios.get).toHaveBeenCalledWith(`${baseUrl}/api/tags`)
+			expect(mockedAxios.get).toHaveBeenCalledWith(`${baseUrl}/api/tags`, { timeout: 10000 })
 
 			expect(mockedAxios.post).toHaveBeenCalledTimes(1)
-			expect(mockedAxios.post).toHaveBeenCalledWith(`${baseUrl}/api/show`, { model: modelName })
+			expect(mockedAxios.post).toHaveBeenCalledWith(
+				`${baseUrl}/api/show`,
+				{ model: modelName },
+				{ timeout: 10000 },
+			)
 
 			expect(typeof result).toBe("object")
 			expect(result).not.toBeInstanceOf(Array)

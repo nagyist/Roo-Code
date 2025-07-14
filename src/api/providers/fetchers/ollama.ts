@@ -65,7 +65,7 @@ export async function getOllamaModels(baseUrl = "http://localhost:11434"): Promi
 			return models
 		}
 
-		const response = await axios.get<OllamaModelsResponse>(`${baseUrl}/api/tags`)
+		const response = await axios.get<OllamaModelsResponse>(`${baseUrl}/api/tags`, { timeout: 10000 })
 		const parsedResponse = OllamaModelsResponseSchema.safeParse(response.data)
 		let modelInfoPromises = []
 
@@ -73,9 +73,13 @@ export async function getOllamaModels(baseUrl = "http://localhost:11434"): Promi
 			for (const ollamaModel of parsedResponse.data.models) {
 				modelInfoPromises.push(
 					axios
-						.post<OllamaModelInfoResponse>(`${baseUrl}/api/show`, {
-							model: ollamaModel.model,
-						})
+						.post<OllamaModelInfoResponse>(
+							`${baseUrl}/api/show`,
+							{
+								model: ollamaModel.model,
+							},
+							{ timeout: 10000 },
+						)
 						.then((ollamaModelInfo) => {
 							models[ollamaModel.name] = parseOllamaModel(ollamaModelInfo.data)
 						}),
@@ -89,6 +93,8 @@ export async function getOllamaModels(baseUrl = "http://localhost:11434"): Promi
 	} catch (error) {
 		if (error.code === "ECONNREFUSED") {
 			console.warn(`Failed connecting to Ollama at ${baseUrl}`)
+		} else if (error.code === "ECONNABORTED" || error.message?.includes("timeout")) {
+			console.warn(`Connection to Ollama at ${baseUrl} timed out after 10 seconds`)
 		} else {
 			console.error(
 				`Error fetching Ollama models: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`,
