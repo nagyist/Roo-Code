@@ -21,6 +21,7 @@
 		"discardButton": "Descartar cambios"
 	},
 	"sections": {
+		"general": "General",
 		"providers": "Proveedores",
 		"autoApprove": "Auto-aprobación",
 		"browser": "Acceso al ordenador",
@@ -32,6 +33,13 @@
 		"experimental": "Experimental",
 		"language": "Idioma",
 		"about": "Acerca de Roo Code"
+	},
+	"general": {
+		"description": "Configura los ajustes generales de Roo Code que se aplican a toda la extensión.",
+		"codebaseIndexing": {
+			"enable": "Habilitar indexación de código",
+			"description": "Habilita la indexación de código para mejorar la búsqueda y la comprensión del contexto"
+		}
 	},
 	"prompts": {
 		"description": "Configura indicaciones de soporte que se utilizan para acciones rápidas como mejorar indicaciones, explicar código y solucionar problemas. Estas indicaciones ayudan a Roo a brindar mejor asistencia para tareas comunes de desarrollo."

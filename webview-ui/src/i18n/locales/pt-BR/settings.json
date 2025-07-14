@@ -33,6 +33,13 @@
 		"language": "Idioma",
 		"about": "Sobre"
 	},
+	"general": {
+		"description": "Configure as configurações gerais do Roo Code que se aplicam a toda a extensão.",
+		"codebaseIndexing": {
+			"enable": "Habilitar indexação da base de código",
+			"description": "Habilite a indexação de código para melhorar a busca e compreensão do contexto"
+		}
+	},
 	"prompts": {
 		"description": "Configure prompts de suporte usados para ações rápidas como melhorar prompts, explicar código e corrigir problemas. Esses prompts ajudam o Roo a fornecer melhor assistência para tarefas comuns de desenvolvimento."
 	},

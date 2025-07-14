@@ -21,6 +21,7 @@
 		"discardButton": "放弃更改"
 	},
 	"sections": {
+		"general": "常规",
 		"providers": "提供商",
 		"autoApprove": "自动批准",
 		"browser": "计算机交互",
@@ -32,6 +33,13 @@
 		"experimental": "实验性",
 		"language": "语言",
 		"about": "关于 Roo Code"
+	},
+	"general": {
+		"description": "配置适用于整个扩展的 Roo Code 常规设置。",
+		"codebaseIndexing": {
+			"enable": "启用代码库索引",
+			"description": "启用代码索引以改进搜索和上下文理解"
+		}
 	},
 	"prompts": {
 		"description": "配置用于快速操作的支持提示词，如增强提示词、解释代码和修复问题。这些提示词帮助 Roo 为常见开发任务提供更好的支持。"
