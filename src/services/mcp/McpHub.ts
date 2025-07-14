@@ -976,7 +976,9 @@ export class McpHub {
 				// New server
 				try {
 					this.setupFileWatcher(name, validatedConfig, source)
-					await this.connectToServer(name, validatedConfig, source)
+					if (!validatedConfig.disabled) {
+						await this.connectToServer(name, validatedConfig, source)
+					}
 				} catch (error) {
 					this.showErrorMessage(`Failed to connect to new MCP server ${name}`, error)
 				}
@@ -985,7 +987,9 @@ export class McpHub {
 				try {
 					this.setupFileWatcher(name, validatedConfig, source)
 					await this.deleteConnection(name, source)
-					await this.connectToServer(name, validatedConfig, source)
+					if (!validatedConfig.disabled) {
+						await this.connectToServer(name, validatedConfig, source)
+					}
 				} catch (error) {
 					this.showErrorMessage(`Failed to reconnect MCP server ${name}`, error)
 				}
