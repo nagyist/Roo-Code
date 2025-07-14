@@ -22,6 +22,7 @@ import {
 	Globe,
 	Info,
 	MessageSquare,
+	Settings,
 	LucideIcon,
 } from "lucide-react"
 
@@ -65,6 +66,7 @@ import { LanguageSettings } from "./LanguageSettings"
 import { About } from "./About"
 import { Section } from "./Section"
 import PromptsSettings from "./PromptsSettings"
+import { GeneralSettings } from "./GeneralSettings"
 import { cn } from "@/lib/utils"
 
 export const settingsTabsContainer = "flex flex-1 overflow-hidden [&.narrow_.tab-label]:hidden"
@@ -79,6 +81,7 @@ export interface SettingsViewRef {
 }
 
 const sectionNames = [
+	"general",
 	"providers",
 	"autoApprove",
 	"browser",
@@ -111,7 +114,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 	const [activeTab, setActiveTab] = useState<SectionName>(
 		targetSection && sectionNames.includes(targetSection as SectionName)
 			? (targetSection as SectionName)
-			: "providers",
+			: "general",
 	)
 
 	const prevApiConfigName = useRef(currentApiConfigName)
@@ -176,6 +179,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 		alwaysAllowFollowupQuestions,
 		alwaysAllowUpdateTodoList,
 		followupAutoApproveTimeoutMs,
+		codebaseIndexConfig,
 	} = cachedState
 
 	const apiConfiguration = useMemo(() => cachedState.apiConfiguration ?? {}, [cachedState.apiConfiguration])
@@ -258,6 +262,24 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 		})
 	}, [])
 
+	const setCodebaseIndexEnabled = useCallback((enabled: boolean) => {
+		setCachedState((prevState) => {
+			const currentConfig = prevState.codebaseIndexConfig || {}
+			if (currentConfig.codebaseIndexEnabled === enabled) {
+				return prevState
+			}
+
+			setChangeDetected(true)
+			return {
+				...prevState,
+				codebaseIndexConfig: {
+					...currentConfig,
+					codebaseIndexEnabled: enabled,
+				},
+			}
+		})
+	}, [])
+
 	const isSettingValid = !errorMessage
 
 	const handleSubmit = () => {
@@ -323,6 +345,22 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 			vscode.postMessage({ type: "upsertApiConfiguration", text: currentApiConfigName, apiConfiguration })
 			vscode.postMessage({ type: "telemetrySetting", text: telemetrySetting })
 			vscode.postMessage({ type: "profileThresholds", values: profileThresholds })
+
+			// Save codebase index settings with proper defaults
+			const codeIndexSettingsToSave = {
+				codebaseIndexEnabled: codebaseIndexConfig?.codebaseIndexEnabled ?? true,
+				codebaseIndexQdrantUrl: codebaseIndexConfig?.codebaseIndexQdrantUrl ?? "http://localhost:6333",
+				codebaseIndexEmbedderProvider: codebaseIndexConfig?.codebaseIndexEmbedderProvider ?? "openai",
+				codebaseIndexEmbedderBaseUrl: codebaseIndexConfig?.codebaseIndexEmbedderBaseUrl,
+				codebaseIndexEmbedderModelId: codebaseIndexConfig?.codebaseIndexEmbedderModelId ?? "",
+				codebaseIndexEmbedderModelDimension: codebaseIndexConfig?.codebaseIndexEmbedderModelDimension,
+				codebaseIndexSearchMaxResults: codebaseIndexConfig?.codebaseIndexSearchMaxResults,
+				codebaseIndexSearchMinScore: codebaseIndexConfig?.codebaseIndexSearchMinScore,
+				codebaseIndexOpenAiCompatibleBaseUrl: codebaseIndexConfig?.codebaseIndexOpenAiCompatibleBaseUrl,
+				codebaseIndexOpenAiCompatibleModelDimension:
+					codebaseIndexConfig?.codebaseIndexOpenAiCompatibleModelDimension,
+			}
+			vscode.postMessage({ type: "saveCodeIndexSettingsAtomic", codeIndexSettings: codeIndexSettingsToSave })
 			setChangeDetected(false)
 		}
 	}
@@ -392,6 +430,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 
 	const sections: { id: SectionName; icon: LucideIcon }[] = useMemo(
 		() => [
+			{ id: "general", icon: Settings },
 			{ id: "providers", icon: Webhook },
 			{ id: "autoApprove", icon: CheckCheck },
 			{ id: "browser", icon: SquareMousePointer },
@@ -539,6 +578,14 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 
 				{/* Content area */}
 				<TabContent className="p-0 flex-1 overflow-auto">
+					{/* General Section */}
+					{activeTab === "general" && (
+						<GeneralSettings
+							codebaseIndexEnabled={codebaseIndexConfig?.codebaseIndexEnabled ?? true}
+							setCodebaseIndexEnabled={setCodebaseIndexEnabled}
+						/>
+					)}
+
 					{/* Providers Section */}
 					{activeTab === "providers" && (
 						<div>

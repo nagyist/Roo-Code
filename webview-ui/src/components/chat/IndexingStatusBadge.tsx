@@ -5,6 +5,7 @@ import { vscode } from "@src/utils/vscode"
 import { useAppTranslation } from "@/i18n/TranslationContext"
 import { useTooltip } from "@/hooks/useTooltip"
 import { CodeIndexPopover } from "./CodeIndexPopover"
+import { useExtensionState } from "@/context/ExtensionStateContext"
 import type { IndexingStatus, IndexingStatusUpdateMessage } from "@roo/ExtensionMessage"
 
 interface IndexingStatusBadgeProps {
@@ -15,6 +16,7 @@ export const IndexingStatusBadge: React.FC<IndexingStatusBadgeProps> = ({ classN
 	const { t } = useAppTranslation()
 	const { showTooltip, handleMouseEnter, handleMouseLeave, cleanup } = useTooltip({ delay: 300 })
 	const [isHovered, setIsHovered] = useState(false)
+	const extensionState = useExtensionState()
 
 	const [indexingStatus, setIndexingStatus] = useState<IndexingStatus>({
 		systemStatus: "Standby",
@@ -51,6 +53,12 @@ export const IndexingStatusBadge: React.FC<IndexingStatusBadgeProps> = ({ classN
 				: 0,
 		[indexingStatus.processedItems, indexingStatus.totalItems],
 	)
+
+	// Don't render the badge if codebase indexing is disabled
+	const codebaseIndexEnabled = extensionState.codebaseIndexConfig?.codebaseIndexEnabled ?? true
+	if (!codebaseIndexEnabled) {
+		return null
+	}
 
 	// Get tooltip text with internationalization
 	const getTooltipText = () => {
